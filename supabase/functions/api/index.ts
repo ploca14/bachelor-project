@@ -1,13 +1,13 @@
 import { Application } from "https://deno.land/x/oak/mod.ts";
-import router from "./routes";
-import _404 from "./controllers/404";
-import errorHandler from "./controllers/errorHandler";
+import router from "./routes.ts";
+import notFoundController from "./controllers/notFoundController.ts";
+import errorMiddleware from "./middleware/errorMiddleware.ts";
 
 const app = new Application();
 
-app.use(errorHandler);
+app.use(errorMiddleware);
 app.use(router.routes());
 app.use(router.allowedMethods());
-app.use(_404);
+app.use(notFoundController);
 
 await app.listen({ port: 8000 });
