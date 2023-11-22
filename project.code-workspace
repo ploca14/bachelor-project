@@ -1,17 +1,22 @@
 {
   "folders": [
     {
+      "name": "backend",
+      "path": "supabase/functions"
+    },
+    {
+      "name": "frontend",
+      "path": "app"
+    },
+    {
       "name": "project-root",
       "path": "./"
     },
-    {
-      "name": "supabase-functions",
-      "path": "supabase/functions"
-    }
   ],
   "settings": {
     "files.exclude": {
-      "supabase/functions/": true
+      "supabase/functions/": true,
+      "app": true
     }
   }
 }
