@@ -7,13 +7,10 @@
     >
       Sign in to your account
     </h2>
-    <button
-      @click="loginWithGoogle"
-      class="inline-flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
-    >
+    <UButton color="white" size="lg" block @click="loginWithGoogle">
       <Icon name="logos:google-icon" size="22" />
       Sign in with Google
-    </button>
+    </UButton>
   </section>
 </template>
 
