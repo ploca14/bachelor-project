@@ -1,16 +1,9 @@
 <template>
-  <div>Waiting for login...</div>
+  <div>Redirecting...</div>
 </template>
 
 <script setup lang="ts">
-const user = useSupabaseUser();
-watch(
-  user,
-  () => {
-    if (user.value) {
-      return navigateTo("/");
-    }
-  },
-  { immediate: true }
-);
+const user = useUser();
+
+whenever(user, () => navigateTo("/files"), { immediate: true });
 </script>

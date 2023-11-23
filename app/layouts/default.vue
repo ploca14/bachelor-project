@@ -1,0 +1,75 @@
+<template>
+  <div>
+    <USlideover v-model="sidebarOpen" side="left" class="lg:hidden">
+      <div class="p-4 pt-8">
+        <UVerticalNavigation :links="navigation" />
+      </div>
+    </USlideover>
+
+    <div
+      :class="[
+        'hidden lg:flex',
+        'fixed inset-y-0 left-0 z-50 w-20 overflow-y-auto px-3 pb-4 ring-1 ring-gray-200',
+        'flex-col items-center justify-between gap-y-8',
+      ]"
+    >
+      <UVerticalNavigation
+        :links="navigation"
+        :ui="{
+          label: 'hidden sr-only',
+          padding: 'p-3',
+          icon: { base: 'h-6 w-6' },
+          width: 'w-auto',
+          wrapper: 'flex flex-col items-center space-y-1',
+        }"
+        class="mt-8"
+      >
+      </UVerticalNavigation>
+      <UserMenu size="md" />
+    </div>
+
+    <div
+      class="sticky top-0 z-50 flex items-center justify-between gap-x-6 px-4 py-4 ring-1 ring-gray-200 sm:px-6 lg:hidden"
+    >
+      <UButton
+        icon="i-heroicons-bars-3"
+        variant="link"
+        size="xl"
+        square
+        class="-m-2.5 lg:hidden"
+        color="gray"
+        @click="sidebarOpen = true"
+      >
+        <span class="sr-only">Open sidebar</span>
+      </UButton>
+      <UserMenu />
+    </div>
+
+    <main class="lg:pl-20">
+      <slot />
+    </main>
+  </div>
+</template>
+
+<script setup>
+const navigation = [
+  { label: "Files", to: "/files", icon: "i-heroicons-folder" },
+  {
+    label: "Conversations",
+    to: "/conversations",
+    icon: "i-heroicons-chat-bubble-left-right",
+  },
+  {
+    label: "Flashcards",
+    to: "/flashcards",
+    icon: "i-heroicons-rectangle-stack",
+  },
+  {
+    label: "Practice Tests",
+    to: "/practice-tests",
+    icon: "i-heroicons-academic-cap",
+  },
+];
+
+const sidebarOpen = ref(false);
+</script>
