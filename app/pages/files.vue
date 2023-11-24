@@ -27,6 +27,7 @@ const progress = ref(0);
 // fetch /api/hello and update the progress with the response stream use for await of
 onMounted(async () => {
   const response = await fetch("/api/hello");
+  console.log("body", response.body);
   if (!response.body) return;
 
   const reader = response.body.getReader();
