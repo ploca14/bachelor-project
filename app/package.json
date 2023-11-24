@@ -24,6 +24,10 @@
     "@heroicons/vue": "^2.0.18",
     "@nuxt/ui": "^2.10.0",
     "@tanstack/vue-query": "^5.8.4",
+    "@uppy/drop-target": "^2.0.2",
+    "@uppy/status-bar": "^3.2.5",
+    "@uppy/tus": "^3.4.0",
+    "@uppy/vue": "^1.1.0",
     "@vueuse/nuxt": "^10.6.1"
   }
 }

@@ -8,7 +8,6 @@
         icon="i-heroicons-arrow-up-tray-20-solid"
         size="xl"
         class="ml-auto"
-        @click="open"
       >
         Upload file
       </UButton>

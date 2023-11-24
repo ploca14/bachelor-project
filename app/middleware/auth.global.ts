@@ -1,14 +1,20 @@
 export default defineNuxtRouteMiddleware((to) => {
+  const home = "/";
   const login = "/login";
   const callback = "/confirm";
 
-  // Do not redirect on login route and callback route
-  if (to.path === login || to.path === callback) {
+  // On the login page, check whether the user is logged in. If so, redirect to the home page.
+  if (to.path === login) {
+    if (isDefined(useAuth().user)) {
+      return navigateTo(home);
+    }
+  } else if (to.path === callback) {
+    // On the callback page, do nothing.
     return;
-  }
-
-  const user = useAuth().user;
-  if (!user.value) {
-    return navigateTo(login);
+  } else {
+    // On any other page, check whether the user is logged in. If not, redirect to the login page.
+    if (!isDefined(useAuth().user)) {
+      return navigateTo(login);
+    }
   }
 });
