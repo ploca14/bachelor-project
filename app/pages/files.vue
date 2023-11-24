@@ -40,5 +40,5 @@ onMounted(async () => {
   }
 });
 
-const uploader = useFileUploader();
+// const uploader = useFileUploader();
 </script>
