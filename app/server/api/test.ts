@@ -4,5 +4,16 @@ import type { Database } from "../../types/database";
 export default defineEventHandler((event) => {
   setResponseStatus(event, 202);
 
-  $fetch("/api/hello");
+  event.waitUntil(
+    (async () => {
+      const client = await serverSupabaseClient<Database>(event);
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+      console.log("progress");
+      await new Promise((resolve) => setTimeout(resolve, 25000));
+      console.log("done");
+      await client
+        .from("documents")
+        .insert({ id: Math.floor(Math.random() * 1000000), content: "test" });
+    })(),
+  );
 });
