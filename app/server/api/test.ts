@@ -11,6 +11,8 @@ export default defineEventHandler((event) => {
     console.log("progress");
     await new Promise((resolve) => setTimeout(resolve, 25000));
     console.log("done");
-    client.from("documents").insert({ id: Math.random(), content: "test" });
+    await client
+      .from("documents")
+      .insert({ id: Math.floor(Math.random() * 1000000), content: "test" });
   })();
 });
