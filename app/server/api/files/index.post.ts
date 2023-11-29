@@ -15,6 +15,7 @@ const bodySchema = z.object({
 });
 
 export default authedHandler(async (event) => {
+  console.log(await readBody(event));
   const { file } = await parseBodyAs(event as any, bodySchema);
   const { user, supabase } = event.context;
 
