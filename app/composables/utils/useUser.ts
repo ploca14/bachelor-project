@@ -1,5 +1,5 @@
 export const useUser = () => {
-  const user = useAuth().user;
+  const { user } = useAuthService();
 
   if (!isDefined(user)) {
     throw new Error("User is not logged in");

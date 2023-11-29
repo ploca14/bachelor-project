@@ -2,7 +2,13 @@
 export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
-  modules: ["@nuxtjs/supabase", "nuxt-icon", "@nuxt/ui", "@vueuse/nuxt"],
+  modules: [
+    "@nuxtjs/supabase",
+    "nuxt-icon",
+    "@nuxt/ui",
+    "@vueuse/nuxt",
+    "@formkit/auto-animate/nuxt",
+  ],
   runtimeConfig: {
     public: {
       baseUrl: process.env.BASE_URL || "http://localhost:3000",
@@ -18,6 +24,6 @@ export default defineNuxtConfig({
     preference: "light",
   },
   imports: {
-    dirs: ["types", "models"],
+    dirs: ["types", "models", "composables/*/*.ts"],
   },
 });

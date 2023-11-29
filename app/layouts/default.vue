@@ -1,8 +1,22 @@
 <template>
-  <div>
-    <USlideover v-model="sidebarOpen" side="left" class="lg:hidden">
+  <div class="flex h-full flex-col">
+    <USlideover
+      v-model="sidebarOpen"
+      side="left"
+      class="lg:hidden"
+      :ui="{
+        width: 'max-w-xs',
+      }"
+    >
       <div class="p-4 pt-8">
-        <UVerticalNavigation :links="navigation" />
+        <UVerticalNavigation
+          :links="navigation"
+          :ui="{
+            size: 'text-md',
+            icon: { base: 'h-6 w-6' },
+            padding: 'px-4 py-2.5',
+          }"
+        />
       </div>
     </USlideover>
 
@@ -29,7 +43,7 @@
     </div>
 
     <div
-      class="sticky top-0 z-50 flex items-center justify-between gap-x-6 px-4 py-4 ring-1 ring-gray-200 sm:px-6 lg:hidden"
+      class="sticky top-0 z-50 flex h-16 items-center justify-between gap-x-6 bg-white px-4 py-4 ring-1 ring-gray-200 sm:px-6 lg:hidden"
     >
       <UButton
         icon="i-heroicons-bars-3"
@@ -45,7 +59,7 @@
       <UserMenu />
     </div>
 
-    <main class="lg:pl-20">
+    <main class="h-[calc(100%-64px)] lg:h-full lg:pl-20">
       <slot />
     </main>
   </div>
