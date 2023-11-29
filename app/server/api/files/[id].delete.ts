@@ -1,12 +1,13 @@
 import { z, parseParamsAs } from "@sidebase/nuxt-parse";
 import type { Database } from "@/types/database";
 import { serverSupabaseClient, serverSupabaseUser } from "#supabase/server";
+import { authedHandler } from "../../utils/authedHandler";
 
 const paramsSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
 
-export default eventHandler(async (event) => {
+export default authedHandler(async (event) => {
   const { id } = parseParamsAs(event as any, paramsSchema);
   const supabase = await serverSupabaseClient<Database>(event);
   const user = await serverSupabaseUser(event);

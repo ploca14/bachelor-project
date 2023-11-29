@@ -4,6 +4,7 @@ import { WebPDFLoader } from "langchain/document_loaders/web/pdf";
 import { SupabaseVectorStore } from "langchain/vectorstores/supabase";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { authedHandler } from "~/server/utils/authedHandler";
 
 const bodySchema = z.object({
   file: z.object({
@@ -13,7 +14,7 @@ const bodySchema = z.object({
   }),
 });
 
-export default eventHandler(async (event) => {
+export default authedHandler(async (event) => {
   const { file } = await parseBodyAs(event as any, bodySchema);
   const { user, supabase } = event.context;
 

@@ -2,12 +2,6 @@
 export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
-  debug: true,
-  sourcemap: {
-    server: true,
-    client: true,
-  },
-  logLevel: "debug",
   modules: [
     "@nuxtjs/supabase",
     "nuxt-icon",
