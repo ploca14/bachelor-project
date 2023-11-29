@@ -55,11 +55,51 @@ export interface Database {
         }
         Relationships: []
       }
+      files: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          original_name: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          original_name: string
+          status?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          original_name?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      delete_file_and_documents: {
+        Args: {
+          file_id: number
+        }
+        Returns: undefined
+      }
       hnswhandler: {
         Args: {
           "": unknown

@@ -19,5 +19,5 @@ definePageMeta({
   layout: "simple",
 });
 
-const { loginWithGoogle } = useAuth();
+const { loginWithGoogle } = useAuthService();
 </script>

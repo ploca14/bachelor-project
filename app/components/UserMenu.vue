@@ -27,10 +27,10 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ size: "sm" | "md" }>();
+defineProps<{ size?: "sm" | "md" }>();
 
 const user = useUser();
-const { logout } = useAuth();
+const { logout } = useAuthService();
 
 const items = computed(() => [
   [
