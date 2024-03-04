@@ -29,13 +29,13 @@
 <script setup lang="ts">
 defineProps<{ size?: "sm" | "md" }>();
 
-const user = useUser();
-const { logout } = useAuthService();
+const { logout, getLoggedInUser } = useAuth();
+const user = getLoggedInUser();
 
 const items = computed(() => [
   [
     {
-      label: user.value.name,
+      label: user.name,
       slot: "account",
       disabled: true,
     },

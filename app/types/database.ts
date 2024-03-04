@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -34,6 +34,157 @@ export interface Database {
   }
   public: {
     Tables: {
+      _prisma_migrations: {
+        Row: {
+          applied_steps_count: number
+          checksum: string
+          finished_at: string | null
+          id: string
+          logs: string | null
+          migration_name: string
+          rolled_back_at: string | null
+          started_at: string
+        }
+        Insert: {
+          applied_steps_count?: number
+          checksum: string
+          finished_at?: string | null
+          id: string
+          logs?: string | null
+          migration_name: string
+          rolled_back_at?: string | null
+          started_at?: string
+        }
+        Update: {
+          applied_steps_count?: number
+          checksum?: string
+          finished_at?: string | null
+          id?: string
+          logs?: string | null
+          migration_name?: string
+          rolled_back_at?: string | null
+          started_at?: string
+        }
+        Relationships: []
+      }
+      collections: {
+        Row: {
+          createdAt: string
+          id: string
+          name: string
+          userId: string
+        }
+        Insert: {
+          createdAt?: string
+          id?: string
+          name: string
+          userId: string
+        }
+        Update: {
+          createdAt?: string
+          id?: string
+          name?: string
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collections_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collections_files: {
+        Row: {
+          collectionId: string
+          fileId: string
+        }
+        Insert: {
+          collectionId: string
+          fileId: string
+        }
+        Update: {
+          collectionId?: string
+          fileId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collections_files_collectionId_fkey"
+            columns: ["collectionId"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collections_files_fileId_fkey"
+            columns: ["fileId"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          createdAt: string
+          id: string
+          name: string
+          userId: string
+        }
+        Insert: {
+          createdAt?: string
+          id?: string
+          name: string
+          userId: string
+        }
+        Update: {
+          createdAt?: string
+          id?: string
+          name?: string
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations_files: {
+        Row: {
+          conversationId: string
+          fileId: string
+        }
+        Insert: {
+          conversationId: string
+          fileId: string
+        }
+        Update: {
+          conversationId?: string
+          fileId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_files_conversationId_fkey"
+            columns: ["conversationId"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_files_fileId_fkey"
+            columns: ["fileId"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           content: string | null
@@ -57,49 +208,94 @@ export interface Database {
       }
       files: {
         Row: {
-          created_at: string
-          id: number
+          createdAt: string
+          id: string
           name: string
-          original_name: string
-          status: string
-          user_id: string
+          originalName: string
+          userId: string
         }
         Insert: {
-          created_at?: string
-          id?: number
+          createdAt?: string
+          id?: string
           name: string
-          original_name: string
-          status?: string
-          user_id?: string
+          originalName: string
+          userId: string
         }
         Update: {
-          created_at?: string
-          id?: number
+          createdAt?: string
+          id?: string
           name?: string
-          original_name?: string
-          status?: string
-          user_id?: string
+          originalName?: string
+          userId?: string
         }
         Relationships: [
           {
-            foreignKeyName: "files_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "files_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversationId: string
+          createdAt: string
+          id: string
+          role: Database["public"]["Enums"]["message_role"]
+        }
+        Insert: {
+          content: string
+          conversationId: string
+          createdAt?: string
+          id?: string
+          role: Database["public"]["Enums"]["message_role"]
+        }
+        Update: {
+          content?: string
+          conversationId?: string
+          createdAt?: string
+          id?: string
+          role?: Database["public"]["Enums"]["message_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversationId_fkey"
+            columns: ["conversationId"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          avatarUrl: string | null
+          email: string
+          id: string
+          name: string
+        }
+        Insert: {
+          avatarUrl?: string | null
+          email: string
+          id: string
+          name: string
+        }
+        Update: {
+          avatarUrl?: string | null
+          email?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      delete_file_and_documents: {
-        Args: {
-          file_id: number
-        }
-        Returns: undefined
-      }
       hnswhandler: {
         Args: {
           "": unknown
@@ -164,7 +360,7 @@ export interface Database {
       }
     }
     Enums: {
-      [_ in never]: never
+      message_role: "human" | "ai"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -276,9 +472,10 @@ export interface Database {
           {
             foreignKeyName: "objects_bucketId_fkey"
             columns: ["bucket_id"]
+            isOneToOne: false
             referencedRelation: "buckets"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
     }
@@ -349,4 +546,84 @@ export interface Database {
     }
   }
 }
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
+        Database["public"]["Views"])
+    ? (Database["public"]["Tables"] &
+        Database["public"]["Views"])[PublicTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+    ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+    ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof Database["public"]["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
+    ? Database["public"]["Enums"][PublicEnumNameOrOptions]
+    : never
 

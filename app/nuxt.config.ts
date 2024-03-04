@@ -3,27 +3,53 @@ export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
   modules: [
-    "@nuxtjs/supabase",
     "nuxt-icon",
     "@nuxt/ui",
     "@vueuse/nuxt",
     "@formkit/auto-animate/nuxt",
   ],
   runtimeConfig: {
+    supabase: {
+      serviceKey: process.env.NUXT_SUPABASE_SERVICE_KEY,
+    },
     public: {
-      baseUrl: process.env.BASE_URL || "http://localhost:3000",
+      baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
+      supabase: {
+        url: process.env.NUXT_PUBLIC_SUPABASE_URL,
+        key: process.env.NUXT_PUBLIC_SUPABASE_KEY,
+      },
     },
   },
   routeRules: {
     "/": { redirect: "/files" },
   },
-  supabase: {
-    redirect: false,
-  },
   colorMode: {
     preference: "light",
   },
   imports: {
-    dirs: ["types", "models", "composables/*/*.ts"],
+    dirs: [
+      // "types",
+      // "dto",
+      // "handlers",
+      // "domain",
+      // "repositories",
+      // "lib",
+      "composables/*/*.ts",
+    ],
+    presets: [
+      {
+        from: "@tanstack/vue-query",
+        imports: ["useQuery", "useMutation", "useQueryClient"],
+      },
+      {
+        from: "zod",
+        imports: ["z"],
+      },
+    ],
+  },
+  nitro: {
+    experimental: {
+      asyncContext: true,
+    },
   },
 });

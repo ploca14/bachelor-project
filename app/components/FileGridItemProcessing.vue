@@ -12,7 +12,7 @@
         class="absolute inset-0 cursor-wait focus:outline-none"
         disabled
       >
-        <span class="sr-only">View details for {{ file.name }}</span>
+        <span class="sr-only">View details for {{ originalName }}</span>
       </button>
       <UProgress
         class="col-start-1 row-start-1 place-self-end"
@@ -30,7 +30,7 @@
         <p
           class="pointer-events-none block truncate text-sm font-medium text-gray-900"
         >
-          {{ file.name }}
+          {{ originalName }}
         </p>
         <p class="pointer-events-none block text-sm font-medium text-gray-500">
           Processing...
@@ -49,9 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { PendingFile } from "#imports";
-
 defineProps<{
-  file: PendingFile;
+  originalName: string;
 }>();
 </script>

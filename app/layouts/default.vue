@@ -86,4 +86,10 @@ const navigation = [
 ];
 
 const sidebarOpen = ref(false);
+
+const { currentRoute } = useRouter();
+
+watch(currentRoute, () => {
+  sidebarOpen.value = false;
+});
 </script>

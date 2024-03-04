@@ -7,26 +7,39 @@
     ref="parent"
   >
     <li v-for="file in files" :key="file.name">
-      <FileGridItemUploading v-if="file.status === 'uploading'" :file="file" />
-      <FileGridItemProcessing
-        v-else-if="file.status === 'processing'"
-        :file="file"
+      <component
+        v-if="file.status"
+        :is="pendingComponentMap[file.status]"
+        :original-name="file.originalName"
+        :progress="file.uploadProgress"
       />
       <FileGridItemUploaded
-        v-else-if="file.status === 'uploaded'"
-        :file="file"
+        v-if="file.createdAt"
+        :id="file.id"
+        :original-name="file.originalName"
+        :created-at="file.createdAt"
       />
-      <FileGridItemFailed v-else-if="file.status === 'failed'" :file="file" />
     </li>
   </ul>
 </template>
 
 <script setup lang="ts">
-import { UploadedFile, PendingFile } from "#imports";
-
 defineProps<{
-  files: (UploadedFile | PendingFile)[];
+  files: Array<{
+    id: string;
+    name: string;
+    originalName: string;
+    createdAt?: string;
+    status?: "uploading" | "processing" | "failed";
+    uploadProgress?: number;
+  }>;
 }>();
+
+const pendingComponentMap = {
+  uploading: resolveComponent("FileGridItemUploading"),
+  processing: resolveComponent("FileGridItemProcessing"),
+  failed: resolveComponent("FileGridItemFailed"),
+};
 
 const [parent] = useAutoAnimate({
   duration: 300,

@@ -8,7 +8,7 @@
         class="h-12 w-12 place-self-center text-gray-500"
       />
       <button type="button" class="absolute inset-0 focus:outline-none">
-        <span class="sr-only">View details for {{ file.name }}</span>
+        <span class="sr-only">View details for {{ originalName }}</span>
       </button>
     </div>
     <div class="mt-2 flex">
@@ -16,10 +16,10 @@
         <p
           class="pointer-events-none block truncate text-sm font-medium text-gray-900"
         >
-          {{ file.name }}
+          {{ originalName }}
         </p>
         <p class="pointer-events-none block text-sm font-medium text-gray-500">
-          {{ formatDate(file.created_at) }}
+          {{ formatDate(createdAt) }}
         </p>
       </div>
       <div class="flex items-center">
@@ -38,27 +38,40 @@
 </template>
 
 <script setup lang="ts">
-import { UploadedFile } from "#imports";
-
 const props = defineProps<{
-  file: UploadedFile;
+  id: string;
+  originalName: string;
+  createdAt: string;
 }>();
 
-const formatDate = (date: Date) => {
+const formatDate = (date: string) => {
   return new Intl.DateTimeFormat("en-UK", {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(date);
+  }).format(new Date(date));
 };
 
-const { mutate: deleteFile } = useDeleteFileQuery();
+const { mutate: deleteFile } = useDeleteFileMutation();
+const { mutate: createConversation } = useCreateConversationMutation();
 const toast = useToast();
+
+const handleError = (error: Error) => {
+  toast.add({ title: error.message, color: "red" });
+};
 
 const items = [
   [
     {
       label: "Start a conversation",
       icon: "i-heroicons-chat-bubble-left-right",
+      click: () => {
+        createConversation(props.id, {
+          onSuccess: (conversationId) => {
+            navigateTo(`/conversations/${conversationId}`);
+          },
+          onError: handleError,
+        });
+      },
     },
     {
       label: "Generate flashcards",
@@ -80,11 +93,8 @@ const items = [
       label: "Delete",
       icon: "i-heroicons-trash-20-solid",
       click: () => {
-        deleteFile(props.file.id, {
-          onError: (error) => {
-            console.log(error.message);
-            toast.add({ title: error.message, color: "red" });
-          },
+        deleteFile(props.id, {
+          onError: handleError,
         });
       },
     },

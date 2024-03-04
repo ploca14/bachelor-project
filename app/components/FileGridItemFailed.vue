@@ -9,7 +9,7 @@
       />
 
       <button type="button" class="absolute inset-0 focus:outline-none">
-        <span class="sr-only">View details for {{ file.name }}</span>
+        <span class="sr-only">View details for {{ originalName }}</span>
       </button>
     </div>
     <div class="mt-2 flex">
@@ -17,7 +17,7 @@
         <p
           class="pointer-events-none block truncate text-sm font-medium text-gray-900"
         >
-          {{ file.name }}
+          {{ originalName }}
         </p>
         <p class="pointer-events-none block text-sm font-medium text-gray-500">
           Failed to upload
@@ -39,10 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { PendingFile } from "#imports";
-
 defineProps<{
-  file: PendingFile;
+  originalName: string;
 }>();
 
 const items = [
