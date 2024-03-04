@@ -1,0 +1,94 @@
+<template>
+  <div class="relative flex h-full flex-col-reverse overflow-y-auto px-3">
+    <div>
+      <MessageList v-if="conversation" :messages="conversation.messages" />
+      <div
+        v-else
+        class="absolute inset-x-0 top-10 flex items-center justify-center"
+      >
+        <Icon name="eos-icons:loading" class="text-primary h-10 w-10" />
+      </div>
+      <MessageList v-if="isPending" :messages="currentMessages" />
+      <div class="sticky bottom-0 isolate -mx-3 flex px-3 pb-6 pt-12">
+        <div
+          class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-100 from-50% to-transparent"
+        ></div>
+        <form @submit.prevent="handleSubmit" ref="form" class="w-full">
+          <MessageInput v-model="input" class="mx-auto w-full max-w-prose" />
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+const { currentRoute } = useRouter();
+const conversationId = z.coerce.string().parse(currentRoute.value.params.id);
+
+const { data: conversation } = useConversationQuery(conversationId);
+const {
+  mutateAsync: sendMessage,
+  variables,
+  isPending,
+} = useSendMessageMutation(conversationId);
+
+const input = ref("");
+const streamedResponse = ref("");
+
+const handleSubmit = () => {
+  sendMessage(
+    {
+      content: input.value,
+      onToken: (token) => {
+        streamedResponse.value += token;
+      },
+    },
+    {
+      onSuccess: () => {
+        streamedResponse.value = "";
+      },
+    },
+  );
+
+  input.value = "";
+};
+
+const currentMessages = computed(() => {
+  if (!variables.value) return [];
+
+  if (streamedResponse.value.length === 0) {
+    return [
+      {
+        content: variables.value.content,
+        role: "human" as const,
+      },
+      {
+        content: "Thinking...",
+        role: "ai" as const,
+        pending: true,
+      },
+    ];
+  }
+
+  return [
+    {
+      content: variables.value.content,
+      role: "human" as const,
+    },
+    {
+      content: streamedResponse.value,
+      role: "ai" as const,
+    },
+  ];
+});
+
+const { shift } = useMagicKeys();
+
+defineShortcuts({
+  enter: {
+    usingInput: "messageInput",
+    whenever: [computed(() => !shift.value)],
+    handler: handleSubmit,
+  },
+});
+</script>
