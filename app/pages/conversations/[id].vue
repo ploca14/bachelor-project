@@ -9,11 +9,21 @@
         <Icon name="eos-icons:loading" class="text-primary h-10 w-10" />
       </div>
       <MessageList v-if="isPending" :messages="currentMessages" />
-      <div class="sticky bottom-0 isolate -mx-3 flex px-3 pb-6 pt-12">
+      <div
+        class="sticky bottom-0 isolate -mx-3 flex flex-col items-center px-3 pb-6 pt-12"
+      >
         <div
           class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-100 from-50% to-transparent"
         ></div>
-        <form @submit.prevent="handleSubmit" ref="form" class="w-full">
+        <div v-if="isDisabled" class="flex flex-col items-center gap-3">
+          <p class="text-sm text-gray-500">
+            This conversation is archived because all reference files have been
+            deleted.
+          </p>
+          <UButton size="lg" to="/files">Create New Conversation</UButton>
+        </div>
+
+        <form @submit.prevent="handleSubmit" ref="form" class="w-full" v-else>
           <MessageInput v-model="input" class="mx-auto w-full max-w-prose" />
         </form>
       </div>
@@ -34,6 +44,10 @@ const {
 
 const input = ref("");
 const streamedResponse = ref("");
+
+const isDisabled = computed(() => {
+  return conversation.value?.files.length === 0;
+});
 
 const handleSubmit = () => {
   sendMessage(
