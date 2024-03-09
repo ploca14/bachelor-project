@@ -17,7 +17,7 @@ export class FlashcardDeck {
     );
 
     this._flashcards.push(...newFlashcards);
-    return newFlashcards;
+    return this.flashcards;
   }
 
   get fileIds() {

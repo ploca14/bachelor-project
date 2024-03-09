@@ -361,6 +361,94 @@ export type Database = {
           },
         ]
       }
+      questions: {
+        Row: {
+          content: string
+          createdAt: string
+          id: string
+          testId: string
+        }
+        Insert: {
+          content: string
+          createdAt?: string
+          id?: string
+          testId: string
+        }
+        Update: {
+          content?: string
+          createdAt?: string
+          id?: string
+          testId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_testId_fkey"
+            columns: ["testId"]
+            isOneToOne: false
+            referencedRelation: "sample_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sample_tests: {
+        Row: {
+          createdAt: string
+          id: string
+          name: string
+          userId: string
+        }
+        Insert: {
+          createdAt?: string
+          id?: string
+          name: string
+          userId: string
+        }
+        Update: {
+          createdAt?: string
+          id?: string
+          name?: string
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sample_tests_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sample_tests_files: {
+        Row: {
+          fileId: string
+          testId: string
+        }
+        Insert: {
+          fileId: string
+          testId: string
+        }
+        Update: {
+          fileId?: string
+          testId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sample_tests_files_fileId_fkey"
+            columns: ["fileId"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sample_tests_files_testId_fkey"
+            columns: ["testId"]
+            isOneToOne: false
+            referencedRelation: "sample_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           avatarUrl: string | null

@@ -23,6 +23,7 @@ model User {
   conversations  Conversation[]
   files          File[]
   flashcardDecks FlashcardDeck[]
+  SampleTest     SampleTest[]
 
   @@map("users")
 }
@@ -37,6 +38,7 @@ model File {
   conversations     ConversationFile[]
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   FlashcardDeckFile FlashcardDeckFile[]
+  SampleTestFile    SampleTestFile[]
 
   @@map("files")
 }
@@ -142,4 +144,36 @@ model FlashcardDeckFile {
 
   @@id([deckId, fileId])
   @@map("flashcard_decks_files")
+}
+
+model SampleTest {
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime         @default(now()) @db.Timestamptz(6)
+  userId    String           @db.Uuid
+  name      String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions Question[]
+  files     SampleTestFile[]
+
+  @@map("sample_tests")
+}
+
+model Question {
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime   @default(now()) @db.Timestamptz(6)
+  testId    String     @db.Uuid
+  content   String
+  test      SampleTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@map("questions")
+}
+
+model SampleTestFile {
+  testId String     @db.Uuid
+  fileId String     @db.Uuid
+  test   SampleTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+  file   File       @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@id([testId, fileId])
+  @@map("sample_tests_files")
 }

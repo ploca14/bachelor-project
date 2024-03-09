@@ -65,6 +65,22 @@ export type Message = {
     content: string;
     role: MessageRole;
 };
+export type Question = {
+    id: Generated<string>;
+    createdAt: Generated<Timestamp>;
+    testId: string;
+    content: string;
+};
+export type SampleTest = {
+    id: Generated<string>;
+    createdAt: Generated<Timestamp>;
+    userId: string;
+    name: string;
+};
+export type SampleTestFile = {
+    testId: string;
+    fileId: string;
+};
 export type User = {
     id: string;
     name: string;
@@ -82,5 +98,8 @@ export type DB = {
     flashcard_decks_files: FlashcardDeckFile;
     flashcards: Flashcard;
     messages: Message;
+    questions: Question;
+    sample_tests: SampleTest;
+    sample_tests_files: SampleTestFile;
     users: User;
 };
