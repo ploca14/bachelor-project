@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 
-export class Message {
+export class Flashcard {
   constructor(
-    public readonly role: "human" | "ai",
-    public readonly content: string,
-    public readonly conversationId: string,
+    public front: string,
+    public back: string,
+    public readonly deckId: string,
     private readonly _createdAt: Date = new Date(),
     public readonly id: string = uuidv4(),
   ) {}

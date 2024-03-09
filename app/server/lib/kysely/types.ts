@@ -41,6 +41,23 @@ export type File = {
     originalName: string;
     userId: string;
 };
+export type Flashcard = {
+    id: Generated<string>;
+    createdAt: Generated<Timestamp>;
+    deckId: string;
+    front: string;
+    back: string;
+};
+export type FlashcardDeck = {
+    id: Generated<string>;
+    createdAt: Generated<Timestamp>;
+    userId: string;
+    name: string;
+};
+export type FlashcardDeckFile = {
+    deckId: string;
+    fileId: string;
+};
 export type Message = {
     id: Generated<string>;
     createdAt: Generated<Timestamp>;
@@ -61,6 +78,9 @@ export type DB = {
     conversations_files: ConversationFile;
     documents: Documents;
     files: File;
+    flashcard_decks: FlashcardDeck;
+    flashcard_decks_files: FlashcardDeckFile;
+    flashcards: Flashcard;
     messages: Message;
     users: User;
 };

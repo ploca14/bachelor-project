@@ -5,7 +5,11 @@ export class File {
     public readonly name: string,
     public readonly originalName: string,
     public readonly ownerId: string,
-    public readonly createdAt: Date = new Date(),
+    private readonly _createdAt: Date = new Date(),
     public readonly id: string = uuidv4(),
   ) {}
+
+  get createdAt() {
+    return new Date(this._createdAt);
+  }
 }

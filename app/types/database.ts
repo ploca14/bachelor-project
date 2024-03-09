@@ -238,6 +238,97 @@ export type Database = {
           },
         ]
       }
+      flashcard_decks: {
+        Row: {
+          createdAt: string
+          id: string
+          name: string
+          userId: string
+        }
+        Insert: {
+          createdAt?: string
+          id?: string
+          name: string
+          userId: string
+        }
+        Update: {
+          createdAt?: string
+          id?: string
+          name?: string
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_decks_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flashcard_decks_files: {
+        Row: {
+          deckId: string
+          fileId: string
+        }
+        Insert: {
+          deckId: string
+          fileId: string
+        }
+        Update: {
+          deckId?: string
+          fileId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_decks_files_deckId_fkey"
+            columns: ["deckId"]
+            isOneToOne: false
+            referencedRelation: "flashcard_decks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flashcard_decks_files_fileId_fkey"
+            columns: ["fileId"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flashcards: {
+        Row: {
+          back: string
+          createdAt: string
+          deckId: string
+          front: string
+          id: string
+        }
+        Insert: {
+          back: string
+          createdAt?: string
+          deckId: string
+          front: string
+          id?: string
+        }
+        Update: {
+          back?: string
+          createdAt?: string
+          deckId?: string
+          front?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_deckId_fkey"
+            columns: ["deckId"]
+            isOneToOne: false
+            referencedRelation: "flashcard_decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string

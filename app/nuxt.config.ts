@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "@vueuse/nuxt",
     "@formkit/auto-animate/nuxt",
+    "@nuxt/test-utils/module",
   ],
   runtimeConfig: {
     supabase: {

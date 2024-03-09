@@ -31,8 +31,7 @@ const langchainAnswerGeneratorService = (
   ) => {
     // 1. Parse input
     const parseInput = RunnableLambda.from((conversation: Conversation) => {
-      const lastMessage = conversation.getLastMessage();
-      const previousMessages = conversation.getPreviousMessages();
+      const { lastMessage, previousMessages } = conversation;
 
       return {
         question: lastMessage?.content,
@@ -52,7 +51,7 @@ const langchainAnswerGeneratorService = (
       },
     });
 
-    // 3. Retrieve documents
+    // 3. Retrieve relevant chunks
     const filter = retrieverFilterFactory.createForConversation(conversation);
 
     const retriever = store.asRetriever({
@@ -60,7 +59,7 @@ const langchainAnswerGeneratorService = (
       filter,
     });
 
-    const retrieveDocs = RunnablePassthrough.assign({
+    const retrieveChunks = RunnablePassthrough.assign({
       context: transformQueryChain
         .pipe(retriever)
         .pipe(formatDocumentsAsString),
@@ -72,7 +71,7 @@ const langchainAnswerGeneratorService = (
     // Construct the chain:
     const conversationalRetrievalChain = parseInput
       .pipe(condenseHistory)
-      .pipe(retrieveDocs)
+      .pipe(retrieveChunks)
       .pipe(generateAnswer);
 
     const chain = conversationalRetrievalChain.withListeners({
