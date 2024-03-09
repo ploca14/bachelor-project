@@ -15,26 +15,28 @@ datasource db {
 }
 
 model User {
-  id            String         @id @db.Uuid
-  name          String
-  email         String
-  avatarUrl     String?
-  collections   Collection[]
-  conversations Conversation[]
-  files         File[]
+  id             String          @id @db.Uuid
+  name           String
+  email          String
+  avatarUrl      String?
+  collections    Collection[]
+  conversations  Conversation[]
+  files          File[]
+  flashcardDecks FlashcardDeck[]
 
   @@map("users")
 }
 
 model File {
-  id            String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  createdAt     DateTime           @default(now()) @db.Timestamptz(6)
-  name          String
-  originalName  String
-  userId        String             @db.Uuid
-  collections   CollectionFile[]
-  conversations ConversationFile[]
-  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt         DateTime            @default(now()) @db.Timestamptz(6)
+  name              String
+  originalName      String
+  userId            String              @db.Uuid
+  collections       CollectionFile[]
+  conversations     ConversationFile[]
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  FlashcardDeckFile FlashcardDeckFile[]
 
   @@map("files")
 }
@@ -107,4 +109,37 @@ enum MessageRole {
   ai
 
   @@map("message_role")
+}
+
+model FlashcardDeck {
+  id         String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt  DateTime            @default(now()) @db.Timestamptz(6)
+  userId     String              @db.Uuid
+  name       String
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcards Flashcard[]
+  files      FlashcardDeckFile[]
+
+  @@map("flashcard_decks")
+}
+
+model Flashcard {
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime      @default(now()) @db.Timestamptz(6)
+  deckId    String        @db.Uuid
+  front     String
+  back      String
+  deck      FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  @@map("flashcards")
+}
+
+model FlashcardDeckFile {
+  deckId String        @db.Uuid
+  fileId String        @db.Uuid
+  deck   FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  file   File          @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@id([deckId, fileId])
+  @@map("flashcard_decks_files")
 }
