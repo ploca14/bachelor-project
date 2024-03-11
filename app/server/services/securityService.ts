@@ -1,11 +1,7 @@
-import {
-  useConversationRepository,
-  type ConversationRepository,
-} from "~/server/repositories/conversationRepository";
-import {
-  useFileRepository,
-  type FileRepository,
-} from "~/server/repositories/fileRepository";
+import type { ConversationRepository } from "~/server/repositories/conversationRepository";
+import type { FileRepository } from "~/server/repositories/fileRepository";
+import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
+import type { SampleTestRepository } from "~/server/repositories/sampleTestRepository";
 import { useSupabaseClient } from "~/server/lib/supabase/client";
 import { UnauthorizedError } from "~/types/errors";
 import { SupabaseClient } from "@supabase/supabase-js";
@@ -26,11 +22,15 @@ export interface SecurityService {
   getSession: () => Promise<Session>;
   checkFileOwnership(id: string): Promise<void>;
   checkConversationOwnership: (id: string) => Promise<void>;
+  checkFlashcardDeckOwnership: (id: string) => Promise<void>;
+  checkSampleTestOwnership: (id: string) => Promise<void>;
 }
 
 const supabaseSecurityService = (
   conversationRepository: ConversationRepository,
   fileRepository: FileRepository,
+  flashcardDeckRepository: FlashcardDeckRepository,
+  sampleTestRepository: SampleTestRepository,
   supabase: SupabaseClient,
 ): SecurityService => {
   const getSession = async () => {
@@ -78,22 +78,55 @@ const supabaseSecurityService = (
     }
   };
 
+  const checkFlashcardDeckOwnership = async (id: string) => {
+    const user = await getUser();
+    const deck = await flashcardDeckRepository.getFlashcardDeckById(id);
+
+    if (deck.userId !== user.id) {
+      throw new UnauthorizedError(
+        "User is not authorized to access this deck.",
+      );
+    }
+  };
+
+  const checkSampleTestOwnership = async (id: string) => {
+    const user = await getUser();
+    const deck = await sampleTestRepository.getSampleTestById(id);
+
+    if (deck.userId !== user.id) {
+      throw new UnauthorizedError(
+        "User is not authorized to access this deck.",
+      );
+    }
+  };
+
   return {
     getSession,
     getUser,
     checkFileOwnership,
     checkConversationOwnership,
+    checkFlashcardDeckOwnership,
+    checkSampleTestOwnership,
   };
 };
+
+import { useConversationRepository } from "~/server/repositories/conversationRepository";
+import { useFileRepository } from "~/server/repositories/fileRepository";
+import { useFlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
+import { useSampleTestRepository } from "~/server/repositories/sampleTestRepository";
 
 export const useSecurityService = () => {
   const conversationRepository = useConversationRepository();
   const fileRepository = useFileRepository();
+  const flashcardDeckRepository = useFlashcardDeckRepository();
+  const sampleTestRepository = useSampleTestRepository();
   const supabase = useSupabaseClient();
 
   return supabaseSecurityService(
     conversationRepository,
     fileRepository,
+    flashcardDeckRepository,
+    sampleTestRepository,
     supabase,
   );
 };
