@@ -12,21 +12,20 @@ const conversationQueryHandler = (
 
     const data: ConversationDTO = await kysely
       .selectFrom("conversations as c")
-      .leftJoin("messages as m", "c.id", "m.conversationId")
-      .leftJoin("conversations_files as cf", "c.id", "cf.conversationId")
       .select((eb) => [
+        "c.id",
         jsonArrayFrom(
           eb
             .selectFrom("conversations_files as cf")
             .innerJoin("files as f", "cf.fileId", "f.id")
             .select(["f.id", "f.name", "f.originalName", "f.createdAt"])
-            .where("cf.conversationId", "=", conversationId),
+            .whereRef("cf.conversationId", "=", "c.id"),
         ).as("files"),
         jsonArrayFrom(
           eb
             .selectFrom("messages as m")
             .select(["m.id", "m.content", "m.createdAt", "m.role"])
-            .where("m.conversationId", "=", conversationId)
+            .whereRef("m.conversationId", "=", "c.id")
             .orderBy("m.createdAt", "asc"),
         ).as("messages"),
       ])

@@ -15,7 +15,7 @@ import {
 import { formatDocumentsAsString } from "langchain/util/document";
 import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import { BaseCallbackConfig } from "@langchain/core/callbacks/manager";
-import { parsePartialJsonMarkdown } from "../utils/parseJsonMarkdown";
+import { parsePartialJsonMarkdown } from "~/server/utils/parseJsonMarkdown";
 
 export interface QuestionGeneratorService {
   generateQuestions(sampleTest: SampleTest): Promise<string[]>;
@@ -162,7 +162,6 @@ const langchainQuestionGeneratorService = (
 import { useVectorStoreService } from "~/server/services/vectorStoreService";
 import { useChatModel } from "~/server/lib/langchain/chatModel";
 import { useEventBus } from "~/server/services/eventBus";
-import { nullable } from "zod";
 
 export const useQuestionGeneratorService = () => {
   const vectorStoreService = useVectorStoreService();

@@ -2,16 +2,15 @@ import { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { SecurityService } from "~/server/services/securityService";
+import type { FlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
 
 const createFlashcardDeckForFileCommandHandler = (
   fileRepository: FileRepository,
   flashcardDeckRepository: FlashcardDeckRepository,
   securityService: SecurityService,
+  flashcardGeneratorService: FlashcardGeneratorService,
 ) => {
   const execute = async (fileId: string) => {
-    // TODO: Move to controller
-    await securityService.checkFileOwnership(fileId);
-
     const file = await fileRepository.getFileById(fileId);
 
     const user = await securityService.getUser();
@@ -23,6 +22,13 @@ const createFlashcardDeckForFileCommandHandler = (
 
     await flashcardDeckRepository.save(flashcardDeck);
 
+    flashcardGeneratorService
+      .generateFlashcards(flashcardDeck)
+      .then(async (flashcards) => {
+        flashcardDeck.addFlashcards(flashcards);
+        await flashcardDeckRepository.save(flashcardDeck);
+      });
+
     return flashcardDeck.id;
   };
 
@@ -32,15 +38,18 @@ const createFlashcardDeckForFileCommandHandler = (
 import { useFlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import { useFileRepository } from "~/server/repositories/fileRepository";
 import { useSecurityService } from "~/server/services/securityService";
+import { useFlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
 
 export const useCreateFlashcardDeckForFileCommandHandler = () => {
   const fileRepository = useFileRepository();
   const flashcardDeckRepository = useFlashcardDeckRepository();
   const securityService = useSecurityService();
+  const flashcardGeneratorService = useFlashcardGeneratorService();
 
   return createFlashcardDeckForFileCommandHandler(
     fileRepository,
     flashcardDeckRepository,
     securityService,
+    flashcardGeneratorService,
   );
 };

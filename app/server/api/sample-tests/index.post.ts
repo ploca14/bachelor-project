@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const sampleTestId = await execute(fileId);
 
-    return `http://localhost:3000/api/sample-tests/${sampleTestId}/stream`;
+    return sampleTestId;
   } catch (error) {
     if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
       throw createError({

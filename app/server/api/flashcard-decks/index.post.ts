@@ -1,17 +1,24 @@
 import { z } from "zod";
-import { useValidatedParams } from "h3-zod";
+import { useValidatedBody } from "h3-zod";
 import { useCreateFlashcardDeckForFileCommandHandler } from "~/server/handlers/createFlashcardDeckForFileCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
+import { useSecurityService } from "~/server/services/securityService";
 
 export default defineEventHandler(async (event) => {
   try {
-    const { id } = await useValidatedParams(event, {
-      id: z.coerce.string(),
+    const securityService = useSecurityService();
+
+    const { fileId } = await useValidatedBody(event, {
+      fileId: z.string(),
     });
+
+    await securityService.checkFileOwnership(fileId);
 
     const { execute } = useCreateFlashcardDeckForFileCommandHandler();
 
-    return execute(id);
+    const flashcardDeckId = await execute(fileId);
+
+    return flashcardDeckId;
   } catch (error) {
     if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
       throw createError({

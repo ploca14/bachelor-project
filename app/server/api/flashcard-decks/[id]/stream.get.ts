@@ -1,30 +1,33 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useGenerateFlashcardsCommandHandler } from "~/server/handlers/generateFlashcardsCommandHandler";
+import { useFlashcardDeckStreamHandler } from "~/server/handlers/flashcardDeckStreamHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
+import { useSecurityService } from "~/server/services/securityService";
 
 export default defineEventHandler(async (event) => {
   try {
     const eventStream = createEventStream(event);
+    const securityService = useSecurityService();
 
     const { id } = await useValidatedParams(event, {
       id: z.coerce.string(),
     });
 
-    // #TODO: Add precondition check to ensure that the user has access to the deck
-    const { execute } = useGenerateFlashcardsCommandHandler();
+    await securityService.checkFlashcardDeckOwnership(id);
 
-    const stream = await execute(id);
+    const { execute } = useFlashcardDeckStreamHandler();
 
-    (async () => {
-      for await (const data of stream) {
-        await eventStream.push({ data: JSON.stringify(data) });
-      }
-      eventStream.close();
-    })();
-
-    eventStream.onClosed(async () => {
-      await eventStream.close();
+    await execute(id, {
+      onProgress: (event) =>
+        eventStream.push({
+          event: "progress",
+          data: JSON.stringify(event),
+        }),
+      onComplete: () =>
+        eventStream.push({
+          event: "complete",
+          data: "",
+        }),
     });
 
     return eventStream.send();
