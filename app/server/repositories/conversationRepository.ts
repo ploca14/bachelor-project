@@ -20,7 +20,12 @@ const prismaConversationRepository = (
   prisma: ExtendedPrismaClient,
 ): ConversationRepository => {
   const BASE_QUERY_OPTIONS = {
-    include: { files: true, messages: true },
+    include: {
+      files: true,
+      messages: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
   } satisfies Prisma.ConversationDefaultArgs;
 
   const getConversationById = async (id: string) => {

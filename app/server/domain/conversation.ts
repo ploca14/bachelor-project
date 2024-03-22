@@ -36,22 +36,22 @@ export class Conversation {
     }
 
     const message = new Message("human", content, this.id);
-    this.messages.push(message);
+    this._messages.push(message);
     return message;
   }
 
   addAiMessage(content: string) {
     const message = new Message("ai", content, this.id);
-    this.messages.push(message);
+    this._messages.push(message);
     return message;
   }
 
   get lastMessage() {
-    return this.messages.at(-1);
+    return this._messages.at(-1);
   }
 
   get previousMessages() {
-    return this.messages.slice(0, -1);
+    return this._messages.slice(0, -1);
   }
 
   // Disable the conversation if all the conversation files are deleted

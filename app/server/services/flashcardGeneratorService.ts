@@ -1,21 +1,32 @@
 import type { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { VectorStoreService } from "~/server/services/vectorStoreService";
 import type { GenerateFlashcardsChain } from "~/server/lib/langchain/generateFlashcardsChain";
-import type { EventBus } from "~/server/services/eventBus";
 import { parsePartialJsonMarkdown } from "~/server/utils/parseJsonMarkdown";
+
+interface Callbacks {
+  onProgress: (
+    progress: DeepPartial<Array<{ front: string; back: string }>>,
+  ) => Promise<void>;
+  onSuccess: (
+    flashcards: Array<{ front: string; back: string }>,
+  ) => Promise<void>;
+}
 
 export interface FlashcardGeneratorService {
   generateFlashcards(
     flashcardDeck: FlashcardDeck,
-  ): Promise<{ front: string; back: string }[]>;
+    callbacks: Callbacks,
+  ): Promise<void>;
 }
 
 const langchainFlashcardGeneratorService = (
   vectorStore: VectorStoreService,
   generateFlashcardsChain: GenerateFlashcardsChain,
-  eventBus: EventBus,
 ): FlashcardGeneratorService => {
-  const generateFlashcards = async (flashcardDeck: FlashcardDeck) => {
+  const generateFlashcards = async (
+    flashcardDeck: FlashcardDeck,
+    callbacks: Callbacks,
+  ) => {
     const documents = await vectorStore.getDocuments(flashcardDeck.fileIds);
 
     const completions = new Map<string, string>();
@@ -28,25 +39,21 @@ const langchainFlashcardGeneratorService = (
             const completion = (completions.get(runId) || "") + token;
             completions.set(runId, completion);
 
-            await eventBus.publish(
-              `flashcardDeck:${flashcardDeck.id}:progress`,
+            await callbacks.onProgress(
               Array.from(completions.values(), (c) =>
                 parsePartialJsonMarkdown(c),
-              ),
+              ).flat(),
             );
           },
         },
       ],
     });
 
-    await eventBus.publish(`flashcardDeck:${flashcardDeck.id}:complete`);
-
     const results = Array.from(completions.values(), (c) =>
       parsePartialJsonMarkdown(c),
-    );
+    ).flat();
 
-    // # TODO: Make typesafe
-    return (results as any).flat();
+    await callbacks.onSuccess(results);
   };
 
   return {
@@ -56,16 +63,13 @@ const langchainFlashcardGeneratorService = (
 
 import { useVectorStoreService } from "~/server/services/vectorStoreService";
 import { useGenerateFlashcardsChain } from "~/server/lib/langchain/generateFlashcardsChain";
-import { useEventBus } from "~/server/services/eventBus";
 
 export const useFlashcardGeneratorService = () => {
   const vectorStoreService = useVectorStoreService();
   const generateFlashcardsChain = useGenerateFlashcardsChain();
-  const eventBus = useEventBus();
 
   return langchainFlashcardGeneratorService(
     vectorStoreService,
     generateFlashcardsChain,
-    eventBus,
   );
 };

@@ -53,6 +53,7 @@ const formatDate = (date: string) => {
 
 const { mutate: deleteFile } = useDeleteFileMutation();
 const { mutate: createConversation } = useCreateConversationMutation();
+const { mutate: createFlashcardDeck } = useCreateFlashcardDeckMutation();
 const toast = useToast();
 
 const handleError = (error: Error) => {
@@ -76,6 +77,14 @@ const items = [
     {
       label: "Generate flashcards",
       icon: "i-heroicons-rectangle-stack",
+      click: () => {
+        createFlashcardDeck(props.id, {
+          onSuccess: (flashcardDeckId) => {
+            navigateTo(`/flashcards/${flashcardDeckId}`);
+          },
+          onError: handleError,
+        });
+      },
     },
     {
       label: "Generate a test",

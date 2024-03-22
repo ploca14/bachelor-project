@@ -41,7 +41,7 @@ const conversationsQueryHandler = (
 import { useKyselyClient } from "~/server/lib/kysely/client";
 import { useSecurityService } from "~/server/services/securityService";
 
-export const useConversationQueryHandler = () => {
+export const useConversationsQueryHandler = () => {
   const kysely = useKyselyClient();
   const securityService = useSecurityService();
 

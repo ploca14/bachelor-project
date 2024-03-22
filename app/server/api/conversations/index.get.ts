@@ -1,7 +1,7 @@
-import { useConversationQueryHandler } from "~/server/handlers/conversationsQueryHandler";
+import { useConversationsQueryHandler } from "~/server/handlers/conversationsQueryHandler";
 
 export default defineEventHandler(async (event) => {
-  const { execute } = useConversationQueryHandler();
+  const { execute } = useConversationsQueryHandler();
 
   return execute();
 });

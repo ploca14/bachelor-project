@@ -7,7 +7,7 @@
       }"
     >
       <div class="p-container border-b border-gray-200 py-5">
-        <h1 class="text-2xl font-semibold leading-7">Conversations</h1>
+        <h1 class="text-2xl font-semibold leading-7">Flashcard Decks</h1>
       </div>
 
       <div class="px-2 py-5">
@@ -17,9 +17,6 @@
               <div class="flex flex-1 items-center justify-between truncate">
                 <div class="truncate">{{ link.label }}</div>
                 <div class="text-xs">{{ link.time }}</div>
-              </div>
-              <div class="mt-2 h-4 truncate text-xs">
-                {{ link.lastMessage ?? "No message yet" }}
               </div>
             </div>
           </template>
@@ -34,26 +31,15 @@
 
 <script setup lang="ts">
 import { formatTimeAgo } from "@vueuse/core";
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
-
-const breakpoints = useBreakpoints(breakpointsTailwind);
-const greaterThanMd = breakpoints.greater("md");
-const { data } = useConversationsQuery();
 
 const route = useRoute();
-watchEffect(async () => {
-  if (!data.value) return;
-  //await navigateTo(`/conversations/${data.value[0].id}`);
-});
+const { data } = useFlashcardDecksQuery();
 
 const links = computed(() =>
-  data.value?.map((conversation) => ({
-    label: conversation.name,
-    to: `/conversations/${conversation.id}`,
-    time: conversation.lastMessageSentAt
-      ? formatTimeAgo(new Date(conversation.lastMessageSentAt))
-      : null,
-    lastMessage: conversation.lastMessage,
+  data.value?.map((deck) => ({
+    label: deck.name,
+    to: `/flashcards/${deck.id}`,
+    time: formatTimeAgo(new Date(deck.createdAt)),
   })),
 );
 </script>

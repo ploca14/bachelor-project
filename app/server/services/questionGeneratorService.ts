@@ -1,6 +1,5 @@
 import type { SampleTest } from "~/server/domain/sampleTest";
 import type { VectorStoreService } from "~/server/services/vectorStoreService";
-import type { EventBus } from "~/server/services/eventBus";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import {
@@ -17,16 +16,26 @@ import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import { BaseCallbackConfig } from "@langchain/core/callbacks/manager";
 import { parsePartialJsonMarkdown } from "~/server/utils/parseJsonMarkdown";
 
+interface Callbacks {
+  onProgress: (progress: string) => Promise<void>;
+  onSuccess: (questions: string[]) => Promise<void>;
+}
+
 export interface QuestionGeneratorService {
-  generateQuestions(sampleTest: SampleTest): Promise<string[]>;
+  generateQuestions(
+    sampleTest: SampleTest,
+    callbacks: Callbacks,
+  ): Promise<void>;
 }
 
 const langchainQuestionGeneratorService = (
   vectorStore: VectorStoreService,
   llm: BaseLanguageModel,
-  eventBus: EventBus,
 ): QuestionGeneratorService => {
-  const generateQuestions = async (sampleTest: SampleTest) => {
+  const generateQuestions = async (
+    sampleTest: SampleTest,
+    callbacks: Callbacks,
+  ) => {
     const documents = await vectorStore.getDocuments(sampleTest.fileIds);
 
     // You must format your output in JSON. Output only a list of strings, each string should be a single SAQ.
@@ -140,18 +149,13 @@ const langchainQuestionGeneratorService = (
     let completion = "";
     for await (const data of stream) {
       completion += data;
-      await eventBus.publish(
-        `sampleTest:${sampleTest.id}:progress`,
-        parsePartialJsonMarkdown(completion),
-      );
+      await callbacks.onProgress(completion);
     }
 
-    await eventBus.publish(`sampleTest:${sampleTest.id}:complete`);
+    const results =
+      parsePartialJsonMarkdown<Array<{ content: string }>>(completion);
 
-    const results = parsePartialJsonMarkdown(completion);
-
-    // # TODO: Make typesafe
-    return (results as any).map(({ content }: any) => content);
+    await callbacks.onSuccess(results?.map(({ content }) => content) ?? []);
   };
 
   return {
@@ -161,16 +165,10 @@ const langchainQuestionGeneratorService = (
 
 import { useVectorStoreService } from "~/server/services/vectorStoreService";
 import { useChatModel } from "~/server/lib/langchain/chatModel";
-import { useEventBus } from "~/server/services/eventBus";
 
 export const useQuestionGeneratorService = () => {
   const vectorStoreService = useVectorStoreService();
   const llm = useChatModel();
-  const messageService = useEventBus();
 
-  return langchainQuestionGeneratorService(
-    vectorStoreService,
-    llm,
-    messageService,
-  );
+  return langchainQuestionGeneratorService(vectorStoreService, llm);
 };
