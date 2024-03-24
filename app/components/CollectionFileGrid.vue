@@ -16,25 +16,9 @@
           </UButton>
           {{ selectedFiles.length }} selected
         </div>
-
-        <div class="flex items-center gap-4">
-          <UButton
-            color="gray"
-            variant="ghost"
-            icon="i-heroicons-folder-plus"
-            @click="addToCollection"
-          >
-            Add to collection
-          </UButton>
-          <UButton
-            color="gray"
-            variant="ghost"
-            icon="i-heroicons-trash"
-            @click="deleteFiles"
-          >
-            Delete
-          </UButton>
-        </div>
+        <UButton color="gray" variant="ghost" icon="i-heroicons-folder-minus">
+          Remove from collection
+        </UButton>
       </template>
       <template v-else>
         <h3>Files</h3>
@@ -51,13 +35,7 @@
       selection-mode="multiple"
     >
       <template #default="{ item: file, active, selected }">
-        <component
-          v-if="file.status"
-          :is="pendingComponentMap[file.status]"
-          :original-name="file.originalName"
-          :progress="file.uploadProgress"
-        />
-        <FileGridItemUploaded
+        <CollectionFileGridItem
           v-if="file.createdAt"
           :id="file.id"
           :original-name="file.originalName"
@@ -71,16 +49,12 @@
 </template>
 
 <script setup lang="ts">
-import { AddToCollectionModal, DeleteFilesModal } from "#components";
-
 const props = defineProps<{
   files: Array<{
     id: string;
     name: string;
     originalName: string;
-    createdAt?: string;
-    status?: "uploading" | "processing" | "failed";
-    uploadProgress?: number;
+    createdAt: string;
   }>;
 }>();
 
@@ -101,25 +75,5 @@ const getGridColumnCount = () => {
     "grid-template-columns",
   );
   return gridTemplateColumns.split(" ").length;
-};
-
-const pendingComponentMap = {
-  uploading: resolveComponent("FileGridItemUploading"),
-  processing: resolveComponent("FileGridItemProcessing"),
-  failed: resolveComponent("FileGridItemFailed"),
-};
-
-const modal = useModal();
-
-const addToCollection = () => {
-  modal.open(AddToCollectionModal, {
-    fileIds: selectedFiles.value.map((file) => file.id),
-  });
-};
-
-const deleteFiles = () => {
-  modal.open(DeleteFilesModal, {
-    fileIds: selectedFiles.value.map((file) => file.id),
-  });
 };
 </script>

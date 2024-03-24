@@ -7,10 +7,6 @@
         name="i-heroicons-exclamation-circle"
         class="h-12 w-12 place-self-center text-red-400"
       />
-
-      <button type="button" class="absolute inset-0 focus:outline-none">
-        <span class="sr-only">View details for {{ originalName }}</span>
-      </button>
     </div>
     <div class="mt-2 flex">
       <div class="w-full">

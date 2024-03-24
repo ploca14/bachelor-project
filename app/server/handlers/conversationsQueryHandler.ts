@@ -22,14 +22,17 @@ const conversationsQueryHandler = (
             .as("lastMessage"),
         (join) => join.onTrue(),
       )
-      .select([
+      .select(({ fn }) => [
         "c.id",
         "c.name",
         "lastMessage.createdAt as lastMessageSentAt",
         "lastMessage.content as lastMessage",
+        fn("coalesce", ["lastMessage.createdAt", "c.createdAt"]).as(
+          "orderDate",
+        ),
       ])
       .where("c.userId", "=", user.id)
-      .orderBy("lastMessage.createdAt", "desc")
+      .orderBy("orderDate", "desc")
       .execute();
 
     return data;

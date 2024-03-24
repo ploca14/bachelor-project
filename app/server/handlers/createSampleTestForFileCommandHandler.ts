@@ -28,7 +28,7 @@ const createSampleTestForFileCommandHandler = (
         );
       },
       onSuccess: async (questions) => {
-        sampleTest.addQuestions(questions);
+        sampleTest.addQuestions(questions.map((q) => q.content));
         await sampleTestRepository.save(sampleTest);
         await eventBus.publish(`sampleTest:${sampleTest.id}:complete`);
       },

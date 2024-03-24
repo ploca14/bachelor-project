@@ -14,6 +14,7 @@ const sampleTestQueryHandler = (
       .selectFrom("sample_tests as st")
       .select((eb) => [
         "id",
+        "name",
         jsonArrayFrom(
           eb
             .selectFrom("questions as q")

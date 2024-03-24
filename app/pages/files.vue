@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full flex-col">
     <div
-      class="p-container flex flex-wrap items-center gap-6 py-10 pb-8 sm:flex-nowrap"
+      class="p-container z-50 flex flex-wrap items-center gap-6 bg-white py-10 pb-8 sm:flex-nowrap"
     >
       <h1 class="text-3xl font-semibold leading-7 tracking-tight">
         Study Materials
@@ -18,6 +18,8 @@
     </div>
 
     <div class="overflow-y-auto">
+      <CollectionGrid class="relative z-40" />
+
       <template v-if="uploadedFiles">
         <FileGrid :files="throttledFiles" />
       </template>

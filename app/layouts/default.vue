@@ -23,7 +23,7 @@
     <div
       :class="[
         'hidden lg:flex',
-        'fixed inset-y-0 left-0 z-50 w-20 overflow-y-auto px-3 pb-4 ring-1 ring-gray-200',
+        'fixed inset-y-0 left-0 z-[60] w-20 overflow-y-auto px-3 pb-4 ring-1 ring-gray-200',
         'flex-col items-center justify-between gap-y-8',
       ]"
     >
@@ -79,8 +79,8 @@ const navigation = [
     icon: "i-heroicons-rectangle-stack",
   },
   {
-    label: "Practice Tests",
-    to: "/practice-tests",
+    label: "Sample Tests",
+    to: "/sample-tests",
     icon: "i-heroicons-academic-cap",
   },
 ];

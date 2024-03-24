@@ -37,7 +37,7 @@
     "@heroicons/vue": "^2.1.1",
     "@langchain/community": "^0.0.34",
     "@langchain/openai": "^0.0.15",
-    "@nuxt/ui": "^2.14.1",
+    "@nuxt/ui": "^2.14.2",
     "@prisma/client": "5.10.2",
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.39.7",

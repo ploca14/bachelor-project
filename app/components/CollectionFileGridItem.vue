@@ -3,11 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  AddToCollectionModal,
-  NewCollectionModal,
-  DeleteFilesModal,
-} from "#components";
+import { AddToCollectionModal } from "#components";
 
 const props = defineProps<{
   id: string;
@@ -17,7 +13,7 @@ const props = defineProps<{
   active: boolean;
 }>();
 
-// const { mutate: deleteFile } = useDeleteFileMutation();
+const { mutate: deleteFile } = useDeleteFileMutation();
 const { mutate: createConversation } = useCreateConversationMutation();
 const { mutate: createFlashcardDeck } = useCreateFlashcardDeckMutation();
 const { mutate: createSampleTest } = useCreateSampleTestMutation();
@@ -31,12 +27,6 @@ const modal = useModal();
 
 const addToCollection = () => {
   modal.open(AddToCollectionModal, {
-    fileIds: [props.id],
-  });
-};
-
-const deleteFile = () => {
-  modal.open(DeleteFilesModal, {
     fileIds: [props.id],
   });
 };
@@ -86,16 +76,24 @@ const menu = [
       icon: "i-heroicons-folder-plus",
       click: addToCollection,
     },
+    {
+      label: "Remove from collection",
+      icon: "i-heroicons-folder-minus",
+      click: () => {
+        // removeFromCollection(props.id, {
+        //   onError: handleError,
+        // });
+      },
+    },
   ],
   [
     {
       label: "Delete",
       icon: "i-heroicons-trash",
       click: () => {
-        deleteFile();
-        // deleteFile(props.id, {
-        //   onError: handleError,
-        // });
+        deleteFile(props.id, {
+          onError: handleError,
+        });
       },
     },
   ],
