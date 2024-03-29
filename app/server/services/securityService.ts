@@ -2,9 +2,9 @@ import type { ConversationRepository } from "~/server/repositories/conversationR
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import type { SampleTestRepository } from "~/server/repositories/sampleTestRepository";
-import { useSupabaseClient } from "~/server/lib/supabase/client";
+import type { CollectionRepository } from "~/server/repositories/collectionRepository";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { UnauthorizedError } from "~/types/errors";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 export interface User {
   id: string;
@@ -24,6 +24,7 @@ export interface SecurityService {
   checkConversationOwnership: (id: string) => Promise<void>;
   checkFlashcardDeckOwnership: (id: string) => Promise<void>;
   checkSampleTestOwnership: (id: string) => Promise<void>;
+  checkCollectionOwnership: (id: string) => Promise<void>;
 }
 
 const supabaseSecurityService = (
@@ -31,6 +32,7 @@ const supabaseSecurityService = (
   fileRepository: FileRepository,
   flashcardDeckRepository: FlashcardDeckRepository,
   sampleTestRepository: SampleTestRepository,
+  collectionRepository: CollectionRepository,
   supabase: SupabaseClient,
 ): SecurityService => {
   const getSession = async () => {
@@ -100,6 +102,17 @@ const supabaseSecurityService = (
     }
   };
 
+  const checkCollectionOwnership = async (id: string) => {
+    const user = await getUser();
+    const collection = await collectionRepository.getCollectionById(id);
+
+    if (collection.userId !== user.id) {
+      throw new UnauthorizedError(
+        "User is not authorized to access this collection.",
+      );
+    }
+  };
+
   return {
     getSession,
     getUser,
@@ -107,6 +120,7 @@ const supabaseSecurityService = (
     checkConversationOwnership,
     checkFlashcardDeckOwnership,
     checkSampleTestOwnership,
+    checkCollectionOwnership,
   };
 };
 
@@ -114,12 +128,15 @@ import { useConversationRepository } from "~/server/repositories/conversationRep
 import { useFileRepository } from "~/server/repositories/fileRepository";
 import { useFlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import { useSampleTestRepository } from "~/server/repositories/sampleTestRepository";
+import { useCollectionRepository } from "~/server/repositories/collectionRepository";
+import { useSupabaseClient } from "~/server/lib/supabase/client";
 
 export const useSecurityService = () => {
   const conversationRepository = useConversationRepository();
   const fileRepository = useFileRepository();
   const flashcardDeckRepository = useFlashcardDeckRepository();
   const sampleTestRepository = useSampleTestRepository();
+  const collectionRepository = useCollectionRepository();
   const supabase = useSupabaseClient();
 
   return supabaseSecurityService(
@@ -127,6 +144,7 @@ export const useSecurityService = () => {
     fileRepository,
     flashcardDeckRepository,
     sampleTestRepository,
+    collectionRepository,
     supabase,
   );
 };

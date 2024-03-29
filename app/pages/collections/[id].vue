@@ -3,13 +3,17 @@
     <div
       class="p-container z-50 flex flex-wrap items-center gap-6 bg-white py-10 pb-8 sm:flex-nowrap"
     >
+      <USkeleton v-if="isLoading" class="h-7 w-64" />
       <h1
-        v-if="collection.name"
+        v-else-if="collection?.name"
         class="text-3xl font-semibold leading-7 tracking-tight"
       >
         {{ collection.name }}
       </h1>
-      <h1 class="text-3xl font-semibold leading-7 tracking-tight text-gray-400">
+      <h1
+        v-else
+        class="text-3xl font-semibold leading-7 tracking-tight text-gray-400"
+      >
         Untitled Collection
       </h1>
 
@@ -18,7 +22,7 @@
           v-if="!isEmpty"
           icon="i-heroicons-document-plus"
           size="xl"
-          @click="addFiles"
+          @click="handleAddFilesToCollection"
         >
           Add files
         </UButton>
@@ -34,232 +38,133 @@
     </div>
 
     <div class="h-full overflow-y-auto">
-      <template v-if="false">
-        <FileGridSkeleton />
-      </template>
-      <template v-else-if="isEmpty">
-        <FileGridEmpty
-          instructions="Get started by adding files to this collection."
-        >
-          <template #actions>
-            <UButton
-              icon="i-heroicons-document-plus"
-              size="xl"
-              @click="addFiles"
-            >
-              Add files
-            </UButton>
-          </template>
-        </FileGridEmpty>
+      <template v-if="collection">
+        <CollectionFileGrid
+          :collection-id="collectionId"
+          :files="collection.files"
+        />
       </template>
       <template v-else>
-        <CollectionFileGrid :files="throttledFiles" />
+        <FileGridSkeleton />
       </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RenameCollectionModal, AddFilesToCollectionModal } from "#components";
+import {
+  RenameCollectionModal,
+  AddFilesToCollectionModal,
+  DeleteCollectionModal,
+} from "#components";
 
-const { data: uploadedFiles, isPending } = useFilesQuery();
+const { currentRoute } = useRouter();
+const collectionId = z.coerce.string().parse(currentRoute.value.params.id);
 
-const collection = ref({
-  id: "collection-id",
-  name: "",
-  files: [
-    {
-      id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-      name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-      originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-      createdAt: "2024-03-23T17:43:42.685Z",
-    },
-    {
-      id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-      name: "PSTprednaska5.pdf-1711142505460",
-      originalName: "PSTprednaska5.pdf",
-      createdAt: "2024-03-22T21:21:45.598Z",
-    },
-    // {
-    //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-    //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-    //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-    //   createdAt: "2024-03-23T17:43:42.685Z",
-    // },
-    // {
-    //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-    //   name: "PSTprednaska5.pdf-1711142505460",
-    //   originalName: "PSTprednaska5.pdf",
-    //   createdAt: "2024-03-22T21:21:45.598Z",
-    // },
-    // {
-    //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-    //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-    //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-    //   createdAt: "2024-03-23T17:43:42.685Z",
-    // },
-    // {
-    //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-    //   name: "PSTprednaska5.pdf-1711142505460",
-    //   originalName: "PSTprednaska5.pdf",
-    //   createdAt: "2024-03-22T21:21:45.598Z",
-    // },
-    // {
-    //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-    //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-    //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-    //   createdAt: "2024-03-23T17:43:42.685Z",
-    // },
-    // {
-    //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-    //   name: "PSTprednaska5.pdf-1711142505460",
-    //   originalName: "PSTprednaska5.pdf",
-    //   createdAt: "2024-03-22T21:21:45.598Z",
-    // },
-    // {
-    //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-    //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-    //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-    //   createdAt: "2024-03-23T17:43:42.685Z",
-    // },
-    // {
-    //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-    //   name: "PSTprednaska5.pdf-1711142505460",
-    //   originalName: "PSTprednaska5.pdf",
-    //   createdAt: "2024-03-22T21:21:45.598Z",
-    // },
-    // {
-    //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-    //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-    //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-    //   createdAt: "2024-03-23T17:43:42.685Z",
-    // },
-    // {
-    //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-    //   name: "PSTprednaska5.pdf-1711142505460",
-    //   originalName: "PSTprednaska5.pdf",
-    //   createdAt: "2024-03-22T21:21:45.598Z",
-    // },
-    // {
-    //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-    //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-    //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-    //   createdAt: "2024-03-23T17:43:42.685Z",
-    // },
-    // {
-    //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-    //   name: "PSTprednaska5.pdf-1711142505460",
-    //   originalName: "PSTprednaska5.pdf",
-    //   createdAt: "2024-03-22T21:21:45.598Z",
-    // },
-    // {
-    //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-    //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-    //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-    //   createdAt: "2024-03-23T17:43:42.685Z",
-    // },
-    // {
-    //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-    //   name: "PSTprednaska5.pdf-1711142505460",
-    //   originalName: "PSTprednaska5.pdf",
-    //   createdAt: "2024-03-22T21:21:45.598Z",
-    // },
-    // {
-    //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-    //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-    //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-    //   createdAt: "2024-03-23T17:43:42.685Z",
-    // },
-    // {
-    //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-    //   name: "PSTprednaska5.pdf-1711142505460",
-    //   originalName: "PSTprednaska5.pdf",
-    //   createdAt: "2024-03-22T21:21:45.598Z",
-    // },
-  ],
+const { data: collection, isLoading } = useCollectionQuery(collectionId);
+await until(collection).toBeTruthy({
+  timeout: 500,
 });
-
-const files = computed(() => {
-  return collection.value.files;
-});
-
-const throttledFiles = refThrottled(files, 1000);
 
 const modal = useModal();
 
-const isEmpty = computed(() => files.value.length === 0);
+const isEmpty = computed(() => collection.value?.files.length === 0);
 
-const renameCollection = () => {
-  modal.open(RenameCollectionModal, {
-    collectionId: "collection-id",
-    name: "",
-  });
-};
+const { mutate: createConversation } =
+  useCreateConversationForCollectionMutation();
+const { mutate: createFlashcardDeck } =
+  useCreateFlashcardDeckForCollectionMutation();
+const { mutate: createSampleTest } = useCreateSampleTestForCollectionMutation();
 
-const addFiles = () => {
+const handleAddFilesToCollection = () => {
   modal.open(AddFilesToCollectionModal, {
-    collectionId: "collection-id",
+    collectionId: collectionId,
   });
 };
+
+const toast = useToast();
 
 const items = computed(() => [
   [
     {
       label: "Start a conversation",
       icon: "i-heroicons-chat-bubble-left-right",
-      // click: () => {
-      //   createConversation(props.id, {
-      //     onSuccess: (conversationId) => {
-      //       navigateTo(`/conversations/${conversationId}`);
-      //     },
-      //     onError: handleError,
-      //   });
-      // },
-      disabled: isEmpty,
+      click() {
+        createConversation(collectionId, {
+          onSuccess: (conversationId) => {
+            navigateTo(`/conversations/${conversationId}`);
+          },
+          onError() {
+            toast.add({
+              title: "Failed to start a conversation.",
+              color: "red",
+            });
+          },
+        });
+      },
+      disabled: isEmpty.value,
     },
     {
       label: "Generate flashcards",
       icon: "i-heroicons-rectangle-stack",
-      // click: () => {
-      //   createFlashcardDeck(props.id, {
-      //     onSuccess: (flashcardDeckId) => {
-      //       navigateTo(`/flashcards/${flashcardDeckId}`);
-      //     },
-      //     onError: handleError,
-      //   });
-      // },
-      disabled: isEmpty,
+      click() {
+        createFlashcardDeck(collectionId, {
+          onSuccess: (flashcardDeckId) => {
+            navigateTo(`/flashcards/${flashcardDeckId}`);
+          },
+          onError() {
+            toast.add({
+              title: "Failed to create a flashcard deck.",
+              color: "red",
+            });
+          },
+        });
+      },
+      disabled: isEmpty.value,
     },
     {
       label: "Generate a test",
       icon: "i-heroicons-academic-cap",
-      // click: () => {
-      //   createSampleTest(props.id, {
-      //     onSuccess: (testId) => {
-      //       navigateTo(`/sample-tests/${testId}`);
-      //     },
-      //     onError: handleError,
-      //   });
-      // },
-      disabled: isEmpty,
+      click() {
+        createSampleTest(collectionId, {
+          onSuccess: (testId) => {
+            navigateTo(`/sample-tests/${testId}`);
+          },
+          onError() {
+            toast.add({
+              title: "Failed to create a sample test.",
+              color: "red",
+            });
+          },
+        });
+      },
+      disabled: isEmpty.value,
     },
   ],
   [
     {
       label: "Rename",
       icon: "i-heroicons-pencil",
-      click: renameCollection,
+      click() {
+        if (!collection.value) return;
+
+        modal.open(RenameCollectionModal, {
+          collectionId: collectionId,
+          name: collection.value.name,
+        });
+      },
+      disabled: !collection.value,
     },
   ],
   [
     {
       label: "Delete",
       icon: "i-heroicons-trash",
-      //       click: () => {
-      //         deleteFile(props.id, {
-      //           onError: handleError,
-      //         });
-      //       },
+      click() {
+        modal.open(DeleteCollectionModal, {
+          collectionId,
+        });
+      },
     },
   ],
 ]);

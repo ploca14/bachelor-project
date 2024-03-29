@@ -18,7 +18,12 @@
     </div>
 
     <div class="overflow-y-auto">
-      <CollectionGrid class="relative z-40" />
+      <template v-if="collections">
+        <CollectionGrid class="relative z-40" :collections="collections" />
+      </template>
+      <template v-else>
+        <CollectionGridSkeleton />
+      </template>
 
       <template v-if="uploadedFiles">
         <FileGrid :files="throttledFiles" />
@@ -32,6 +37,7 @@
 
 <script setup lang="ts">
 const { data: uploadedFiles, isPending } = useFilesQuery();
+const { data: collections } = useCollectionsQuery();
 const {
   openFileDialog,
   pendingFiles,
@@ -52,4 +58,8 @@ const files = computed(() => {
 });
 
 const throttledFiles = refThrottled(files, 1000);
+
+await until(logicAnd(collections, throttledFiles)).toBeTruthy({
+  timeout: 500,
+});
 </script>

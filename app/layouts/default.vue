@@ -31,13 +31,30 @@
         :links="navigation"
         :ui="{
           label: 'hidden sr-only',
-          padding: 'p-3',
-          icon: { base: 'h-6 w-6' },
+          padding: '',
           width: 'w-auto',
           wrapper: 'flex flex-col items-center space-y-1',
         }"
         class="mt-8"
       >
+        <template #icon="{ link }">
+          <UTooltip
+            :text="link.label"
+            :popper="{ placement: 'right' }"
+            :open-delay="500"
+            :ui="{
+              wrapper: 'p-3',
+              transition: {
+                enterFromClass: '-translate-x-1',
+                enterToClass: 'translate-x-0',
+                leaveFromClass: 'translate-x-0',
+                leaveToClass: '-translate-x-1',
+              },
+            }"
+          >
+            <UIcon :name="link.icon" class="h-6 w-6" />
+          </UTooltip>
+        </template>
       </UVerticalNavigation>
       <UserMenu size="md" />
     </div>

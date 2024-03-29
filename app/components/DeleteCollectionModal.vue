@@ -36,7 +36,12 @@
         >
           Cancel
         </UButton>
-        <UButton type="submit" size="lg" class="w-20 justify-center">
+        <UButton
+          type="submit"
+          size="lg"
+          class="w-20 justify-center"
+          @click="handleSubmit"
+        >
           OK
         </UButton>
       </div>
@@ -50,4 +55,27 @@ const modal = useModal();
 const props = defineProps<{
   collectionId: string;
 }>();
+
+const { mutate } = useDeleteCollectionMutation();
+
+const toast = useToast();
+
+const handleSubmit = () => {
+  mutate(props.collectionId, {
+    onSuccess() {
+      modal.close();
+      toast.add({
+        title: "Collection deleted.",
+        color: "green",
+      });
+    },
+    onError() {
+      modal.close();
+      toast.add({
+        title: "Failed to delete collection.",
+        color: "red",
+      });
+    },
+  });
+};
 </script>

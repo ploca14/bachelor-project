@@ -45,65 +45,65 @@ const props = defineProps<{
   active: boolean;
 }>();
 
-const { mutate: createConversation } = useCreateConversationMutation();
-const { mutate: createFlashcardDeck } = useCreateFlashcardDeckMutation();
-const { mutate: createSampleTest } = useCreateSampleTestMutation();
+const { mutate: createConversation } =
+  useCreateConversationForCollectionMutation();
+const { mutate: createFlashcardDeck } =
+  useCreateFlashcardDeckForCollectionMutation();
+const { mutate: createSampleTest } = useCreateSampleTestForCollectionMutation();
 const toast = useToast();
 
-const handleError = (error: Error) => {
-  toast.add({ title: error.message, color: "red" });
-};
-
 const modal = useModal();
-
-const renameCollection = () => {
-  modal.open(RenameCollectionModal, {
-    collectionId: props.id,
-    name: props.name,
-  });
-};
-
-const deleteCollection = () => {
-  modal.open(DeleteCollectionModal, {
-    collectionId: props.id,
-  });
-};
 
 const items = [
   [
     {
       label: "Start a conversation",
       icon: "i-heroicons-chat-bubble-left-right",
-      click: () => {
+      click() {
         createConversation(props.id, {
-          onSuccess: (conversationId) => {
+          onSuccess(conversationId) {
             navigateTo(`/conversations/${conversationId}`);
           },
-          onError: handleError,
+          onError() {
+            toast.add({
+              title: "Failed to start a conversation.",
+              color: "red",
+            });
+          },
         });
       },
     },
     {
       label: "Generate flashcards",
       icon: "i-heroicons-rectangle-stack",
-      click: () => {
+      click() {
         createFlashcardDeck(props.id, {
-          onSuccess: (flashcardDeckId) => {
+          onSuccess(flashcardDeckId) {
             navigateTo(`/flashcards/${flashcardDeckId}`);
           },
-          onError: handleError,
+          onError() {
+            toast.add({
+              title: "Failed to create a flashcard deck.",
+              color: "red",
+            });
+          },
         });
       },
     },
     {
       label: "Generate a test",
       icon: "i-heroicons-academic-cap",
-      click: () => {
+      click() {
         createSampleTest(props.id, {
-          onSuccess: (testId) => {
+          onSuccess(testId) {
             navigateTo(`/sample-tests/${testId}`);
           },
-          onError: handleError,
+          onError() {
+            toast.add({
+              title: "Failed to create a sample test.",
+              color: "red",
+            });
+          },
         });
       },
     },
@@ -112,14 +112,23 @@ const items = [
     {
       label: "Rename",
       icon: "i-heroicons-pencil",
-      click: renameCollection,
+      click() {
+        modal.open(RenameCollectionModal, {
+          collectionId: props.id,
+          name: props.name,
+        });
+      },
     },
   ],
   [
     {
       label: "Delete",
       icon: "i-heroicons-trash",
-      click: deleteCollection,
+      click() {
+        modal.open(DeleteCollectionModal, {
+          collectionId: props.id,
+        });
+      },
     },
   ],
 ];

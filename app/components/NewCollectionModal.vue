@@ -81,10 +81,26 @@ const state = reactive({
   name: "",
 });
 
+const { mutate } = useCreateCollectionMutation();
+const toast = useToast();
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  // Do something with data
-  console.log(event.data, props.fileIds);
-  modal.close();
-  return navigateTo(`/collections/new-uuid`);
+  const payload = {
+    name: event.data.name,
+    fileIds: props.fileIds,
+  };
+
+  mutate(payload, {
+    onSuccess(id) {
+      modal.close();
+      navigateTo(`/collections/${id}`);
+    },
+    onError() {
+      toast.add({
+        title: "Failed to create collection.",
+        color: "red",
+      });
+    },
+  });
 }
 </script>

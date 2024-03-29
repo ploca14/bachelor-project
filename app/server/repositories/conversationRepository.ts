@@ -71,6 +71,10 @@ const prismaConversationRepository = (
         },
       });
 
+      if (messages.length === 0) {
+        return;
+      }
+
       // Recreate the messages
       await prisma.message.createMany({
         data: messages.map((message) => messageMapper.toPersistence(message)),
@@ -82,7 +86,7 @@ const prismaConversationRepository = (
     const rawConversation = conversationMapper.toPersistence(conversation);
 
     // If the conversation already exists, update it. Otherwise, create it.
-    const result = await prisma.conversation.upsert({
+    await prisma.conversation.upsert({
       where: { id: conversation.id },
       create: rawConversation,
       update: rawConversation,
@@ -94,6 +98,11 @@ const prismaConversationRepository = (
 
     // Save the messages
     await saveConversationMessages(conversation.id, conversation.messages);
+
+    const result = await prisma.conversation.findUnique({
+      where: { id: conversation.id },
+      ...BASE_QUERY_OPTIONS,
+    });
 
     return conversationMapper.toDomain(result);
   });

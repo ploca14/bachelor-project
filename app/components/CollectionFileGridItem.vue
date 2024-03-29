@@ -3,9 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import { AddToCollectionModal } from "#components";
+import { AddToCollectionModal, DeleteFilesModal } from "#components";
 
 const props = defineProps<{
+  collectionId: string;
   id: string;
   originalName: string;
   createdAt: string;
@@ -13,59 +14,65 @@ const props = defineProps<{
   active: boolean;
 }>();
 
-const { mutate: deleteFile } = useDeleteFileMutation();
 const { mutate: createConversation } = useCreateConversationMutation();
 const { mutate: createFlashcardDeck } = useCreateFlashcardDeckMutation();
 const { mutate: createSampleTest } = useCreateSampleTestMutation();
+const { mutate: removeFilesFromCollection } =
+  useRemoveFilesFromCollectionMutation();
 const toast = useToast();
 
-const handleError = (error: Error) => {
-  toast.add({ title: error.message, color: "red" });
-};
-
 const modal = useModal();
-
-const addToCollection = () => {
-  modal.open(AddToCollectionModal, {
-    fileIds: [props.id],
-  });
-};
 
 const menu = [
   [
     {
       label: "Start a conversation",
       icon: "i-heroicons-chat-bubble-left-right",
-      click: () => {
+      click() {
         createConversation(props.id, {
-          onSuccess: (conversationId) => {
+          onSuccess(conversationId) {
             navigateTo(`/conversations/${conversationId}`);
           },
-          onError: handleError,
+          onError() {
+            toast.add({
+              title: "Failed to start a conversation.",
+              color: "red",
+            });
+          },
         });
       },
     },
     {
       label: "Generate flashcards",
       icon: "i-heroicons-rectangle-stack",
-      click: () => {
-        createFlashcardDeck(props.id, {
-          onSuccess: (flashcardDeckId) => {
+      click() {
+        createFlashcardDeck([props.id], {
+          onSuccess(flashcardDeckId) {
             navigateTo(`/flashcards/${flashcardDeckId}`);
           },
-          onError: handleError,
+          onError() {
+            toast.add({
+              title: "Failed to create a flashcard deck.",
+              color: "red",
+            });
+          },
         });
       },
     },
     {
       label: "Generate a test",
       icon: "i-heroicons-academic-cap",
-      click: () => {
+      click() {
         createSampleTest(props.id, {
-          onSuccess: (testId) => {
+          onSuccess(testId) {
             navigateTo(`/sample-tests/${testId}`);
           },
-          onError: handleError,
+          onError() {
+            toast.add({
+              title: "Failed to create a sample test.",
+              color: "red",
+            });
+          },
         });
       },
     },
@@ -74,15 +81,30 @@ const menu = [
     {
       label: "Add to collection",
       icon: "i-heroicons-folder-plus",
-      click: addToCollection,
+      click() {
+        modal.open(AddToCollectionModal, {
+          fileIds: [props.id],
+        });
+      },
     },
     {
       label: "Remove from collection",
       icon: "i-heroicons-folder-minus",
-      click: () => {
-        // removeFromCollection(props.id, {
-        //   onError: handleError,
-        // });
+      click() {
+        removeFilesFromCollection(
+          {
+            collectionId: props.collectionId,
+            fileIds: [props.id],
+          },
+          {
+            onError() {
+              toast.add({
+                title: "Failed to remove file from collection.",
+                color: "red",
+              });
+            },
+          },
+        );
       },
     },
   ],
@@ -90,9 +112,9 @@ const menu = [
     {
       label: "Delete",
       icon: "i-heroicons-trash",
-      click: () => {
-        deleteFile(props.id, {
-          onError: handleError,
+      click() {
+        modal.open(DeleteFilesModal, {
+          fileIds: [props.id],
         });
       },
     },

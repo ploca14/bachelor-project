@@ -1,6 +1,4 @@
 <template>
-  <h3 class="p-container sticky top-0 z-40 bg-white pb-4 font-medium">Files</h3>
-
   <div class="p-container h-full pb-16 pt-2">
     <div class="grid h-full place-items-center rounded-lg border border-dashed">
       <div class="text-center">

@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="h-full">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
 
-    <UNotifications />
     <UModals />
+    <UNotifications />
   </div>
 </template>
 

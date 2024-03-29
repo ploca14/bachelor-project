@@ -3,7 +3,7 @@ export const useCreateFlashcardDeckMutation = () => {
 
   return useMutation({
     mutationFn: async (fileId: string) => {
-      return $fetch(`/api/flashcard-decks`, {
+      return $fetch(`/api/files/${fileId}/flashcard-decks`, {
         method: "post",
         body: {
           fileId,

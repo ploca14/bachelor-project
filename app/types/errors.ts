@@ -25,3 +25,10 @@ export class InvalidMessageError extends Error {
     this.name = "InvalidMessageError";
   }
 }
+
+export class NoFilesError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NoFilesError";
+  }
+}

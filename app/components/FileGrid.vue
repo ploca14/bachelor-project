@@ -41,32 +41,39 @@
       </template>
     </div>
 
-    <GridView
-      v-model="selectedIndexes"
-      aria-label="Files"
-      :items="files"
-      :column-count="getGridColumnCount"
-      class="p-container grid grid-cols-2 gap-4 pb-16 pt-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-      ref="parent"
-      selection-mode="multiple"
-    >
-      <template #default="{ item: file, active, selected }">
-        <component
-          v-if="file.status"
-          :is="pendingComponentMap[file.status]"
-          :original-name="file.originalName"
-          :progress="file.uploadProgress"
-        />
-        <FileGridItemUploaded
-          v-if="file.createdAt"
-          :id="file.id"
-          :original-name="file.originalName"
-          :created-at="file.createdAt"
-          :selected="selected"
-          :active="active"
-        />
-      </template>
-    </GridView>
+    <template v-if="files.length > 0">
+      <GridView
+        v-model="selectedIndexes"
+        aria-label="Files"
+        :items="files"
+        :column-count="getGridColumnCount"
+        class="p-container grid grid-cols-2 gap-4 pb-16 pt-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+        :ref="(ref) => ref && '$el' in ref && (parent = ref.$el)"
+        selection-mode="multiple"
+      >
+        <template #default="{ item: file, active, selected }">
+          <component
+            v-if="file.status"
+            :is="pendingComponentMap[file.status]"
+            :original-name="file.originalName"
+            :progress="file.uploadProgress"
+          />
+          <FileGridItemUploaded
+            v-if="file.createdAt"
+            :id="file.id"
+            :original-name="file.originalName"
+            :created-at="file.createdAt"
+            :selected="selected"
+            :active="active"
+          />
+        </template>
+      </GridView>
+    </template>
+    <template v-else>
+      <div class="p-container">
+        <p class="text-sm text-gray-500">You have no files yet.</p>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -84,6 +91,13 @@ const props = defineProps<{
   }>;
 }>();
 
+watch(
+  () => props.files,
+  () => {
+    selectedIndexes.value = [];
+  },
+);
+
 const [parent] = useAutoAnimate({
   duration: 300,
 });
@@ -95,8 +109,7 @@ const selectedFiles = computed(() => {
 });
 
 const getGridColumnCount = () => {
-  const grid = (parent.value as unknown as ComponentPublicInstance | null)?.$el;
-  const gridComputedStyle = window.getComputedStyle(grid);
+  const gridComputedStyle = window.getComputedStyle(parent.value);
   const gridTemplateColumns = gridComputedStyle.getPropertyValue(
     "grid-template-columns",
   );

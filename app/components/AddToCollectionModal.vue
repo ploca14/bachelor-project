@@ -28,7 +28,8 @@
 
       <Menu @keydown.esc="modal.close()">
         <MenuItems
-          class="scroll-py-2 divide-y divide-gray-100 overflow-y-auto rounded-lg outline-2 outline-green-500 dark:divide-gray-800"
+          class="scroll-py-2 divide-gray-100 overflow-y-auto rounded-lg outline-2 outline-green-500 dark:divide-gray-800"
+          :class="collections.length > 0 ? 'divide-y' : 'divide-none'"
           static
         >
           <div
@@ -78,10 +79,20 @@ const props = defineProps<{
   fileIds: string[];
 }>();
 
-const collections = [
-  { id: "1", label: "Collection 1" },
-  { id: "2", label: "Collection 2" },
-];
+const { data, suspense } = useCollectionsQuery();
+await suspense();
+
+const collections = computed(() => {
+  if (!data.value) {
+    return [];
+  }
+
+  return data.value.map((collection) => ({
+    id: collection.id,
+    label: collection.name ? collection.name : "Untitled collection",
+    group: "collections",
+  }));
+});
 
 const newCollection = async () => {
   modal.close();
@@ -91,7 +102,11 @@ const newCollection = async () => {
   });
 };
 
-const groups = [
+const toast = useToast();
+
+const { mutate } = useAddFilesToCollectionMutation();
+
+const groups = computed(() => [
   {
     key: "actions",
     commands: [
@@ -105,17 +120,37 @@ const groups = [
   },
   {
     key: "collections",
-    commands: collections,
+    commands: collections.value,
   },
-];
+]);
 
 const onSelect = (option: any) => {
   if (option.group === "actions") {
     option.click();
   } else if (option.group === "collections") {
-    console.log("Add to collection", option.label);
-  }
+    const payload = {
+      collectionId: option.id,
+      fileIds: props.fileIds,
+    };
 
-  // modal.close();
+    mutate(payload, {
+      onSuccess(_data, { collectionId, fileIds }) {
+        const collection = collections.value.find((c) => c.id === collectionId);
+
+        modal.close();
+        toast.add({
+          title: `${fileIds.length > 1 ? "Files" : "File"} added to ${collection?.label ?? "collection"}.`,
+          color: "green",
+        });
+      },
+      onError(_error, { fileIds }) {
+        modal.close();
+        toast.add({
+          title: `Failed to add ${fileIds.length > 1 ? "Files" : "File"} to collection.`,
+          color: "red",
+        });
+      },
+    });
+  }
 };
 </script>

@@ -37,7 +37,12 @@
         >
           Cancel
         </UButton>
-        <UButton type="submit" size="lg" class="w-20 justify-center">
+        <UButton
+          type="submit"
+          size="lg"
+          class="w-20 justify-center"
+          @click="handleSubmit"
+        >
           OK
         </UButton>
       </div>
@@ -51,4 +56,30 @@ const modal = useModal();
 const props = defineProps<{
   fileIds: string[];
 }>();
+
+const { mutate } = useDeleteFilesMutation();
+
+const toast = useToast();
+
+const handleSubmit = () => {
+  mutate(props.fileIds, {
+    onSuccess() {
+      modal.close();
+      toast.add({
+        title: props.fileIds.length > 1 ? "Files deleted." : "File deleted.",
+        color: "green",
+      });
+    },
+    onError(error) {
+      modal.close();
+      toast.add({
+        title:
+          props.fileIds.length > 1
+            ? "Failed to delete files."
+            : "Failed to delete file.",
+        color: "red",
+      });
+    },
+  });
+};
 </script>

@@ -3,11 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  AddToCollectionModal,
-  NewCollectionModal,
-  DeleteFilesModal,
-} from "#components";
+import { AddToCollectionModal, DeleteFilesModal } from "#components";
 
 const props = defineProps<{
   id: string;
@@ -17,65 +13,63 @@ const props = defineProps<{
   active: boolean;
 }>();
 
-// const { mutate: deleteFile } = useDeleteFileMutation();
 const { mutate: createConversation } = useCreateConversationMutation();
 const { mutate: createFlashcardDeck } = useCreateFlashcardDeckMutation();
 const { mutate: createSampleTest } = useCreateSampleTestMutation();
 const toast = useToast();
 
-const handleError = (error: Error) => {
-  toast.add({ title: error.message, color: "red" });
-};
-
 const modal = useModal();
-
-const addToCollection = () => {
-  modal.open(AddToCollectionModal, {
-    fileIds: [props.id],
-  });
-};
-
-const deleteFile = () => {
-  modal.open(DeleteFilesModal, {
-    fileIds: [props.id],
-  });
-};
 
 const menu = [
   [
     {
       label: "Start a conversation",
       icon: "i-heroicons-chat-bubble-left-right",
-      click: () => {
+      click() {
         createConversation(props.id, {
-          onSuccess: (conversationId) => {
+          onSuccess(conversationId) {
             navigateTo(`/conversations/${conversationId}`);
           },
-          onError: handleError,
+          onError() {
+            toast.add({
+              title: "Failed to start a conversation.",
+              color: "red",
+            });
+          },
         });
       },
     },
     {
       label: "Generate flashcards",
       icon: "i-heroicons-rectangle-stack",
-      click: () => {
+      click() {
         createFlashcardDeck(props.id, {
-          onSuccess: (flashcardDeckId) => {
+          onSuccess(flashcardDeckId) {
             navigateTo(`/flashcards/${flashcardDeckId}`);
           },
-          onError: handleError,
+          onError() {
+            toast.add({
+              title: "Failed to generate flashcards.",
+              color: "red",
+            });
+          },
         });
       },
     },
     {
       label: "Generate a test",
       icon: "i-heroicons-academic-cap",
-      click: () => {
+      click() {
         createSampleTest(props.id, {
           onSuccess: (testId) => {
             navigateTo(`/sample-tests/${testId}`);
           },
-          onError: handleError,
+          onError() {
+            toast.add({
+              title: "Failed to generate a test.",
+              color: "red",
+            });
+          },
         });
       },
     },
@@ -84,18 +78,21 @@ const menu = [
     {
       label: "Add to collection",
       icon: "i-heroicons-folder-plus",
-      click: addToCollection,
+      click() {
+        modal.open(AddToCollectionModal, {
+          fileIds: [props.id],
+        });
+      },
     },
   ],
   [
     {
       label: "Delete",
       icon: "i-heroicons-trash",
-      click: () => {
-        deleteFile();
-        // deleteFile(props.id, {
-        //   onError: handleError,
-        // });
+      click() {
+        modal.open(DeleteFilesModal, {
+          fileIds: [props.id],
+        });
       },
     },
   ],

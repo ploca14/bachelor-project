@@ -31,26 +31,50 @@
         </div>
       </template>
 
-      <GridView
-        v-model="selectedIndexes"
-        aria-label="Files"
-        :items="files"
-        :column-count="getGridColumnCount"
-        class="p-container grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5"
-        ref="parent"
-        selection-mode="multiple"
-      >
-        <template #default="{ item: file, active, selected }">
-          <FileGridItemUploaded
-            v-if="file.createdAt"
-            :id="file.id"
-            :original-name="file.originalName"
-            :created-at="file.createdAt"
-            :selected="selected"
-            :active="active"
-          />
-        </template>
-      </GridView>
+      <template v-if="files">
+        <GridView
+          v-model="selectedIndexes"
+          aria-label="Files"
+          :items="files"
+          :column-count="getGridColumnCount"
+          class="p-container grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5"
+          ref="parent"
+          selection-mode="multiple"
+        >
+          <template #default="{ item: file, active, selected }">
+            <FileGridItemUploaded
+              v-if="file.createdAt"
+              :id="file.id"
+              :original-name="file.originalName"
+              :created-at="file.createdAt"
+              :selected="selected"
+              :active="active"
+            />
+          </template>
+        </GridView>
+      </template>
+      <template v-else-if="error">
+        <div class="p-container h-full pb-16 pt-2">
+          <div class="grid h-full place-items-center">
+            <div class="text-center">
+              <Icon name="i-heroicons-face-frown" class="h-10 w-10" />
+              <h3 class="mt-2 text-2xl font-bold tracking-tight">
+                Failed to load files
+              </h3>
+              <p class="mt-1 text-sm text-gray-500">Please try again later.</p>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <ul
+          class="p-container grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5"
+        >
+          <li v-for="i in 12" :key="i" class="relative">
+            <FileGridItemSkeleton />
+          </li>
+        </ul>
+      </template>
 
       <template #footer>
         <div class="flex justify-end gap-4">
@@ -63,7 +87,12 @@
           >
             Cancel
           </UButton>
-          <UButton type="submit" size="lg" class="w-20 justify-center">
+          <UButton
+            type="submit"
+            size="lg"
+            class="w-20 justify-center"
+            @click="handleSubmit"
+          >
             Done
           </UButton>
         </div>
@@ -73,127 +102,21 @@
 </template>
 
 <script setup lang="ts">
+import { useAddFilesToCollectionMutation } from "~/composables/queries/useAddFilesToCollectionMutation";
+
 const props = defineProps<{
   collectionId: string;
 }>();
 
 const modal = useModal();
 
-const files = [
-  {
-    id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-    name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-    originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-    createdAt: "2024-03-23T17:43:42.685Z",
-  },
-  {
-    id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-    name: "PSTprednaska5.pdf-1711142505460",
-    originalName: "PSTprednaska5.pdf",
-    createdAt: "2024-03-22T21:21:45.598Z",
-  },
-  // {
-  //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-  //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-  //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-  //   createdAt: "2024-03-23T17:43:42.685Z",
-  // },
-  // {
-  //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-  //   name: "PSTprednaska5.pdf-1711142505460",
-  //   originalName: "PSTprednaska5.pdf",
-  //   createdAt: "2024-03-22T21:21:45.598Z",
-  // },
-  // {
-  //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-  //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-  //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-  //   createdAt: "2024-03-23T17:43:42.685Z",
-  // },
-  // {
-  //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-  //   name: "PSTprednaska5.pdf-1711142505460",
-  //   originalName: "PSTprednaska5.pdf",
-  //   createdAt: "2024-03-22T21:21:45.598Z",
-  // },
-  // {
-  //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-  //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-  //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-  //   createdAt: "2024-03-23T17:43:42.685Z",
-  // },
-  // {
-  //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-  //   name: "PSTprednaska5.pdf-1711142505460",
-  //   originalName: "PSTprednaska5.pdf",
-  //   createdAt: "2024-03-22T21:21:45.598Z",
-  // },
-  // {
-  //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-  //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-  //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-  //   createdAt: "2024-03-23T17:43:42.685Z",
-  // },
-  // {
-  //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-  //   name: "PSTprednaska5.pdf-1711142505460",
-  //   originalName: "PSTprednaska5.pdf",
-  //   createdAt: "2024-03-22T21:21:45.598Z",
-  // },
-  // {
-  //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-  //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-  //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-  //   createdAt: "2024-03-23T17:43:42.685Z",
-  // },
-  // {
-  //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-  //   name: "PSTprednaska5.pdf-1711142505460",
-  //   originalName: "PSTprednaska5.pdf",
-  //   createdAt: "2024-03-22T21:21:45.598Z",
-  // },
-  // {
-  //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-  //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-  //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-  //   createdAt: "2024-03-23T17:43:42.685Z",
-  // },
-  // {
-  //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-  //   name: "PSTprednaska5.pdf-1711142505460",
-  //   originalName: "PSTprednaska5.pdf",
-  //   createdAt: "2024-03-22T21:21:45.598Z",
-  // },
-  // {
-  //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-  //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-  //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-  //   createdAt: "2024-03-23T17:43:42.685Z",
-  // },
-  // {
-  //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-  //   name: "PSTprednaska5.pdf-1711142505460",
-  //   originalName: "PSTprednaska5.pdf",
-  //   createdAt: "2024-03-22T21:21:45.598Z",
-  // },
-  // {
-  //   id: "e9ee900f-e1fa-4a97-9e2e-446b2d9eeb0d",
-  //   name: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf-1711215822580",
-  //   originalName: "A7B32KBE_C04_Transpozicni_sifry_v1.0.6M.pdf",
-  //   createdAt: "2024-03-23T17:43:42.685Z",
-  // },
-  // {
-  //   id: "3b1ff909-5e76-43ea-83b8-b32696a7d5e6",
-  //   name: "PSTprednaska5.pdf-1711142505460",
-  //   originalName: "PSTprednaska5.pdf",
-  //   createdAt: "2024-03-22T21:21:45.598Z",
-  // },
-];
+const { data: files, error } = useFilesQuery();
 
 const selectedIndexes = ref<number[]>([]);
 
 const selectedFiles = computed(() => {
-  return selectedIndexes.value.map((index) => files[index]);
+  if (!files.value) return [];
+  return selectedIndexes.value.map((index) => files.value[index]);
 });
 
 const parent = ref<ComponentPublicInstance | null>(null);
@@ -205,5 +128,29 @@ const getGridColumnCount = () => {
     "grid-template-columns",
   );
   return gridTemplateColumns.split(" ").length;
+};
+
+const { mutate } = useAddFilesToCollectionMutation();
+
+const toast = useToast();
+
+const handleSubmit = () => {
+  const payload = {
+    collectionId: props.collectionId,
+    fileIds: selectedFiles.value.map((file) => file.id),
+  };
+
+  mutate(payload, {
+    onSuccess() {
+      modal.close();
+    },
+    onError() {
+      modal.close();
+      toast.add({
+        title: "Failed to add files to collection.",
+        color: "red",
+      });
+    },
+  });
 };
 </script>

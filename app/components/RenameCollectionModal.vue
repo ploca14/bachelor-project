@@ -78,9 +78,30 @@ const state = reactive({
   name: props.name,
 });
 
+const { mutate } = useRenameCollectionMutation();
+
+const toast = useToast();
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  // Do something with data
-  console.log(event.data);
-  modal.close();
+  const payload = {
+    collectionId: props.collectionId,
+    name: event.data.name,
+  };
+
+  mutate(payload, {
+    onSuccess() {
+      modal.close();
+      toast.add({
+        title: "Collection renamed successfully",
+        color: "green",
+      });
+    },
+    onError(error) {
+      toast.add({
+        title: "Failed to rename collection.",
+        color: "red",
+      });
+    },
+  });
 }
 </script>
