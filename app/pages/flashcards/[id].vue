@@ -1,10 +1,22 @@
 <template>
   <div class="flex h-full flex-col">
-    <div class="border-b p-5">
+    <div class="p-container flex flex-wrap items-center gap-6 border-b py-3">
       <h1 class="text-2xl font-semibold leading-7">
         {{ flashcardDeck?.name }}
       </h1>
+
+      <div class="ml-auto flex gap-4">
+        <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
+          <UButton
+            color="white"
+            square
+            size="xl"
+            icon="i-heroicons-ellipsis-vertical"
+          />
+        </UDropdown>
+      </div>
     </div>
+
     <div class="h-full overflow-y-auto">
       <FlashcardDeckStreamProgress
         v-once
@@ -36,4 +48,43 @@ const deckId = z.coerce.string().parse(currentRoute.value.params.id);
 
 const { data: flashcardDeck, suspense } = useFlashcardDeckQuery(deckId);
 await suspense();
+
+const { exportCSV } = useExportCSV();
+
+const items = computed(() => [
+  [
+    {
+      label: "Export",
+      icon: "i-heroicons-arrow-down-tray",
+      click() {
+        if (!flashcardDeck.value) return;
+        if (!flashcardDeck.value.flashcards) return;
+
+        const data = flashcardDeck.value.flashcards
+          .filter(nonNullable)
+          .map(({ front, back }) => ({
+            front,
+            back,
+          }));
+
+        exportCSV(data, flashcardDeck.value.name ?? "flashcards");
+      },
+      disabled: !flashcardDeck.value || !flashcardDeck.value.flashcards,
+    },
+    // {
+    //   label: "Rename",
+    //   icon: "i-heroicons-pencil",
+    //   onClick: () => {
+    //     RenameFlashcardDeckModal.open({ deckId });
+    //   },
+    // },
+    // {
+    //   label: "Delete",
+    //   icon: "i-heroicons-trash",
+    //   onClick: () => {
+    //     DeleteFlashcardDeckModal.open({ deckId });
+    //   },
+    // },
+  ],
+]);
 </script>
