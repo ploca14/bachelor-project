@@ -104,7 +104,7 @@ const prismaConversationRepository = (
     // Save the messages
     await saveConversationMessages(conversation.id, conversation.messages);
 
-    return conversationMapper.toDomain(getConversationById(conversation.id));
+    return conversation;
   });
 
   const remove = async (id: string) => {

@@ -66,7 +66,7 @@ const prismaCollectionRepository = (
     const rawCollection = collectionMapper.toPersistence(collection);
 
     // If the collection already exists, update it. Otherwise, create it.
-    const result = await prisma.collection.upsert({
+    await prisma.collection.upsert({
       where: { id: collection.id },
       create: rawCollection,
       update: rawCollection,
@@ -76,7 +76,7 @@ const prismaCollectionRepository = (
     // Associate the files to the collection
     await setCollectionFiles(collection.id, collection.fileIds);
 
-    return collectionMapper.toDomain(getCollectionById(collection.id));
+    return collection;
   });
 
   const remove = async (id: string) => {

@@ -81,7 +81,7 @@ const prismaFlashcardDeckRepository = (
     const rawFlashcardDeck = flashcardDeckMapper.toPersistence(flashcardDeck);
 
     // If the flashcardDeck already exists, update it. Otherwise, create it.
-    const result = await prisma.flashcardDeck.upsert({
+    await prisma.flashcardDeck.upsert({
       where: { id: flashcardDeck.id },
       create: rawFlashcardDeck,
       update: rawFlashcardDeck,
@@ -97,7 +97,7 @@ const prismaFlashcardDeckRepository = (
       flashcardDeck.flashcards,
     );
 
-    return flashcardDeckMapper.toDomain(getFlashcardDeckById(flashcardDeck.id));
+    return flashcardDeck;
   });
 
   const remove = async (id: string) => {

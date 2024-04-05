@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     supabase: {
       serviceKey: process.env.NUXT_SUPABASE_SERVICE_KEY,
     },
+    openAIModel: process.env.NUXT_OPENAI_MODEL,
     public: {
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
       supabase: {

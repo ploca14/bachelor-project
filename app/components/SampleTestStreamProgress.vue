@@ -7,6 +7,13 @@ const props = defineProps<{
   testId: string;
 }>();
 
-// # TODO: Handle error
 const { isStreaming, error } = useQuestionStreamSubscription(props.testId);
+
+const toast = useToast();
+whenever(error, () => {
+  toast.add({
+    title: "Unable show flashcard generation progress.",
+    color: "red",
+  });
+});
 </script>

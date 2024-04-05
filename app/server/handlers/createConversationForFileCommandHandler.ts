@@ -9,9 +9,6 @@ const createConversationForFileCommandHandler = (
   securityService: SecurityService,
 ) => {
   const execute = async (fileId: string) => {
-    // TODO: Move to controller
-    await securityService.checkFileOwnership(fileId);
-
     const file = await fileRepository.getFileById(fileId);
 
     const user = await securityService.getUser();

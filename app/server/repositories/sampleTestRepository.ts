@@ -81,7 +81,7 @@ const prismaSampleTestRepository = (
     const rawSampleTest = sampleTestMapper.toPersistence(sampleTest);
 
     // If the sampleTest already exists, update it. Otherwise, create it.
-    const result = await prisma.sampleTest.upsert({
+    await prisma.sampleTest.upsert({
       where: { id: sampleTest.id },
       create: rawSampleTest,
       update: rawSampleTest,
@@ -94,7 +94,7 @@ const prismaSampleTestRepository = (
     // Save the questions
     await saveSampleTestQuestions(sampleTest.id, sampleTest.questions);
 
-    return sampleTestMapper.toDomain(getSampleTestById(sampleTest.id));
+    return sampleTest;
   });
 
   const remove = async (id: string) => {
