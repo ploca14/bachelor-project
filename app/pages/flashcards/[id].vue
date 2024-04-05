@@ -17,14 +17,13 @@
       </div>
     </div>
 
-    <div class="h-full overflow-y-auto">
-      <FlashcardDeckStreamProgress
-        v-once
-        v-if="
-          !isDefined(flashcardDeck) || flashcardDeck.flashcards?.length === 0
-        "
-        :deck-id="deckId"
-      />
+    <div class="relative h-full overflow-y-auto">
+      <div v-memo="[deckId]" class="absolute inset-x-0 top-0">
+        <FlashcardDeckStreamProgress
+          v-if="!flashcardDeck || flashcardDeck.flashcards?.length === 0"
+          :deck-id="deckId"
+        />
+      </div>
       <div class="mx-auto grid max-w-2xl grid-cols-1 gap-6 p-6">
         <div
           v-for="flashcard in flashcardDeck?.flashcards"
@@ -43,6 +42,8 @@
 </template>
 
 <script setup lang="ts">
+import { DeleteFlashcardDeckModal } from "#components";
+
 const { currentRoute } = useRouter();
 const deckId = z.coerce.string().parse(currentRoute.value.params.id);
 
@@ -50,6 +51,8 @@ const { data: flashcardDeck, suspense } = useFlashcardDeckQuery(deckId);
 await suspense();
 
 const { exportCSV } = useExportCSV();
+
+const modal = useModal();
 
 const items = computed(() => [
   [
@@ -78,13 +81,13 @@ const items = computed(() => [
     //     RenameFlashcardDeckModal.open({ deckId });
     //   },
     // },
-    // {
-    //   label: "Delete",
-    //   icon: "i-heroicons-trash",
-    //   onClick: () => {
-    //     DeleteFlashcardDeckModal.open({ deckId });
-    //   },
-    // },
+    {
+      label: "Delete",
+      icon: "i-heroicons-trash",
+      click() {
+        modal.open(DeleteFlashcardDeckModal, { deckId });
+      },
+    },
   ],
 ]);
 </script>

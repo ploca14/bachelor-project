@@ -53,6 +53,8 @@
 </template>
 
 <script setup lang="ts">
+import { DeleteSampleTestModal } from "#components";
+
 const { currentRoute } = useRouter();
 const testId = z.coerce.string().parse(currentRoute.value.params.id);
 
@@ -60,6 +62,8 @@ const { data: sampleTest, suspense } = useSampleTestQuery(testId);
 await suspense();
 
 const { exportCSV } = useExportCSV();
+
+const modal = useModal();
 
 const items = computed(() => [
   [
@@ -87,13 +91,15 @@ const items = computed(() => [
     //     RenameSampleTestModal.open({ deckId });
     //   },
     // },
-    // {
-    //   label: "Delete",
-    //   icon: "i-heroicons-trash",
-    //   onClick: () => {
-    //     DeleteSampleTestModal.open({ deckId });
-    //   },
-    // },
+    {
+      label: "Delete",
+      icon: "i-heroicons-trash",
+      click() {
+        modal.open(DeleteSampleTestModal, {
+          testId,
+        });
+      },
+    },
   ],
 ]);
 </script>

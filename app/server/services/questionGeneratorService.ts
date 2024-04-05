@@ -237,7 +237,6 @@ const langchainQuestionGeneratorService = (
 
 import { useVectorStoreService } from "~/server/services/vectorStoreService";
 import { useChatModel } from "~/server/lib/langchain/chatModel";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 export const useQuestionGeneratorService = () => {
   const vectorStoreService = useVectorStoreService();

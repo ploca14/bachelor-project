@@ -1,10 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { Message } from "~/server/domain/message";
-import {
-  ConversationDisabledError,
-  InvalidMessageError,
-  NoFilesError,
-} from "~/types/errors";
+import { ConversationDisabledError, InvalidMessageError } from "~/types/errors";
 
 export class Conversation {
   constructor(
@@ -14,11 +10,7 @@ export class Conversation {
     private readonly _messages: Message[] = [],
     private readonly _createdAt: Date = new Date(),
     public readonly id: string = uuidv4(),
-  ) {
-    if (_fileIds.length === 0) {
-      throw new NoFilesError("A conversation must have at least one file");
-    }
-  }
+  ) {}
 
   get fileIds() {
     return Array.from(this._fileIds);

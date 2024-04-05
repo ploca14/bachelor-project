@@ -5,6 +5,7 @@ import type { Prisma } from "@prisma/client";
 import type { ExtendedPrismaClient } from "~/server/lib/prisma/client";
 import type { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { Flashcard } from "~/server/domain/flashcard";
+import { NotFoundError } from "~/types/errors";
 
 export interface FlashcardDeckRepository {
   getFlashcardDeckById: (id: string) => Promise<FlashcardDeck>;
@@ -21,10 +22,14 @@ const prismaFlashcardDeckRepository = (
   } satisfies Prisma.FlashcardDeckDefaultArgs;
 
   const getFlashcardDeckById = async (id: string) => {
-    const result = await prisma.flashcardDeck.findUniqueOrThrow({
+    const result = await prisma.flashcardDeck.findUnique({
       where: { id },
       ...BASE_QUERY_OPTIONS,
     });
+
+    if (!result) {
+      throw new NotFoundError("Flashcard deck not found");
+    }
 
     return flashcardDeckMapper.toDomain(result);
   };
@@ -92,7 +97,7 @@ const prismaFlashcardDeckRepository = (
       flashcardDeck.flashcards,
     );
 
-    return flashcardDeckMapper.toDomain(result);
+    return flashcardDeckMapper.toDomain(getFlashcardDeckById(flashcardDeck.id));
   });
 
   const remove = async (id: string) => {

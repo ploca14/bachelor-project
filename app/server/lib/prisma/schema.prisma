@@ -101,7 +101,7 @@ model Message {
   conversationId String       @db.Uuid
   content        String
   role           MessageRole
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: NoAction)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@map("messages")
 }

@@ -14,6 +14,7 @@ const conversationQueryHandler = (
       .selectFrom("conversations as c")
       .select((eb) => [
         "c.id",
+        "c.name",
         jsonArrayFrom(
           eb
             .selectFrom("conversations_files as cf")

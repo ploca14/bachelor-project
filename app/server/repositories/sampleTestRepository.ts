@@ -5,6 +5,7 @@ import type { Prisma } from "@prisma/client";
 import type { ExtendedPrismaClient } from "~/server/lib/prisma/client";
 import type { SampleTest } from "~/server/domain/sampleTest";
 import type { Question } from "~/server/domain/question";
+import { NotFoundError } from "~/types/errors";
 
 export interface SampleTestRepository {
   getSampleTestById: (id: string) => Promise<SampleTest>;
@@ -21,10 +22,14 @@ const prismaSampleTestRepository = (
   } satisfies Prisma.SampleTestDefaultArgs;
 
   const getSampleTestById = async (id: string) => {
-    const result = await prisma.sampleTest.findUniqueOrThrow({
+    const result = await prisma.sampleTest.findUnique({
       where: { id },
       ...BASE_QUERY_OPTIONS,
     });
+
+    if (!result) {
+      throw new NotFoundError("Sample test not found");
+    }
 
     return sampleTestMapper.toDomain(result);
   };
@@ -89,7 +94,7 @@ const prismaSampleTestRepository = (
     // Save the questions
     await saveSampleTestQuestions(sampleTest.id, sampleTest.questions);
 
-    return sampleTestMapper.toDomain(result);
+    return sampleTestMapper.toDomain(getSampleTestById(sampleTest.id));
   });
 
   const remove = async (id: string) => {

@@ -8,6 +8,7 @@ import { Message } from "~/server/domain/message";
 import { messageMapper } from "~/server/mappers/messageMapper";
 import { transactional } from "~/server/utils/transactional";
 import type { Prisma } from "@prisma/client";
+import { NotFoundError } from "~/types/errors";
 
 export interface ConversationRepository {
   getConversationById: (id: string) => Promise<Conversation>;
@@ -29,10 +30,14 @@ const prismaConversationRepository = (
   } satisfies Prisma.ConversationDefaultArgs;
 
   const getConversationById = async (id: string) => {
-    const result = await prisma.conversation.findUniqueOrThrow({
+    const result = await prisma.conversation.findUnique({
       where: { id },
       ...BASE_QUERY_OPTIONS,
     });
+
+    if (!result) {
+      throw new NotFoundError("Conversation not found");
+    }
 
     return conversationMapper.toDomain(result);
   };
@@ -99,12 +104,7 @@ const prismaConversationRepository = (
     // Save the messages
     await saveConversationMessages(conversation.id, conversation.messages);
 
-    const result = await prisma.conversation.findUnique({
-      where: { id: conversation.id },
-      ...BASE_QUERY_OPTIONS,
-    });
-
-    return conversationMapper.toDomain(result);
+    return conversationMapper.toDomain(getConversationById(conversation.id));
   });
 
   const remove = async (id: string) => {

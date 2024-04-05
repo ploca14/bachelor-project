@@ -4,6 +4,7 @@ import {
 } from "~/server/lib/prisma/client";
 import { File } from "~/server/domain/file";
 import { fileMapper } from "~/server/mappers/fileMapper";
+import { NotFoundError } from "~/types/errors";
 
 export interface FileRepository {
   getFileById: (id: string) => Promise<File>;
@@ -13,9 +14,13 @@ export interface FileRepository {
 
 const prismaFileRepository = (prisma: ExtendedPrismaClient): FileRepository => {
   const getFileById = async (id: string) => {
-    const result = await prisma.file.findUniqueOrThrow({
+    const result = await prisma.file.findUnique({
       where: { id },
     });
+
+    if (!result) {
+      throw new NotFoundError("File not found");
+    }
 
     return fileMapper.toDomain(result);
   };

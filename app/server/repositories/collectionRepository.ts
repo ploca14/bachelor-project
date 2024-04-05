@@ -6,6 +6,7 @@ import { Collection } from "~/server/domain/collection";
 import { collectionMapper } from "~/server/mappers/collectionMapper";
 import { transactional } from "~/server/utils/transactional";
 import type { Prisma } from "@prisma/client";
+import { NotFoundError } from "~/types/errors";
 
 export interface CollectionRepository {
   getCollectionById: (id: string) => Promise<Collection>;
@@ -24,10 +25,14 @@ const prismaCollectionRepository = (
   } satisfies Prisma.CollectionDefaultArgs;
 
   const getCollectionById = async (id: string) => {
-    const result = await prisma.collection.findUniqueOrThrow({
+    const result = await prisma.collection.findUnique({
       where: { id },
       ...BASE_QUERY_OPTIONS,
     });
+
+    if (!result) {
+      throw new NotFoundError("Collection not found");
+    }
 
     return collectionMapper.toDomain(result);
   };
@@ -71,7 +76,7 @@ const prismaCollectionRepository = (
     // Associate the files to the collection
     await setCollectionFiles(collection.id, collection.fileIds);
 
-    return collectionMapper.toDomain(result);
+    return collectionMapper.toDomain(getCollectionById(collection.id));
   });
 
   const remove = async (id: string) => {

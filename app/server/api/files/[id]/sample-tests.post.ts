@@ -16,9 +16,9 @@ export default defineEventHandler(async (event) => {
 
     const { execute } = useCreateSampleTestForFileCommandHandler();
 
-    const sampleTestId = await execute(id);
+    const testId = await execute(id);
 
-    return sampleTestId;
+    return testId;
   } catch (error) {
     if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
       throw createError({

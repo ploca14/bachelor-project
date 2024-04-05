@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useCreateSampleTestForCollectionCommandHandler } from "~/server/handlers/createSampleTestForCollectionCommandHandler";
+import { useDeleteFlashcardDeckCommandHandler } from "~/server/handlers/deleteFlashcardDeckCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurityService } from "~/server/services/securityService";
 
@@ -12,19 +12,19 @@ export default defineEventHandler(async (event) => {
       id: z.string(),
     });
 
-    await securityService.checkCollectionOwnership(id);
+    await securityService.checkFlashcardDeckOwnership(id);
 
-    const { execute } = useCreateSampleTestForCollectionCommandHandler();
+    const { execute } = useDeleteFlashcardDeckCommandHandler();
 
-    const testId = await execute(id);
-
-    return testId;
+    return execute(id);
   } catch (error) {
     if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
       throw createError({
         statusCode: 404,
-        message: "Unable to create a flashcard deck for collection.",
+        message: "Unable to delete flashcard deck.",
       });
     }
+
+    throw error;
   }
 });
