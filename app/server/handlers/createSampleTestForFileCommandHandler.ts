@@ -16,21 +16,35 @@ const createSampleTestForFileCommandHandler = (
     const file = await fileRepository.getFileById(fileId);
 
     const user = await securityService.getUser();
-    const sampleTest = new SampleTest(file.originalName, [fileId], user.id);
+    const sampleTest = new SampleTest(
+      file.originalName,
+      "pending",
+      [fileId],
+      user.id,
+    );
 
     await sampleTestRepository.save(sampleTest);
 
     questionGeneratorService.generateQuestions(sampleTest, {
-      onProgress: async (progress) => {
+      async onProgress(progress) {
         await eventBus.publish(
           `sampleTest:${sampleTest.id}:progress`,
           progress,
         );
       },
-      onSuccess: async (questions) => {
+      async onSuccess(questions) {
         sampleTest.addQuestions(questions.map((q) => q.content));
+        sampleTest.status = "complete";
         await sampleTestRepository.save(sampleTest);
         await eventBus.publish(`sampleTest:${sampleTest.id}:complete`);
+      },
+      async onError(error) {
+        sampleTest.status = "error";
+        await sampleTestRepository.save(sampleTest);
+        await eventBus.publish(
+          `sampleTest:${sampleTest.id}:error`,
+          error.message,
+        );
       },
     });
 

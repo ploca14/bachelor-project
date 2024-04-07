@@ -26,6 +26,7 @@ export const useQuestionStreamSubscription = (testId: string) => {
         },
       );
     }
+
     if (event.value === "complete") {
       await queryClient.invalidateQueries({
         queryKey: ["sample-tests", testId],
@@ -33,6 +34,12 @@ export const useQuestionStreamSubscription = (testId: string) => {
       close();
       isStreaming.value = false;
       isSuccess.value = true;
+    }
+
+    if (error.value) {
+      await queryClient.invalidateQueries({
+        queryKey: ["sample-tests", testId],
+      });
     }
   });
 

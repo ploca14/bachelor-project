@@ -113,11 +113,20 @@ enum MessageRole {
   @@map("message_role")
 }
 
+enum GenerationStatus {
+  pending
+  complete
+  error
+
+  @@map("generation_status")
+}
+
 model FlashcardDeck {
   id         String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   createdAt  DateTime            @default(now()) @db.Timestamptz(6)
   userId     String              @db.Uuid
   name       String
+  status     GenerationStatus    @default(complete)
   user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   flashcards Flashcard[]
   files      FlashcardDeckFile[]
@@ -151,6 +160,7 @@ model SampleTest {
   createdAt DateTime         @default(now()) @db.Timestamptz(6)
   userId    String           @db.Uuid
   name      String
+  status    GenerationStatus @default(complete)
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   questions Question[]
   files     SampleTestFile[]

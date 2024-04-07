@@ -22,6 +22,7 @@ interface Callbacks {
     progress: DeepPartial<Array<{ content: string }>>,
   ) => Promise<void>;
   onSuccess: (questions: Array<{ content: string }>) => Promise<void>;
+  onError: (error: Error) => Promise<void>;
 }
 
 export interface QuestionGeneratorService {
@@ -77,39 +78,13 @@ const langchainQuestionGeneratorService = (
   ) => {
     const documents = await vectorStore.getDocuments(sampleTest.fileIds);
 
-    // You must format your output in JSON. Output only a list of strings, each string should be a single SAQ.
-
-    //     const summarizePrompt = ChatPromptTemplate.fromTemplate(
-    //       "You are an assistant for generating exams for teachers. Use the\
-    //  following piece of context to generate a personalised short answer\
-    //  question (SAQ) exam. Output a list of SAQs.\n\
-    //  \n\
-    //  The context:\n\
-    //  {context}",
-    //     );
-
     const summarizePrompt = ChatPromptTemplate.fromTemplate(
       summarizePromptTemplate,
     );
 
-    // const collapsePrompt = ChatPromptTemplate.fromTemplate(
-    //   "Collapse this content:\n\n{context}",
-    // );
-
     const collapsePrompt = ChatPromptTemplate.fromTemplate(
       collapsePromptTemplate,
     );
-
-    //     const combinePrompt = ChatPromptTemplate.fromTemplate(
-    //       'You are an assistant for generating exams for teachers. Use the\
-    //  following questions to generate a personalised short answer\
-    //  question (SAQ) exam with 20 questions. You must format your\
-    //  output in JSON. Output only a list of objects. Each object should\
-    //  represent a single SAQ and have the key "content".\n\
-    //  \n\
-    //  The context:\n\
-    //  {context}',
-    //     );
 
     const combinePrompt = ChatPromptTemplate.fromTemplate(
       combinePromptTemplate,
@@ -217,17 +192,22 @@ const langchainQuestionGeneratorService = (
       reduceChain,
     ]);
 
-    const stream = await mapReduceChain.stream(documents);
+    try {
+      const stream = await mapReduceChain.stream(documents);
+      let completion = "";
+      for await (const data of stream) {
+        completion += data;
+        callbacks.onProgress(parsePartialJsonMarkdown(completion));
+      }
 
-    let completion = "";
-    for await (const data of stream) {
-      completion += data;
-      callbacks.onProgress(parsePartialJsonMarkdown(completion));
+      const results = parsePartialJsonMarkdown(completion);
+
+      await callbacks.onSuccess(results);
+    } catch (error) {
+      if (error instanceof Error) {
+        await callbacks.onError(error);
+      }
     }
-
-    const results = parsePartialJsonMarkdown(completion);
-
-    await callbacks.onSuccess(results);
   };
 
   return {

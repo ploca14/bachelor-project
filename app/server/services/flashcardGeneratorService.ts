@@ -10,6 +10,7 @@ interface Callbacks {
   onSuccess: (
     flashcards: Array<{ front: string; back: string }>,
   ) => Promise<void>;
+  onError: (error: Error) => Promise<void>;
 }
 
 export interface FlashcardGeneratorService {
@@ -31,29 +32,33 @@ const langchainFlashcardGeneratorService = (
 
     const completions = new Map<string, string>();
 
-    await generateFlashcardsChain.batch(documents, {
-      maxConcurrency: 5,
-      callbacks: [
-        {
-          handleLLMNewToken: async (token, _idx, runId) => {
-            const completion = (completions.get(runId) || "") + token;
-            completions.set(runId, completion);
+    const parseCompletions = () => {
+      return Array.from(completions.values(), (c) =>
+        parsePartialJsonMarkdown(c),
+      ).flat();
+    };
 
-            await callbacks.onProgress(
-              Array.from(completions.values(), (c) =>
-                parsePartialJsonMarkdown(c),
-              ).flat(),
-            );
+    try {
+      await generateFlashcardsChain.batch(documents, {
+        maxConcurrency: 5,
+        callbacks: [
+          {
+            async handleLLMNewToken(token, _idx, runId) {
+              const completion = (completions.get(runId) || "") + token;
+              completions.set(runId, completion);
+
+              await callbacks.onProgress(parseCompletions());
+            },
           },
-        },
-      ],
-    });
+        ],
+      });
 
-    const results = Array.from(completions.values(), (c) =>
-      parsePartialJsonMarkdown(c),
-    ).flat();
-
-    await callbacks.onSuccess(results);
+      await callbacks.onSuccess(parseCompletions());
+    } catch (error) {
+      if (error instanceof Error) {
+        await callbacks.onError(error);
+      }
+    }
   };
 
   return {

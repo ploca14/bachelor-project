@@ -15,6 +15,7 @@ const flashcardDeckQueryHandler = (
       .select((eb) => [
         "id",
         "name",
+        "status",
         jsonArrayFrom(
           eb
             .selectFrom("flashcards as f")

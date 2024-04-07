@@ -3,11 +3,8 @@ export const useCreateSampleTestMutation = () => {
 
   return useMutation({
     mutationFn: async (fileId: string) => {
-      return $fetch(`/api/sample-tests`, {
+      return $fetch(`/api/files/${fileId}/sample-tests`, {
         method: "post",
-        body: {
-          fileId,
-        },
       });
     },
     onSuccess: async () => {

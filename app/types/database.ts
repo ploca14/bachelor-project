@@ -243,18 +243,21 @@ export type Database = {
           createdAt: string
           id: string
           name: string
+          status: Database["public"]["Enums"]["generation_status"]
           userId: string
         }
         Insert: {
           createdAt?: string
           id?: string
           name: string
+          status?: Database["public"]["Enums"]["generation_status"]
           userId: string
         }
         Update: {
           createdAt?: string
           id?: string
           name?: string
+          status?: Database["public"]["Enums"]["generation_status"]
           userId?: string
         }
         Relationships: [
@@ -395,18 +398,21 @@ export type Database = {
           createdAt: string
           id: string
           name: string
+          status: Database["public"]["Enums"]["generation_status"]
           userId: string
         }
         Insert: {
           createdAt?: string
           id?: string
           name: string
+          status?: Database["public"]["Enums"]["generation_status"]
           userId: string
         }
         Update: {
           createdAt?: string
           id?: string
           name?: string
+          status?: Database["public"]["Enums"]["generation_status"]
           userId?: string
         }
         Relationships: [
@@ -539,6 +545,7 @@ export type Database = {
       }
     }
     Enums: {
+      generation_status: "pending" | "complete" | "error"
       message_role: "human" | "ai"
     }
     CompositeTypes: {

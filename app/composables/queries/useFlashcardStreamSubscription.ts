@@ -26,6 +26,7 @@ export const useFlashcardStreamSubscription = (deckId: string) => {
         },
       );
     }
+
     if (event.value === "complete") {
       await queryClient.invalidateQueries({
         queryKey: ["flashcard-decks", deckId],
@@ -33,6 +34,12 @@ export const useFlashcardStreamSubscription = (deckId: string) => {
       close();
       isStreaming.value = false;
       isSuccess.value = true;
+    }
+
+    if (error.value) {
+      await queryClient.invalidateQueries({
+        queryKey: ["flashcard-decks", deckId],
+      });
     }
   });
 

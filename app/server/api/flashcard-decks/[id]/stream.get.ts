@@ -28,6 +28,11 @@ export default defineEventHandler(async (event) => {
           event: "complete",
           data: "",
         }),
+      onError: (error) =>
+        eventStream.push({
+          event: "error",
+          data: JSON.stringify(error),
+        }),
     });
 
     return eventStream.send();

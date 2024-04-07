@@ -12,7 +12,7 @@ const { isStreaming, error } = useQuestionStreamSubscription(props.testId);
 const toast = useToast();
 whenever(error, () => {
   toast.add({
-    title: "Unable show flashcard generation progress.",
+    title: "An error occurred while generating questions.",
     color: "red",
   });
 });

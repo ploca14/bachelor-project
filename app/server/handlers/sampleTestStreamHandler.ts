@@ -6,6 +6,7 @@ const sampleTestStreamHandler = (eventBus: EventBus) => {
     callbacks?: {
       onProgress?: (event?: Message) => void;
       onComplete?: () => void;
+      onError?: (event?: Message) => void;
     },
   ) => {
     const unsubscribe = await eventBus.subscribe(
@@ -16,6 +17,11 @@ const sampleTestStreamHandler = (eventBus: EventBus) => {
     await eventBus.once(`sampleTest:${testId}:complete`, () => {
       unsubscribe();
       callbacks?.onComplete?.();
+    });
+
+    await eventBus.once(`sampleTest:${testId}:error`, (error) => {
+      unsubscribe();
+      callbacks?.onError?.(error);
     });
   };
 

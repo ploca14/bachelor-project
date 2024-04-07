@@ -7,15 +7,14 @@ import { formatDocumentsAsString } from "langchain/util/document";
 
 export type GenerateFlashcardsChain = Runnable<Document, string>;
 
+const generateFlashcardsPromptTemplate = `You are an assistant for generating flashcards. Use the following piece of context to generate multiple flashcards. You must format your output in JSON format. Output only a list of objects. Each object should have the key "front" and "back".
+
+The context:
+{context}`;
+
 const simpleGenerateFlashcardsChain = (llm: BaseLanguageModel) => {
   const generateFlashcardsPrompt = ChatPromptTemplate.fromTemplate(
-    'You are an assistant for\
-    generating flashcards. Use the following piece of context to\
-    generate multiple flashcards. You must format your output in JSON format.\
-    Output only a list of objects. Each object should have the key "front" and "back".\n\
-    \n\
-    The context:\n\
-    {context}',
+    generateFlashcardsPromptTemplate,
   );
 
   const chain = RunnableSequence.from([

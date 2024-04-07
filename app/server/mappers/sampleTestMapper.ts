@@ -5,6 +5,7 @@ export const sampleTestMapper = {
   toDomain: (raw: any) => {
     return new SampleTest(
       raw.name,
+      raw.status,
       raw.files.map(({ fileId }: any) => fileId),
       raw.userId,
       raw.questions.map((question: any) => questionMapper.toDomain(question)),
@@ -16,6 +17,7 @@ export const sampleTestMapper = {
     return {
       id: sampleTest.id,
       name: sampleTest.name,
+      status: sampleTest.status,
       userId: sampleTest.userId,
       createdAt: sampleTest.createdAt,
     };

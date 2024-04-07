@@ -6,7 +6,7 @@ const openAIChatModel = () => {
   const model = new ChatOpenAI({
     modelName: config.openAIModel,
     streaming: true,
-    timeout: 2 * 1000, // 2 seconds
+    maxRetries: 1,
   });
 
   return model;

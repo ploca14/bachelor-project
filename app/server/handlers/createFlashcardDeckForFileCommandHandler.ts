@@ -18,6 +18,7 @@ const createFlashcardDeckForFileCommandHandler = (
     const user = await securityService.getUser();
     const flashcardDeck = new FlashcardDeck(
       file.originalName,
+      "pending",
       [fileId],
       user.id,
     );
@@ -25,16 +26,25 @@ const createFlashcardDeckForFileCommandHandler = (
     await flashcardDeckRepository.save(flashcardDeck);
 
     flashcardGeneratorService.generateFlashcards(flashcardDeck, {
-      onProgress: async (progress) => {
+      async onProgress(progress) {
         await eventBus.publish(
           `flashcardDeck:${flashcardDeck.id}:progress`,
           progress,
         );
       },
-      onSuccess: async (flashcards) => {
+      async onSuccess(flashcards) {
         flashcardDeck.addFlashcards(flashcards);
+        flashcardDeck.status = "complete";
         await flashcardDeckRepository.save(flashcardDeck);
         await eventBus.publish(`flashcardDeck:${flashcardDeck.id}:complete`);
+      },
+      async onError(error) {
+        flashcardDeck.status = "error";
+        await flashcardDeckRepository.save(flashcardDeck);
+        await eventBus.publish(
+          `flashcardDeck:${flashcardDeck.id}:error`,
+          error.message,
+        );
       },
     });
 

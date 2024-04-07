@@ -23,7 +23,7 @@
         </UVerticalNavigation>
       </div>
     </div>
-    <div class="w-full">
+    <div class="w-full min-w-0">
       <NuxtPage />
     </div>
   </div>

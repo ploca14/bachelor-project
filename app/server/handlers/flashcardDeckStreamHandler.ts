@@ -6,6 +6,7 @@ const flashcardDeckStreamHandler = (eventBus: EventBus) => {
     callbacks?: {
       onProgress?: (event?: Message) => void;
       onComplete?: () => void;
+      onError?: (event?: Message) => void;
     },
   ) => {
     const unsubscribe = await eventBus.subscribe(
@@ -16,6 +17,11 @@ const flashcardDeckStreamHandler = (eventBus: EventBus) => {
     await eventBus.once(`flashcardDeck:${testId}:complete`, () => {
       unsubscribe();
       callbacks?.onComplete?.();
+    });
+
+    await eventBus.once(`flashcardDeck:${testId}:error`, (error) => {
+      unsubscribe();
+      callbacks?.onError?.(error);
     });
   };
 

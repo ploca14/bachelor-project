@@ -19,6 +19,7 @@ const createSampleTestForCollectionCommandHandler = (
     const user = await securityService.getUser();
     const sampleTest = new SampleTest(
       collection.name,
+      "pending",
       collection.fileIds,
       user.id,
     );
@@ -26,16 +27,25 @@ const createSampleTestForCollectionCommandHandler = (
     await sampleTestRepository.save(sampleTest);
 
     questionGeneratorService.generateQuestions(sampleTest, {
-      onProgress: async (progress) => {
+      async onProgress(progress) {
         await eventBus.publish(
           `sampleTest:${sampleTest.id}:progress`,
           progress,
         );
       },
-      onSuccess: async (questions) => {
+      async onSuccess(questions) {
         sampleTest.addQuestions(questions.map((q) => q.content));
+        sampleTest.status = "complete";
         await sampleTestRepository.save(sampleTest);
         await eventBus.publish(`sampleTest:${sampleTest.id}:complete`);
+      },
+      async onError(error) {
+        sampleTest.status = "error";
+        await sampleTestRepository.save(sampleTest);
+        await eventBus.publish(
+          `sampleTest:${sampleTest.id}:error`,
+          error.message,
+        );
       },
     });
 

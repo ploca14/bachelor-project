@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full flex-col">
-    <div class="p-container flex flex-wrap items-center gap-6 border-b py-3">
-      <h1 class="text-2xl font-semibold leading-7">
+    <div class="p-container flex items-center gap-6 border-b py-3">
+      <h1 class="truncate text-2xl font-semibold leading-7">
         {{ flashcardDeck?.name }}
       </h1>
 
@@ -18,37 +18,54 @@
     </div>
 
     <div class="relative h-full overflow-y-auto">
-      <div v-memo="[deckId]" class="absolute inset-x-0 top-0">
-        <FlashcardDeckStreamProgress
-          v-if="!flashcardDeck || flashcardDeck.flashcards?.length === 0"
-          :deck-id="deckId"
-        />
-      </div>
-      <div class="mx-auto grid max-w-2xl grid-cols-1 gap-6 p-6">
-        <div
-          v-for="flashcard in flashcardDeck?.flashcards"
-          class="flex flex-col items-center gap-4 text-balance rounded-lg border p-6 text-center shadow-sm"
+      <template v-if="flashcardDeck && !isPlaceholderData">
+        <template
+          v-if="flashcardDeck.status === 'complete' && flashcardDeck.flashcards"
         >
-          <h3 class="text-xl font-semibold tracking-tight">
-            {{ flashcard?.front }}
-          </h3>
-          <p class="text-sm font-medium text-neutral-500">
-            {{ flashcard?.back }}
+          <FlashcardsList :flashcards="flashcardDeck.flashcards" />
+        </template>
+        <template v-else-if="flashcardDeck.status === 'pending'">
+          <div class="absolute inset-x-0 top-0">
+            <FlashcardDeckStreamProgress :deck-id="deckId" />
+          </div>
+
+          <FlashcardsList
+            v-if="flashcardDeck.flashcards"
+            :flashcards="flashcardDeck.flashcards"
+          />
+          <p v-else class="text-center text-sm text-gray-500">
+            Hold on, we're generating your flashcards.
           </p>
-        </div>
-      </div>
+        </template>
+        <template v-else>
+          <div class="flex h-full flex-col items-center justify-center gap-3">
+            <p class="text-center text-sm text-gray-500">
+              There was an error while generating the flashcards.
+            </p>
+            <UButton size="lg" to="/files"> Create New Flashcard Deck </UButton>
+          </div>
+        </template>
+      </template>
+      <template v-else>
+        <UProgress animation="carousel" size="sm" />
+      </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { DeleteFlashcardDeckModal } from "#components";
+import { promiseTimeout } from "@vueuse/core";
 
 const { currentRoute } = useRouter();
 const deckId = z.coerce.string().parse(currentRoute.value.params.id);
 
-const { data: flashcardDeck, suspense } = useFlashcardDeckQuery(deckId);
-await suspense();
+const {
+  data: flashcardDeck,
+  isPlaceholderData,
+  suspense,
+} = useFlashcardDeckQuery(deckId);
+await Promise.race([suspense(), promiseTimeout(200)]);
 
 const { exportCSV } = useExportCSV();
 
