@@ -5,6 +5,7 @@
       side="left"
       class="lg:hidden"
       :ui="{
+        wrapper: 'z-[100]',
         width: 'max-w-xs',
       }"
     >
@@ -60,7 +61,7 @@
     </div>
 
     <div
-      class="sticky top-0 z-50 flex h-16 items-center justify-between gap-x-6 bg-white px-4 py-4 ring-1 ring-gray-200 sm:px-6 lg:hidden"
+      class="sticky top-0 z-[60] flex h-16 items-center justify-between gap-x-6 bg-white px-4 py-4 ring-1 ring-gray-200 sm:px-6 lg:hidden"
     >
       <UButton
         icon="i-heroicons-bars-3"

@@ -10,6 +10,7 @@ export const useDeleteCollectionMutation = () => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["collections"],
+        exact: true,
       });
     },
   });

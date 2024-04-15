@@ -2,7 +2,7 @@ import { Collection } from "~/server/domain/collection";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
 import type { SecurityService } from "~/server/services/securityService";
 
-const createCollectionCommandHandler = (
+export const createCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
   securityService: SecurityService,
 ) => {

@@ -9,7 +9,7 @@ export const useDeleteFilesMutation = () => {
       });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["files"] });
+      await queryClient.invalidateQueries();
     },
   });
 };

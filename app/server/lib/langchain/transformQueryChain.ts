@@ -12,7 +12,7 @@ export type TransformQueryChain = Runnable<
   string
 >;
 
-const historyAwareTransformQueryChain = (llm: BaseChatModel) => {
+export const historyAwareTransformQueryChain = (llm: BaseChatModel) => {
   const transformQuerySystemPrompt = `Given the above conversation, generate
   a search query which can used without the chat history in order to find
   information relevant to the conversation`;

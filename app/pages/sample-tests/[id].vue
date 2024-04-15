@@ -29,7 +29,7 @@
           </div>
         </template>
         <template v-else-if="sampleTest.status === 'pending'">
-          <div class="absolute inset-x-0 top-0">
+          <div class="sticky inset-x-0 top-0">
             <SampleTestStreamProgress :test-id="testId" />
           </div>
 

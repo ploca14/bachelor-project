@@ -25,7 +25,7 @@
           <FlashcardsList :flashcards="flashcardDeck.flashcards" />
         </template>
         <template v-else-if="flashcardDeck.status === 'pending'">
-          <div class="absolute inset-x-0 top-0">
+          <div class="sticky inset-x-0 top-0">
             <FlashcardDeckStreamProgress :deck-id="deckId" />
           </div>
 

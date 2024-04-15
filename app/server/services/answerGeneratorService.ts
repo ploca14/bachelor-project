@@ -18,7 +18,7 @@ export interface AnswerGeneratorService {
 
 const NUMBER_OF_RELEVANT_DOCUMENTS = 10;
 
-const langchainAnswerGeneratorService = (
+export const langchainAnswerGeneratorService = (
   store: VectorStore,
   retrieverFilterFactory: RetrieverFilterFactory,
   condenseHistoryChain: CondenseHistoryChain,

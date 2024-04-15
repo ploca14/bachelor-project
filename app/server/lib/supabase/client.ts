@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import { requestScope } from "~/server/utils/singleton";
+import { requestScope, singletonScope } from "~/server/utils/singleton";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseClient = () => {

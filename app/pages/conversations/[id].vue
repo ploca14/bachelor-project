@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full flex-col">
-    <div class="p-container flex flex-wrap items-center gap-6 border-b py-3">
-      <h1 class="text-2xl font-semibold leading-7">
+    <div class="p-container flex items-center gap-6 border-b py-3">
+      <h1 class="truncate text-2xl font-semibold leading-7">
         {{ conversation?.name }}
       </h1>
       <div class="ml-auto flex gap-4">

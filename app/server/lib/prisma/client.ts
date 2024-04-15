@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { prismaTransactional } from "@transactional/prisma";
+import { singletonScope } from "~/server/utils/singleton";
 
 export type ExtendedPrismaClient = ReturnType<typeof prismaClient>;
 

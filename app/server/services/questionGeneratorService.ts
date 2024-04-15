@@ -16,6 +16,7 @@ import { formatDocumentsAsString } from "langchain/util/document";
 import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import { BaseCallbackConfig } from "@langchain/core/callbacks/manager";
 import { parsePartialJsonMarkdown } from "~/server/utils/parseJsonMarkdown";
+import { z } from "zod";
 
 interface Callbacks {
   onProgress: (
@@ -113,6 +114,16 @@ const langchainQuestionGeneratorService = (
       return formatDocumentsAsString(documents).length / 4;
     };
 
+    const batches = splitListOfDocs(documents, getNumTokens, 5000);
+
+    const docs = await Promise.all(
+      batches.map((batch) => {
+        return collapseDocs(batch, async (docs) =>
+          formatDocumentsAsString(docs),
+        );
+      }),
+    );
+
     // Initialize the output parser
     const outputParser = new StringOutputParser();
 
@@ -144,12 +155,10 @@ const langchainQuestionGeneratorService = (
       let docs = documents;
       while (getNumTokens(docs) > tokenMax) {
         const splitDocs = splitListOfDocs(docs, getNumTokens, tokenMax);
-        // for (const doc of splitDocs) {
-        //   console.log(await collapseChain.invoke(doc));
-        // }
+
         docs = await Promise.all(
-          splitDocs.map((doc) =>
-            collapseDocs(doc, (doc) => collapseChain.invoke(doc)),
+          splitDocs.map((docs) =>
+            collapseDocs(docs, (doc) => collapseChain.invoke(doc)),
           ),
         );
       }
@@ -193,17 +202,32 @@ const langchainQuestionGeneratorService = (
     ]);
 
     try {
-      const stream = await mapReduceChain.stream(documents);
+      const stream = await mapReduceChain.stream(docs);
       let completion = "";
       for await (const data of stream) {
         completion += data;
         callbacks.onProgress(parsePartialJsonMarkdown(completion));
       }
 
-      const results = parsePartialJsonMarkdown(completion);
+      const parsedCompletion = parsePartialJsonMarkdown(completion);
 
-      await callbacks.onSuccess(results);
+      const schema = z.object({
+        content: z.string(),
+      });
+
+      if (!Array.isArray(parsedCompletion)) {
+        throw new Error("Invalid completion format");
+      }
+
+      const result = parsedCompletion
+        .filter((c) => {
+          return schema.safeParse(c).success;
+        })
+        .map((c) => schema.parse(c));
+
+      await callbacks.onSuccess(result);
     } catch (error) {
+      console.log(error);
       if (error instanceof Error) {
         await callbacks.onError(error);
       }

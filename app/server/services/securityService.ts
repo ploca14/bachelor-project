@@ -53,9 +53,17 @@ const supabaseSecurityService = (
   };
 
   const getUser = async () => {
-    const session = await getSession();
+    const { data, error } = await supabase.auth.getUser();
 
-    return session.user;
+    if (error || !data.user) {
+      throw new UnauthorizedError("User is not logged in");
+    }
+
+    return {
+      id: data.user.id,
+      name: data.user.user_metadata.full_name,
+      avatar_url: data.user.user_metadata.avatar_url,
+    };
   };
 
   const checkFileOwnership = async (id: string) => {

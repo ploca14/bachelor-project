@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import { singletonScope } from "~/server/utils/singleton";
 // import type { Storage } from "unstorage";
 
 export type Message = null | string | number | boolean | object;

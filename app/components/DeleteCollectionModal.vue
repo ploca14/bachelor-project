@@ -60,10 +60,15 @@ const { mutate } = useDeleteCollectionMutation();
 
 const toast = useToast();
 
+const router = useRouter();
+
 const handleSubmit = () => {
   mutate(props.collectionId, {
-    onSuccess() {
+    async onSuccess() {
       modal.close();
+      if (router.currentRoute.value.name !== "files") {
+        await navigateTo("/files");
+      }
       toast.add({
         title: "Collection deleted.",
         color: "green",

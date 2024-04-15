@@ -11,5 +11,9 @@ export const parsePartialJsonMarkdown = <T>(
 
   if (jsonString.length === 0) return null;
 
-  return parser(jsonString);
+  try {
+    return parser(jsonString);
+  } catch {
+    return null;
+  }
 };

@@ -5,7 +5,7 @@ import type { SecurityService } from "~/server/services/securityService";
 import type { FlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
 import type { EventBus } from "~/server/services/eventBus";
 
-const createFlashcardDeckForFileCommandHandler = (
+export const createFlashcardDeckForFileCommandHandler = (
   fileRepository: FileRepository,
   flashcardDeckRepository: FlashcardDeckRepository,
   securityService: SecurityService,

@@ -17,7 +17,7 @@ export interface ConversationRepository {
   remove: (id: string) => Promise<void>;
 }
 
-const prismaConversationRepository = (
+export const prismaConversationRepository = (
   prisma: ExtendedPrismaClient,
 ): ConversationRepository => {
   const BASE_QUERY_OPTIONS = {
@@ -56,6 +56,10 @@ const prismaConversationRepository = (
           conversationId,
         },
       });
+
+      if (fileIds.length === 0) {
+        return;
+      }
 
       // Associate the new files to the conversation
       await prisma.conversationFile.createMany({

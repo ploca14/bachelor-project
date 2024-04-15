@@ -1,6 +1,6 @@
 import type { EventBus, Message } from "~/server/services/eventBus";
 
-const flashcardDeckStreamHandler = (eventBus: EventBus) => {
+export const flashcardDeckStreamHandler = (eventBus: EventBus) => {
   const execute = async (
     testId: string,
     callbacks?: {

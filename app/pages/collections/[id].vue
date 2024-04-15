@@ -6,7 +6,7 @@
       <USkeleton v-if="isLoading" class="h-7 w-64" />
       <h1
         v-else-if="collection?.name"
-        class="text-3xl font-semibold leading-7 tracking-tight"
+        class="truncate text-3xl font-semibold leading-7 tracking-tight"
       >
         {{ collection.name }}
       </h1>

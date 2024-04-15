@@ -13,7 +13,7 @@
         @click="openFileDialog"
         :disabled="isPending || isUploading"
       >
-        Upload file
+        Upload
       </UButton>
     </div>
 

@@ -1,6 +1,6 @@
 import { CollectionRepository } from "~/server/repositories/collectionRepository";
 
-const addFilesToCollectionCommandHandler = (
+export const addFilesToCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
 ) => {
   const execute = async (collectionId: string, fileIds: string[]) => {

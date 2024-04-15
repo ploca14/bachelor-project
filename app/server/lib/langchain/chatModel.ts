@@ -6,7 +6,8 @@ const openAIChatModel = () => {
   const model = new ChatOpenAI({
     modelName: config.openAIModel,
     streaming: true,
-    maxRetries: 1,
+    maxConcurrency: 50,
+    maxRetries: 10,
   });
 
   return model;

@@ -8,7 +8,7 @@ export interface RetrieverFilterFactory {
   ) => VectorStoreRetriever["filter"];
 }
 
-const supabaseRetrieverFilterFactory = (): RetrieverFilterFactory => {
+export const supabaseRetrieverFilterFactory = (): RetrieverFilterFactory => {
   const createForConversation = (conversation: Conversation) => {
     const filter: SupabaseFilterRPCCall = (rpc) => {
       return rpc

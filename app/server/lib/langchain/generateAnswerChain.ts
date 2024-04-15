@@ -12,7 +12,7 @@ export type GenerateAnswerChain = Runnable<
   string
 >;
 
-const historyAwareGenerateAnswerChain = (llm: BaseChatModel) => {
+export const historyAwareGenerateAnswerChain = (llm: BaseChatModel) => {
   const generateAnswerSystemPrompt = `You are an assistant for
   question-answering tasks. Use the following pieces of retrieved context to
   answer the question. If you don't know the answer, just say that you don't

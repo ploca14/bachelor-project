@@ -31,11 +31,11 @@
         </div>
       </template>
 
-      <template v-if="files">
+      <template v-if="filteredFiles">
         <GridView
           v-model="selectedIndexes"
           aria-label="Files"
-          :items="files"
+          :items="filteredFiles"
           :column-count="getGridColumnCount"
           class="p-container grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5"
           ref="parent"
@@ -102,8 +102,6 @@
 </template>
 
 <script setup lang="ts">
-import { useAddFilesToCollectionMutation } from "~/composables/queries/useAddFilesToCollectionMutation";
-
 const props = defineProps<{
   collectionId: string;
 }>();
@@ -111,12 +109,24 @@ const props = defineProps<{
 const modal = useModal();
 
 const { data: files, error } = useFilesQuery();
+const { data: collection, error: collectionError } = useCollectionQuery(
+  props.collectionId,
+);
+
+const filteredFiles = computed(() => {
+  if (!files.value) return [];
+  return files.value.filter((file) => {
+    return !collection.value?.files.some((collectionFile) => {
+      return collectionFile.id === file.id;
+    });
+  });
+});
 
 const selectedIndexes = ref<number[]>([]);
 
 const selectedFiles = computed(() => {
-  if (!files.value) return [];
-  return selectedIndexes.value.map((index) => files.value[index]);
+  if (!filteredFiles.value) return [];
+  return selectedIndexes.value.map((index) => filteredFiles.value[index]);
 });
 
 const parent = ref<ComponentPublicInstance | null>(null);
