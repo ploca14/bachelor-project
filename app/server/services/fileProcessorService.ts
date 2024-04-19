@@ -1,6 +1,5 @@
 import type { File } from "~/server/domain/file";
 import type { LoaderFactory } from "~/server/lib/langchain/loaderFactory";
-
 import type { TextSplitter } from "langchain/text_splitter";
 import type { VectorStore } from "@langchain/core/vectorstores";
 
@@ -8,7 +7,7 @@ export interface FileProcessorService {
   processFile: (file: File, blob: Blob) => Promise<void | string[]>;
 }
 
-const langchainFileProcessorService = (
+export const langchainFileProcessorService = (
   loaderFactory: LoaderFactory,
   splitter: TextSplitter,
   store: VectorStore,

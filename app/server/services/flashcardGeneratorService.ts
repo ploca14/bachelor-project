@@ -2,12 +2,12 @@ import type { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { VectorStoreService } from "~/server/services/vectorStoreService";
 import type { GenerateFlashcardsChain } from "~/server/lib/langchain/generateFlashcardsChain";
 import { parsePartialJsonMarkdown } from "~/server/utils/parseJsonMarkdown";
-import { Document } from "@langchain/core/documents";
+
 import { z } from "zod";
 
 interface Callbacks {
   onProgress: (
-    progress: DeepPartial<Array<{ front: string; back: string }>>,
+    progress: DeepPartial<Array<{ front: string; back: string } | null>>,
   ) => Promise<void>;
   onSuccess: (
     flashcards: Array<{ front: string; back: string }>,
@@ -26,6 +26,11 @@ export const langchainFlashcardGeneratorService = (
   vectorStore: VectorStoreService,
   generateFlashcardsChain: GenerateFlashcardsChain,
 ): FlashcardGeneratorService => {
+  const flashcardSchema = z.object({
+    front: z.string(),
+    back: z.string(),
+  });
+
   const generateFlashcards = async (
     flashcardDeck: FlashcardDeck,
     callbacks: Callbacks,
@@ -33,53 +38,44 @@ export const langchainFlashcardGeneratorService = (
     try {
       const documents = await vectorStore.getDocuments(flashcardDeck.fileIds);
 
-      const getNumTokens = (documents: Document[]) => {
-        return formatDocumentsAsString(documents).length / 4;
-      };
-
-      const batches = splitListOfDocs(documents, getNumTokens, 5000);
-
       const completions = new Map<string, string>();
 
-      const parseCompletions = () => {
-        return Array.from(completions.values(), (c) =>
-          parsePartialJsonMarkdown(c),
-        ).flat();
-      };
-
-      await generateFlashcardsChain.batch(batches, {
-        maxConcurrency: 5,
+      await generateFlashcardsChain.invoke(documents, {
         callbacks: [
           {
             async handleLLMNewToken(token, _idx, runId) {
               const completion = (completions.get(runId) || "") + token;
               completions.set(runId, completion);
-
-              await callbacks.onProgress(parseCompletions());
+              await callbacks.onProgress(
+                parsePartialCompletions(completions.values()),
+              );
             },
           },
         ],
       });
 
-      const parsedCompletions = parseCompletions();
-
-      const schema = z.object({
-        front: z.string(),
-        back: z.string(),
-      });
-
-      const result = parsedCompletions
-        .filter((c) => {
-          return schema.safeParse(c).success;
-        })
-        .map((c) => schema.parse(c));
-
-      await callbacks.onSuccess(result);
+      await callbacks.onSuccess(parseCompletions(completions.values()));
     } catch (error) {
       if (error instanceof Error) {
         await callbacks.onError(error);
       }
     }
+  };
+
+  const parsePartialCompletions = (completions: Iterable<string>) => {
+    const schema = z.array(flashcardSchema.partial().nullish()).nullish();
+
+    return Array.from(completions, (c) =>
+      schema.parse(parsePartialJsonMarkdown(c)),
+    ).flat();
+  };
+
+  const parseCompletions = (completions: Iterable<string>) => {
+    const parsedCompletions = parsePartialCompletions(completions);
+
+    return parsedCompletions
+      .filter((c) => flashcardSchema.safeParse(c).success)
+      .map((c) => flashcardSchema.parse(c));
   };
 
   return {
@@ -89,8 +85,6 @@ export const langchainFlashcardGeneratorService = (
 
 import { useVectorStoreService } from "~/server/services/vectorStoreService";
 import { useGenerateFlashcardsChain } from "~/server/lib/langchain/generateFlashcardsChain";
-import { splitListOfDocs } from "langchain/chains/combine_documents/reduce";
-import { formatDocumentsAsString } from "langchain/util/document";
 
 export const useFlashcardGeneratorService = () => {
   const vectorStoreService = useVectorStoreService();

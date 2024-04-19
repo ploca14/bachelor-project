@@ -15,7 +15,7 @@ export interface CollectionRepository {
   remove: (id: string) => Promise<void>;
 }
 
-const prismaCollectionRepository = (
+export const prismaCollectionRepository = (
   prisma: ExtendedPrismaClient,
 ): CollectionRepository => {
   const BASE_QUERY_OPTIONS = {
@@ -51,6 +51,10 @@ const prismaCollectionRepository = (
           collectionId,
         },
       });
+
+      if (fileIds.length === 0) {
+        return;
+      }
 
       // Associate the new files to the collection
       await prisma.collectionFile.createMany({

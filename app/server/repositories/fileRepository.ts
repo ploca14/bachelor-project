@@ -12,7 +12,9 @@ export interface FileRepository {
   remove: (id: string) => Promise<void>;
 }
 
-const prismaFileRepository = (prisma: ExtendedPrismaClient): FileRepository => {
+export const prismaFileRepository = (
+  prisma: ExtendedPrismaClient,
+): FileRepository => {
   const getFileById = async (id: string) => {
     const result = await prisma.file.findUnique({
       where: { id },
@@ -28,13 +30,13 @@ const prismaFileRepository = (prisma: ExtendedPrismaClient): FileRepository => {
   const save = async (file: File) => {
     const rawFile = fileMapper.toPersistence(file);
 
-    const result = await prisma.file.upsert({
+    await prisma.file.upsert({
       where: { id: file.id },
       create: rawFile,
       update: rawFile,
     });
 
-    return fileMapper.toDomain(result);
+    return file;
   };
 
   const remove = async (id: string) => {

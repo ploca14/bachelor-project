@@ -1,10 +1,6 @@
-import {
-  useSecurityService,
-  type SecurityService,
-} from "~/server/services/securityService";
-import { useSupabaseClient } from "~/server/lib/supabase/client";
+import type { SecurityService } from "~/server/services/securityService";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { NotFoundError } from "~/types/errors";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 export interface ObjectRepository {
   getObjectByName: (name: string) => Promise<Blob>;
@@ -25,7 +21,6 @@ export const supabaseObjectRepository = (
       .download(objectName);
 
     if (error || !data) {
-      console.log("error", error);
       throw new NotFoundError("File not found");
     }
 
@@ -55,6 +50,9 @@ export const supabaseObjectRepository = (
     remove,
   };
 };
+
+import { useSecurityService } from "~/server/services/securityService";
+import { useSupabaseClient } from "~/server/lib/supabase/client";
 
 export const useObjectRepository = () => {
   const securityService = useSecurityService();

@@ -4,7 +4,7 @@ import {
 } from "@langchain/core/prompts";
 import { RunnableSequence, Runnable } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import type { BaseChatModel } from "@langchain/core/language_models/chat_models";
+import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import type { BaseMessage } from "@langchain/core/messages";
 
 export type TransformQueryChain = Runnable<
@@ -12,11 +12,9 @@ export type TransformQueryChain = Runnable<
   string
 >;
 
-export const historyAwareTransformQueryChain = (llm: BaseChatModel) => {
-  const transformQuerySystemPrompt = `Given the above conversation, generate
-  a search query which can used without the chat history in order to find
-  information relevant to the conversation`;
+const transformQuerySystemPrompt = `Given the above conversation, generate a search query which can used without the chat history in order to find information relevant to the conversation`;
 
+export const historyAwareTransformQueryChain = (llm: BaseLanguageModel) => {
   const transformQueryPrompt = ChatPromptTemplate.fromMessages([
     ["system", transformQuerySystemPrompt],
     new MessagesPlaceholder("chat_history"),

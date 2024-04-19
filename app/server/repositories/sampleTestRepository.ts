@@ -14,7 +14,7 @@ export interface SampleTestRepository {
   remove: (id: string) => Promise<void>;
 }
 
-const prismaSampleTestRepository = (
+export const prismaSampleTestRepository = (
   prisma: ExtendedPrismaClient,
 ): SampleTestRepository => {
   const BASE_QUERY_OPTIONS = {
@@ -49,6 +49,10 @@ const prismaSampleTestRepository = (
         },
       });
 
+      if (fileIds.length === 0) {
+        return;
+      }
+
       // Associate the new files to the sampleTest
       await prisma.sampleTestFile.createMany({
         data: fileIds.map((fileId) => ({
@@ -67,6 +71,10 @@ const prismaSampleTestRepository = (
           testId,
         },
       });
+
+      if (questions.length === 0) {
+        return;
+      }
 
       // Recreate the questions
       await prisma.question.createMany({

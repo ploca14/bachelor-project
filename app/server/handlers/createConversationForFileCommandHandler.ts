@@ -3,7 +3,7 @@ import type { ConversationRepository } from "~/server/repositories/conversationR
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { SecurityService } from "~/server/services/securityService";
 
-const createConversationForFileCommandHandler = (
+export const createConversationForFileCommandHandler = (
   fileRepository: FileRepository,
   conversationRepository: ConversationRepository,
   securityService: SecurityService,

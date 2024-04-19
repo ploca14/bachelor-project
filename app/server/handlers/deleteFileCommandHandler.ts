@@ -1,7 +1,7 @@
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { ObjectRepository } from "~/server/repositories/objectRepository";
 
-const deleteFileCommandHandler = (
+export const deleteFileCommandHandler = (
   fileRepository: FileRepository,
   objectRepository: ObjectRepository,
 ) => {

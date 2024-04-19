@@ -5,7 +5,7 @@ import type { SecurityService } from "~/server/services/securityService";
 import type { QuestionGeneratorService } from "~/server/services/questionGeneratorService";
 import type { EventBus } from "~/server/services/eventBus";
 
-const createSampleTestForFileCommandHandler = (
+export const createSampleTestForFileCommandHandler = (
   fileRepository: FileRepository,
   sampleTestRepository: SampleTestRepository,
   securityService: SecurityService,

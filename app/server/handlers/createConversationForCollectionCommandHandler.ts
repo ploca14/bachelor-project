@@ -4,7 +4,7 @@ import type { CollectionRepository } from "~/server/repositories/collectionRepos
 import type { SecurityService } from "~/server/services/securityService";
 import { NoFilesError } from "~/types/errors";
 
-const createConversationForCollectionCommandHandler = (
+export const createConversationForCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
   conversationRepository: ConversationRepository,
   securityService: SecurityService,

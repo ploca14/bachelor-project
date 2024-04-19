@@ -41,7 +41,6 @@ describe("createCollectionCommandHandler", () => {
         "123456789",
       ),
     );
-    expect(result).toBe("123456789");
   });
 
   it("should return the collection id", async () => {

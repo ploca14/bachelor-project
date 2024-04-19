@@ -14,7 +14,7 @@ export interface FlashcardDeckRepository {
   remove: (id: string) => Promise<void>;
 }
 
-const prismaFlashcardDeckRepository = (
+export const prismaFlashcardDeckRepository = (
   prisma: ExtendedPrismaClient,
 ): FlashcardDeckRepository => {
   const BASE_QUERY_OPTIONS = {
@@ -49,6 +49,10 @@ const prismaFlashcardDeckRepository = (
         },
       });
 
+      if (fileIds.length === 0) {
+        return;
+      }
+
       // Associate the new files to the flashcardDeck
       await prisma.flashcardDeckFile.createMany({
         data: fileIds.map((fileId) => ({
@@ -67,6 +71,10 @@ const prismaFlashcardDeckRepository = (
           deckId,
         },
       });
+
+      if (flashcards.length === 0) {
+        return;
+      }
 
       // Recreate the flashcards
       await prisma.flashcard.createMany({

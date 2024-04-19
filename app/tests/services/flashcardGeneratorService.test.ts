@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
+import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mock, type MockProxy } from "vitest-mock-extended";
 import {
   langchainFlashcardGeneratorService,
@@ -12,8 +12,11 @@ import {
 import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import { FakeListChatModel, FakeLLM } from "@langchain/core/utils/testing";
 import { FlashcardDeck } from "~/server/domain/flashcardDeck";
-// import { generateFlashcardsPrompt } from "~/server/lib/langchain/generateFlashcardsChain";
 import type { Document } from "@langchain/core/documents";
+import {
+  singleDocumentBatcher,
+  type DocumentBatcher,
+} from "~/server/lib/langchain/documentBatcher";
 
 const fakeResponses = [
   `\`\`\`json
@@ -37,12 +40,12 @@ describe("flashcardGeneratorService", () => {
   let service: FlashcardGeneratorService;
   let vectorStoreMock: MockProxy<VectorStoreService>;
   let generateFlashcardsChain: GenerateFlashcardsChain;
+  let documentBatcher: DocumentBatcher;
   let llm: BaseLanguageModel;
   let llmStartCallback = vi.fn();
   let docs: Document[];
 
   beforeEach(() => {
-    vectorStoreMock = mock<VectorStoreService>();
     llm = new FakeListChatModel({
       responses: fakeResponses,
       callbacks: [
@@ -53,14 +56,20 @@ describe("flashcardGeneratorService", () => {
         },
       ],
     });
+    documentBatcher = singleDocumentBatcher();
 
+    vectorStoreMock = mock<VectorStoreService>();
     docs = [
       { pageContent: "Paris is the capital of France", metadata: {} },
       { pageContent: "Leonardo da Vinci painted the Mona Lisa", metadata: {} },
       { pageContent: "H2O is the chemical symbol for water", metadata: {} },
     ];
+    vectorStoreMock.getDocuments.mockResolvedValue(docs);
 
-    generateFlashcardsChain = simpleGenerateFlashcardsChain(llm);
+    generateFlashcardsChain = simpleGenerateFlashcardsChain(
+      llm,
+      documentBatcher,
+    );
 
     service = langchainFlashcardGeneratorService(
       vectorStoreMock,
@@ -68,9 +77,11 @@ describe("flashcardGeneratorService", () => {
     );
   });
 
-  it("should call the LLM with the correct prompts", async () => {
-    vectorStoreMock.getDocuments.mockResolvedValue(docs);
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
+  it("should call the vector store service with the correct file IDs", async () => {
     const flashcardDeck = new FlashcardDeck(
       "Test Flashcard Deck",
       "pending",
@@ -88,20 +99,62 @@ describe("flashcardGeneratorService", () => {
 
     await service.generateFlashcards(flashcardDeck, callbacks);
 
-    expect(vectorStoreMock.getDocuments).toHaveBeenCalledWith(
-      flashcardDeck.fileIds,
+    expect(vectorStoreMock.getDocuments).toHaveBeenCalledWith([
+      "file-id-1",
+      "file-id-2",
+    ]);
+  });
+
+  it("should call the LLM with the correct prompts", async () => {
+    const flashcardDeck = new FlashcardDeck(
+      "Test Flashcard Deck",
+      "pending",
+      ["file-id-1", "file-id-2"],
+      "user-id-1",
+      [],
+      new Date(),
     );
 
-    for (const doc of docs) {
-      expect(llmStartCallback).toHaveBeenCalledWith([
-        `Human: You are an assistant for generating flashcards. Use the following piece of context to generate multiple flashcards. You must format your output in JSON format. Output only a list of objects. Each object should have the key "front" and "back".\n\nThe context:\n${doc.pageContent}`,
+    const callbacks = {
+      onProgress: vi.fn(),
+      onSuccess: vi.fn(),
+      onError: vi.fn(),
+    };
+
+    await service.generateFlashcards(flashcardDeck, callbacks);
+
+    expect(llmStartCallback).toHaveBeenCalledWith([
+      expect.stringContaining("generate multiple flashcards"),
+    ]);
+  });
+
+  it("should call the llm for each document", async () => {
+    const flashcardDeck = new FlashcardDeck(
+      "Test Flashcard Deck",
+      "pending",
+      ["file-id-1", "file-id-2"],
+      "user-id-1",
+      [],
+      new Date(),
+    );
+
+    const callbacks = {
+      onProgress: vi.fn(),
+      onSuccess: vi.fn(),
+      onError: vi.fn(),
+    };
+
+    await service.generateFlashcards(flashcardDeck, callbacks);
+
+    for (const [idx, doc] of docs.entries()) {
+      expect(llmStartCallback).toHaveBeenNthCalledWith(idx + 1, [
+        expect.stringContaining(doc.pageContent),
       ]);
     }
+    expect(llmStartCallback).toHaveBeenCalledTimes(docs.length);
   });
 
   it("should call the onSuccess callback with the generated flashcards", async () => {
-    vectorStoreMock.getDocuments.mockResolvedValue(docs);
-
     const flashcardDeck = new FlashcardDeck(
       "Test Flashcard Deck",
       "pending",
@@ -118,10 +171,6 @@ describe("flashcardGeneratorService", () => {
     };
 
     await service.generateFlashcards(flashcardDeck, callbacks);
-
-    expect(vectorStoreMock.getDocuments).toHaveBeenCalledWith(
-      flashcardDeck.fileIds,
-    );
 
     expect(callbacks.onSuccess).toHaveBeenCalledWith([
       { front: "What is the capital of France?", back: "Paris" },
@@ -132,8 +181,6 @@ describe("flashcardGeneratorService", () => {
   });
 
   it("should call the onProgress callback with the updated progress", async () => {
-    vectorStoreMock.getDocuments.mockResolvedValue(docs);
-
     const flashcardDeck = new FlashcardDeck(
       "Test Flashcard Deck",
       "pending",
@@ -150,10 +197,6 @@ describe("flashcardGeneratorService", () => {
     };
 
     await service.generateFlashcards(flashcardDeck, callbacks);
-
-    expect(vectorStoreMock.getDocuments).toHaveBeenCalledWith(
-      flashcardDeck.fileIds,
-    );
 
     expect(callbacks.onProgress).toHaveBeenCalledWith([null, null, null]);
 
@@ -192,18 +235,12 @@ describe("flashcardGeneratorService", () => {
 
     await service.generateFlashcards(flashcardDeck, callbacks);
 
-    expect(vectorStoreMock.getDocuments).toHaveBeenCalledWith(
-      flashcardDeck.fileIds,
-    );
-
     expect(callbacks.onProgress).not.toHaveBeenCalled();
     expect(callbacks.onSuccess).not.toHaveBeenCalled();
     expect(callbacks.onError).toHaveBeenCalledWith(new Error("Test error"));
   });
 
   it("should call the onError callback if the LLM throws an error", async () => {
-    vectorStoreMock.getDocuments.mockResolvedValue(docs);
-
     const flashcardDeck = new FlashcardDeck(
       "Test Flashcard Deck",
       "pending",
@@ -223,7 +260,10 @@ describe("flashcardGeneratorService", () => {
       thrownErrorString: "Test error",
     });
 
-    generateFlashcardsChain = simpleGenerateFlashcardsChain(llm);
+    generateFlashcardsChain = simpleGenerateFlashcardsChain(
+      llm,
+      documentBatcher,
+    );
 
     service = langchainFlashcardGeneratorService(
       vectorStoreMock,
@@ -231,10 +271,6 @@ describe("flashcardGeneratorService", () => {
     );
 
     await service.generateFlashcards(flashcardDeck, callbacks);
-
-    expect(vectorStoreMock.getDocuments).toHaveBeenCalledWith(
-      flashcardDeck.fileIds,
-    );
 
     expect(callbacks.onProgress).not.toHaveBeenCalled();
     expect(callbacks.onSuccess).not.toHaveBeenCalled();

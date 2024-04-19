@@ -7,7 +7,7 @@ import { singletonScope } from "~/server/utils/singleton";
 export const supabaseVectorStore = (
   embeddings: Embeddings,
   client: SupabaseClient,
-): VectorStore => {
+) => {
   const store = new SupabaseVectorStore(embeddings, { client });
 
   return store;
@@ -16,7 +16,7 @@ export const supabaseVectorStore = (
 import { useEmbeddingModel } from "~/server/lib/langchain/embeddingModel";
 import { useSupabaseServiceClient } from "~/server/lib/supabase/client";
 
-export const useVectorStore = singletonScope(() => {
+export const useVectorStore = singletonScope((): VectorStore => {
   const embeddings = useEmbeddingModel();
   const client = useSupabaseServiceClient();
 

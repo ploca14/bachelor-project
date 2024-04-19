@@ -13,7 +13,7 @@ export interface EventBus {
   once(topic: string, callback: (event: Message) => void): Promise<void>;
 }
 
-const eventEmitterEventBus = (eventEmitter: EventEmitter): EventBus => {
+export const eventEmitterEventBus = (eventEmitter: EventEmitter): EventBus => {
   const publish = async (topic: string, message: Message) => {
     eventEmitter.emit(topic, message);
   };

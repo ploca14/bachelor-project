@@ -11,7 +11,9 @@ export const flashcardDeckStreamHandler = (eventBus: EventBus) => {
   ) => {
     const unsubscribe = await eventBus.subscribe(
       `flashcardDeck:${testId}:progress`,
-      callbacks?.onProgress ?? (() => {}),
+      (progress) => {
+        callbacks?.onProgress?.(progress);
+      },
     );
 
     await eventBus.once(`flashcardDeck:${testId}:complete`, () => {

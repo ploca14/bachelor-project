@@ -1,6 +1,6 @@
 import { CollectionRepository } from "~/server/repositories/collectionRepository";
 
-const removeFilesFromCollectionCommandHandler = (
+export const removeFilesFromCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
 ) => {
   const execute = async (collectionId: string, fileIds: string[]) => {

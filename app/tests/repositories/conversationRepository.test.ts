@@ -18,7 +18,7 @@ describe("prismaConversationRepository", () => {
     repository = prismaConversationRepository(prismaMock);
   });
 
-  it("should get conversation by id", async () => {
+  it("getCollectionById should return conversation by id", async () => {
     const id = "test-id";
     const rawConversation = {
       id,
@@ -52,21 +52,29 @@ describe("prismaConversationRepository", () => {
     });
   });
 
-  it("should check if conversation exists", async () => {
+  it("exists should return true if collection exists", async () => {
     const id = "test-id";
 
-    prismaMock.conversation.findUnique
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce({} as any);
+    prismaMock.conversation.findUnique.mockResolvedValueOnce({} as any);
 
-    expect(await repository.exists(id)).toBe(false);
     expect(await repository.exists(id)).toBe(true);
-    expect(prismaMock.conversation.findUnique).toHaveBeenNthCalledWith(2, {
+    expect(prismaMock.conversation.findUnique).toHaveBeenCalledWith({
       where: { id },
     });
   });
 
-  it("should save conversation", async () => {
+  it("exists should return false if collection does not exist", async () => {
+    const id = "test-id";
+
+    prismaMock.conversation.findUnique.mockResolvedValue(null);
+
+    expect(await repository.exists(id)).toBe(false);
+    expect(prismaMock.conversation.findUnique).toHaveBeenCalledWith({
+      where: { id },
+    });
+  });
+
+  it("save should create conversation if it does not exist", async () => {
     const id = "test-id";
     const conversation = new Conversation(
       "Test Conversation",
@@ -98,7 +106,7 @@ describe("prismaConversationRepository", () => {
     });
   });
 
-  it("should remove conversation", async () => {
+  it("delete should remove conversation by id", async () => {
     const id = "test-id";
 
     await repository.remove(id);
@@ -108,7 +116,7 @@ describe("prismaConversationRepository", () => {
     });
   });
 
-  it("should throw NotFoundError when conversation not found", async () => {
+  it("getCollectionById should throw NotFoundError when conversation not found", async () => {
     const id = "test-id";
     prismaMock.conversation.findUnique.mockResolvedValue(null);
 
@@ -126,7 +134,7 @@ describe("prismaConversationRepository", () => {
     });
   });
 
-  it("should delete all associated conversation files and messages when saving conversation with no files and messages", async () => {
+  it("save should disassociate files from conversation when saving conversation without files", async () => {
     const id = "test-id";
     const conversation = new Conversation(
       "Test Conversation",
@@ -136,37 +144,35 @@ describe("prismaConversationRepository", () => {
       new Date(),
       id,
     );
-    const rawConversation = {
-      id,
-      name: conversation.name,
-      userId: conversation.userId,
-      createdAt: conversation.createdAt,
-    };
 
     await repository.save(conversation);
 
-    expect(prismaMock.conversation.upsert).toHaveBeenCalledWith({
-      where: { id },
-      create: rawConversation,
-      update: rawConversation,
-      include: {
-        files: true,
-        messages: {
-          orderBy: { createdAt: "asc" },
-        },
-      },
-    });
     expect(prismaMock.conversationFile.deleteMany).toHaveBeenCalledWith({
       where: { conversationId: id },
     });
     expect(prismaMock.conversationFile.createMany).not.toHaveBeenCalled();
+  });
+
+  it("save should disassociate messages from conversation when saving conversation without messages", async () => {
+    const id = "test-id";
+    const conversation = new Conversation(
+      "Test Conversation",
+      ["file1", "file2"],
+      "test-user-id",
+      [],
+      new Date(),
+      id,
+    );
+
+    await repository.save(conversation);
+
     expect(prismaMock.message.deleteMany).toHaveBeenCalledWith({
       where: { conversationId: id },
     });
     expect(prismaMock.message.createMany).not.toHaveBeenCalled();
   });
 
-  it("should save all associated conversation files and messages when saving conversation with files and messages", async () => {
+  it("save should associate files to conversation when saving conversation with files", async () => {
     const id = "test-id";
     const messages = [
       new Message("human", "message1", id, new Date(), "message1"),
@@ -180,26 +186,9 @@ describe("prismaConversationRepository", () => {
       new Date(),
       id,
     );
-    const rawConversation = {
-      id,
-      name: conversation.name,
-      userId: conversation.userId,
-      createdAt: conversation.createdAt,
-    };
 
     await repository.save(conversation);
 
-    expect(prismaMock.conversation.upsert).toHaveBeenCalledWith({
-      where: { id },
-      create: rawConversation,
-      update: rawConversation,
-      include: {
-        files: true,
-        messages: {
-          orderBy: { createdAt: "asc" },
-        },
-      },
-    });
     expect(prismaMock.conversationFile.deleteMany).toHaveBeenCalledWith({
       where: { conversationId: id },
     });
@@ -209,11 +198,29 @@ describe("prismaConversationRepository", () => {
         conversationId: conversation.id,
       })),
     });
+  });
+
+  it("save should associate messages to conversation when saving conversation with messages", async () => {
+    const id = "test-id";
+    const conversation = new Conversation(
+      "Test Conversation",
+      ["file1", "file2"],
+      "test-user-id",
+      [
+        new Message("human", "message1", id, new Date(), "message1"),
+        new Message("ai", "message2", id, new Date(), "message2"),
+      ],
+      new Date(),
+      id,
+    );
+
+    await repository.save(conversation);
+
     expect(prismaMock.message.deleteMany).toHaveBeenCalledWith({
       where: { conversationId: id },
     });
     expect(prismaMock.message.createMany).toHaveBeenCalledWith({
-      data: messages.map((message) => ({
+      data: conversation.messages.map((message) => ({
         id: message.id,
         content: message.content,
         role: message.role,
