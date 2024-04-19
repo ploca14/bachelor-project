@@ -4,6 +4,7 @@ import { Flashcard } from "~/server/domain/flashcard";
 export class FlashcardDeck {
   constructor(
     public name: string,
+    private _status: "complete" | "error" | "pending",
     private readonly _fileIds: string[],
     public readonly userId: string,
     private readonly _flashcards: Flashcard[] = [],
@@ -17,7 +18,7 @@ export class FlashcardDeck {
     );
 
     this._flashcards.push(...newFlashcards);
-    return newFlashcards;
+    return this.flashcards;
   }
 
   get fileIds() {
@@ -30,5 +31,17 @@ export class FlashcardDeck {
 
   get createdAt() {
     return new Date(this._createdAt);
+  }
+
+  get status() {
+    return this._status;
+  }
+
+  set status(status: "complete" | "error" | "pending") {
+    if (!["complete", "error", "pending"].includes(status)) {
+      throw new Error("Invalid status");
+    }
+
+    this._status = status;
   }
 }

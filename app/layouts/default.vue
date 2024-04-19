@@ -5,6 +5,7 @@
       side="left"
       class="lg:hidden"
       :ui="{
+        wrapper: 'z-[100]',
         width: 'max-w-xs',
       }"
     >
@@ -23,7 +24,7 @@
     <div
       :class="[
         'hidden lg:flex',
-        'fixed inset-y-0 left-0 z-50 w-20 overflow-y-auto px-3 pb-4 ring-1 ring-gray-200',
+        'fixed inset-y-0 left-0 z-[60] w-20 overflow-y-auto px-3 pb-4 ring-1 ring-gray-200',
         'flex-col items-center justify-between gap-y-8',
       ]"
     >
@@ -31,19 +32,36 @@
         :links="navigation"
         :ui="{
           label: 'hidden sr-only',
-          padding: 'p-3',
-          icon: { base: 'h-6 w-6' },
+          padding: '',
           width: 'w-auto',
           wrapper: 'flex flex-col items-center space-y-1',
         }"
         class="mt-8"
       >
+        <template #icon="{ link }">
+          <UTooltip
+            :text="link.label"
+            :popper="{ placement: 'right' }"
+            :open-delay="500"
+            :ui="{
+              wrapper: 'p-3',
+              transition: {
+                enterFromClass: '-translate-x-1',
+                enterToClass: 'translate-x-0',
+                leaveFromClass: 'translate-x-0',
+                leaveToClass: '-translate-x-1',
+              },
+            }"
+          >
+            <UIcon :name="link.icon" class="h-6 w-6" />
+          </UTooltip>
+        </template>
       </UVerticalNavigation>
       <UserMenu size="md" />
     </div>
 
     <div
-      class="sticky top-0 z-50 flex h-16 items-center justify-between gap-x-6 bg-white px-4 py-4 ring-1 ring-gray-200 sm:px-6 lg:hidden"
+      class="sticky top-0 z-[60] flex h-16 items-center justify-between gap-x-6 bg-white px-4 py-4 ring-1 ring-gray-200 sm:px-6 lg:hidden"
     >
       <UButton
         icon="i-heroicons-bars-3"
@@ -79,8 +97,8 @@ const navigation = [
     icon: "i-heroicons-rectangle-stack",
   },
   {
-    label: "Practice Tests",
-    to: "/practice-tests",
+    label: "Sample Tests",
+    to: "/sample-tests",
     icon: "i-heroicons-academic-cap",
   },
 ];

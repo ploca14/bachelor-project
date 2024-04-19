@@ -1,14 +1,10 @@
-import {
-  useConversationRepository,
-  type ConversationRepository,
-} from "~/server/repositories/conversationRepository";
-import {
-  useFileRepository,
-  type FileRepository,
-} from "~/server/repositories/fileRepository";
-import { useSupabaseClient } from "~/server/lib/supabase/client";
+import type { ConversationRepository } from "~/server/repositories/conversationRepository";
+import type { FileRepository } from "~/server/repositories/fileRepository";
+import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
+import type { SampleTestRepository } from "~/server/repositories/sampleTestRepository";
+import type { CollectionRepository } from "~/server/repositories/collectionRepository";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { UnauthorizedError } from "~/types/errors";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 export interface User {
   id: string;
@@ -26,11 +22,17 @@ export interface SecurityService {
   getSession: () => Promise<Session>;
   checkFileOwnership(id: string): Promise<void>;
   checkConversationOwnership: (id: string) => Promise<void>;
+  checkFlashcardDeckOwnership: (id: string) => Promise<void>;
+  checkSampleTestOwnership: (id: string) => Promise<void>;
+  checkCollectionOwnership: (id: string) => Promise<void>;
 }
 
 const supabaseSecurityService = (
   conversationRepository: ConversationRepository,
   fileRepository: FileRepository,
+  flashcardDeckRepository: FlashcardDeckRepository,
+  sampleTestRepository: SampleTestRepository,
+  collectionRepository: CollectionRepository,
   supabase: SupabaseClient,
 ): SecurityService => {
   const getSession = async () => {
@@ -51,9 +53,17 @@ const supabaseSecurityService = (
   };
 
   const getUser = async () => {
-    const session = await getSession();
+    const { data, error } = await supabase.auth.getUser();
 
-    return session.user;
+    if (error || !data.user) {
+      throw new UnauthorizedError("User is not logged in");
+    }
+
+    return {
+      id: data.user.id,
+      name: data.user.user_metadata.full_name,
+      avatar_url: data.user.user_metadata.avatar_url,
+    };
   };
 
   const checkFileOwnership = async (id: string) => {
@@ -78,22 +88,71 @@ const supabaseSecurityService = (
     }
   };
 
+  const checkFlashcardDeckOwnership = async (id: string) => {
+    const user = await getUser();
+    const deck = await flashcardDeckRepository.getFlashcardDeckById(id);
+
+    if (deck.userId !== user.id) {
+      throw new UnauthorizedError(
+        "User is not authorized to access this deck.",
+      );
+    }
+  };
+
+  const checkSampleTestOwnership = async (id: string) => {
+    const user = await getUser();
+    const deck = await sampleTestRepository.getSampleTestById(id);
+
+    if (deck.userId !== user.id) {
+      throw new UnauthorizedError(
+        "User is not authorized to access this deck.",
+      );
+    }
+  };
+
+  const checkCollectionOwnership = async (id: string) => {
+    const user = await getUser();
+    const collection = await collectionRepository.getCollectionById(id);
+
+    if (collection.userId !== user.id) {
+      throw new UnauthorizedError(
+        "User is not authorized to access this collection.",
+      );
+    }
+  };
+
   return {
     getSession,
     getUser,
     checkFileOwnership,
     checkConversationOwnership,
+    checkFlashcardDeckOwnership,
+    checkSampleTestOwnership,
+    checkCollectionOwnership,
   };
 };
+
+import { useConversationRepository } from "~/server/repositories/conversationRepository";
+import { useFileRepository } from "~/server/repositories/fileRepository";
+import { useFlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
+import { useSampleTestRepository } from "~/server/repositories/sampleTestRepository";
+import { useCollectionRepository } from "~/server/repositories/collectionRepository";
+import { useSupabaseClient } from "~/server/lib/supabase/client";
 
 export const useSecurityService = () => {
   const conversationRepository = useConversationRepository();
   const fileRepository = useFileRepository();
+  const flashcardDeckRepository = useFlashcardDeckRepository();
+  const sampleTestRepository = useSampleTestRepository();
+  const collectionRepository = useCollectionRepository();
   const supabase = useSupabaseClient();
 
   return supabaseSecurityService(
     conversationRepository,
     fileRepository,
+    flashcardDeckRepository,
+    sampleTestRepository,
+    collectionRepository,
     supabase,
   );
 };

@@ -2,6 +2,11 @@ import type { DB } from "./types";
 import pg from "pg";
 import { Kysely, PostgresDialect } from "kysely";
 
+const int8TypeId = 20;
+pg.types.setTypeParser(int8TypeId, (val) => {
+  return parseInt(val, 10);
+});
+
 export type KyselyClient = Kysely<DB>;
 
 const kyselyClient = () => {

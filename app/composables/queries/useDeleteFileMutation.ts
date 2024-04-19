@@ -1,14 +1,15 @@
-export const useDeleteFileMutation = () => {
+export const useDeleteFilesMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => {
-      return $fetch(`/api/files/${id}`, {
+    mutationFn: (fileIds: string[]) => {
+      return $fetch(`/api/files`, {
         method: "delete",
+        body: { fileIds },
       });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["files"] });
+      await queryClient.invalidateQueries();
     },
   });
 };

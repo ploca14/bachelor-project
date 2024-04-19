@@ -4,7 +4,7 @@ import type { SecurityService } from "~/server/services/securityService";
 import type { ObjectRepository } from "~/server/repositories/objectRepository";
 import type { FileProcessorService } from "~/server/services/fileProcessorService";
 
-const processFileCommandHandler = (
+export const processFileCommandHandler = (
   fileRepository: FileRepository,
   objectRepository: ObjectRepository,
   securityService: SecurityService,

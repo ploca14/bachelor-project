@@ -4,7 +4,7 @@ import {
 } from "@langchain/core/prompts";
 import { Runnable, RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import type { BaseChatModel } from "@langchain/core/language_models/chat_models";
+import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import type { BaseMessage } from "@langchain/core/messages";
 
 export type GenerateAnswerChain = Runnable<
@@ -12,7 +12,7 @@ export type GenerateAnswerChain = Runnable<
   string
 >;
 
-const historyAwareGenerateAnswerChain = (llm: BaseChatModel) => {
+export const historyAwareGenerateAnswerChain = (llm: BaseLanguageModel) => {
   const generateAnswerSystemPrompt = `You are an assistant for
   question-answering tasks. Use the following pieces of retrieved context to
   answer the question. If you don't know the answer, just say that you don't

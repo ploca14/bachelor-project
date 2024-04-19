@@ -1,8 +1,12 @@
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import type { TextSplitter } from "langchain/text_splitter";
 
-const textSplitter = (): TextSplitter => {
-  const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000 });
+export const textSplitter = (): TextSplitter => {
+  const config = useRuntimeConfig();
+
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: config.chunkSize,
+  });
 
   return splitter;
 };

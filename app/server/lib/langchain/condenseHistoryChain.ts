@@ -5,7 +5,7 @@ const INTERACTION_WINDOW_SIZE = 5;
 
 export type CondenseHistoryChain = RunnableLambda<BaseMessage[], BaseMessage[]>;
 
-const bufferedWindowCondenseHistoryChain = () => {
+export const bufferedWindowCondenseHistoryChain = () => {
   const chain = RunnableLambda.from((chat_history: BaseMessage[]) => {
     return chat_history.slice(-INTERACTION_WINDOW_SIZE * 2);
   });

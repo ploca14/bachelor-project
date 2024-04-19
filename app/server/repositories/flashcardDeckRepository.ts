@@ -5,6 +5,7 @@ import type { Prisma } from "@prisma/client";
 import type { ExtendedPrismaClient } from "~/server/lib/prisma/client";
 import type { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { Flashcard } from "~/server/domain/flashcard";
+import { NotFoundError } from "~/types/errors";
 
 export interface FlashcardDeckRepository {
   getFlashcardDeckById: (id: string) => Promise<FlashcardDeck>;
@@ -13,7 +14,7 @@ export interface FlashcardDeckRepository {
   remove: (id: string) => Promise<void>;
 }
 
-const prismaFlashcardDeckRepository = (
+export const prismaFlashcardDeckRepository = (
   prisma: ExtendedPrismaClient,
 ): FlashcardDeckRepository => {
   const BASE_QUERY_OPTIONS = {
@@ -21,10 +22,14 @@ const prismaFlashcardDeckRepository = (
   } satisfies Prisma.FlashcardDeckDefaultArgs;
 
   const getFlashcardDeckById = async (id: string) => {
-    const result = await prisma.flashcardDeck.findUniqueOrThrow({
+    const result = await prisma.flashcardDeck.findUnique({
       where: { id },
       ...BASE_QUERY_OPTIONS,
     });
+
+    if (!result) {
+      throw new NotFoundError("Flashcard deck not found");
+    }
 
     return flashcardDeckMapper.toDomain(result);
   };
@@ -43,6 +48,10 @@ const prismaFlashcardDeckRepository = (
           deckId,
         },
       });
+
+      if (fileIds.length === 0) {
+        return;
+      }
 
       // Associate the new files to the flashcardDeck
       await prisma.flashcardDeckFile.createMany({
@@ -63,6 +72,10 @@ const prismaFlashcardDeckRepository = (
         },
       });
 
+      if (flashcards.length === 0) {
+        return;
+      }
+
       // Recreate the flashcards
       await prisma.flashcard.createMany({
         data: flashcards.map((flashcard) =>
@@ -76,7 +89,7 @@ const prismaFlashcardDeckRepository = (
     const rawFlashcardDeck = flashcardDeckMapper.toPersistence(flashcardDeck);
 
     // If the flashcardDeck already exists, update it. Otherwise, create it.
-    const result = await prisma.flashcardDeck.upsert({
+    await prisma.flashcardDeck.upsert({
       where: { id: flashcardDeck.id },
       create: rawFlashcardDeck,
       update: rawFlashcardDeck,
@@ -92,7 +105,7 @@ const prismaFlashcardDeckRepository = (
       flashcardDeck.flashcards,
     );
 
-    return flashcardDeckMapper.toDomain(result);
+    return flashcardDeck;
   });
 
   const remove = async (id: string) => {

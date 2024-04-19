@@ -18,7 +18,7 @@
                 <div class="truncate">{{ link.label }}</div>
                 <div class="text-xs">{{ link.time }}</div>
               </div>
-              <div class="h-4 truncate text-xs">
+              <div class="mt-2 h-4 truncate text-xs">
                 {{ link.lastMessage ?? "No message yet" }}
               </div>
             </div>
@@ -26,7 +26,7 @@
         </UVerticalNavigation>
       </div>
     </div>
-    <div class="w-full">
+    <div class="w-full min-w-0">
       <NuxtPage />
     </div>
   </div>

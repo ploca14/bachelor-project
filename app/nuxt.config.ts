@@ -13,6 +13,10 @@ export default defineNuxtConfig({
     supabase: {
       serviceKey: process.env.NUXT_SUPABASE_SERVICE_KEY,
     },
+    openAIModel: process.env.NUXT_OPENAI_MODEL,
+    charsPerToken: process.env.NUXT_CHARS_PER_TOKEN,
+    maxTokensPerBatch: process.env.NUXT_MAX_TOKENS_PER_BATCH,
+    chunkSize: process.env.NUXT_CHUNK_SIZE,
     public: {
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
       supabase: {

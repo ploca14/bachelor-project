@@ -9,6 +9,12 @@ export const MessageRole = {
     ai: "ai"
 } as const;
 export type MessageRole = (typeof MessageRole)[keyof typeof MessageRole];
+export const GenerationStatus = {
+    pending: "pending",
+    complete: "complete",
+    error: "error"
+} as const;
+export type GenerationStatus = (typeof GenerationStatus)[keyof typeof GenerationStatus];
 export type Collection = {
     id: Generated<string>;
     createdAt: Generated<Timestamp>;
@@ -53,6 +59,7 @@ export type FlashcardDeck = {
     createdAt: Generated<Timestamp>;
     userId: string;
     name: string;
+    status: Generated<GenerationStatus>;
 };
 export type FlashcardDeckFile = {
     deckId: string;
@@ -64,6 +71,23 @@ export type Message = {
     conversationId: string;
     content: string;
     role: MessageRole;
+};
+export type Question = {
+    id: Generated<string>;
+    createdAt: Generated<Timestamp>;
+    testId: string;
+    content: string;
+};
+export type SampleTest = {
+    id: Generated<string>;
+    createdAt: Generated<Timestamp>;
+    userId: string;
+    name: string;
+    status: Generated<GenerationStatus>;
+};
+export type SampleTestFile = {
+    testId: string;
+    fileId: string;
 };
 export type User = {
     id: string;
@@ -82,5 +106,8 @@ export type DB = {
     flashcard_decks_files: FlashcardDeckFile;
     flashcards: Flashcard;
     messages: Message;
+    questions: Question;
+    sample_tests: SampleTest;
+    sample_tests_files: SampleTestFile;
     users: User;
 };

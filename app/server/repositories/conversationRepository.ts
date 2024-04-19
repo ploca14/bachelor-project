@@ -8,6 +8,7 @@ import { Message } from "~/server/domain/message";
 import { messageMapper } from "~/server/mappers/messageMapper";
 import { transactional } from "~/server/utils/transactional";
 import type { Prisma } from "@prisma/client";
+import { NotFoundError } from "~/types/errors";
 
 export interface ConversationRepository {
   getConversationById: (id: string) => Promise<Conversation>;
@@ -16,18 +17,27 @@ export interface ConversationRepository {
   remove: (id: string) => Promise<void>;
 }
 
-const prismaConversationRepository = (
+export const prismaConversationRepository = (
   prisma: ExtendedPrismaClient,
 ): ConversationRepository => {
   const BASE_QUERY_OPTIONS = {
-    include: { files: true, messages: true },
+    include: {
+      files: true,
+      messages: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
   } satisfies Prisma.ConversationDefaultArgs;
 
   const getConversationById = async (id: string) => {
-    const result = await prisma.conversation.findUniqueOrThrow({
+    const result = await prisma.conversation.findUnique({
       where: { id },
       ...BASE_QUERY_OPTIONS,
     });
+
+    if (!result) {
+      throw new NotFoundError("Conversation not found");
+    }
 
     return conversationMapper.toDomain(result);
   };
@@ -46,6 +56,10 @@ const prismaConversationRepository = (
           conversationId,
         },
       });
+
+      if (fileIds.length === 0) {
+        return;
+      }
 
       // Associate the new files to the conversation
       await prisma.conversationFile.createMany({
@@ -66,6 +80,10 @@ const prismaConversationRepository = (
         },
       });
 
+      if (messages.length === 0) {
+        return;
+      }
+
       // Recreate the messages
       await prisma.message.createMany({
         data: messages.map((message) => messageMapper.toPersistence(message)),
@@ -77,7 +95,7 @@ const prismaConversationRepository = (
     const rawConversation = conversationMapper.toPersistence(conversation);
 
     // If the conversation already exists, update it. Otherwise, create it.
-    const result = await prisma.conversation.upsert({
+    await prisma.conversation.upsert({
       where: { id: conversation.id },
       create: rawConversation,
       update: rawConversation,
@@ -90,7 +108,7 @@ const prismaConversationRepository = (
     // Save the messages
     await saveConversationMessages(conversation.id, conversation.messages);
 
-    return conversationMapper.toDomain(result);
+    return conversation;
   });
 
   const remove = async (id: string) => {

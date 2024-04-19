@@ -7,13 +7,6 @@
         name="bi:file-earmark-pdf"
         class="col-start-1 row-start-1 h-12 w-12 place-self-center text-gray-500"
       />
-      <button
-        type="button"
-        class="absolute inset-0 cursor-wait focus:outline-none"
-        disabled
-      >
-        <span class="sr-only">View details for {{ originalName }}</span>
-      </button>
       <UProgress
         class="col-start-1 row-start-1 place-self-end"
         size="sm"

@@ -1,7 +1,7 @@
 import type { ConversationRepository } from "~/server/repositories/conversationRepository";
 import type { AnswerGeneratorService } from "~/server/services/answerGeneratorService";
 
-const sendMessageToConversationCommandHandler = (
+export const sendMessageToConversationCommandHandler = (
   conversationRepository: ConversationRepository,
   answerGeneratorService: AnswerGeneratorService,
 ) => {
@@ -11,10 +11,21 @@ const sendMessageToConversationCommandHandler = (
 
     conversation.addHumanMessage(question);
 
-    const stream = answerGeneratorService.generateAnswer(conversation, {
-      onEnd: async (answer) => {
-        conversation.addAiMessage(answer);
-        await conversationRepository.save(conversation);
+    const stream = new ReadableStream({
+      start(controller) {
+        answerGeneratorService.generateAnswer(conversation, {
+          async onProgress(chunk) {
+            controller.enqueue(chunk);
+          },
+          async onSuccess(answer) {
+            conversation.addAiMessage(answer);
+            await conversationRepository.save(conversation);
+            controller.close();
+          },
+          async onError(error) {
+            controller.error(error);
+          },
+        });
       },
     });
 

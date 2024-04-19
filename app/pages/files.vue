@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full flex-col">
     <div
-      class="p-container flex flex-wrap items-center gap-6 py-10 pb-8 sm:flex-nowrap"
+      class="p-container z-50 flex flex-wrap items-center gap-6 bg-white py-10 pb-8 sm:flex-nowrap"
     >
       <h1 class="text-3xl font-semibold leading-7 tracking-tight">
         Study Materials
@@ -13,11 +13,18 @@
         @click="openFileDialog"
         :disabled="isPending || isUploading"
       >
-        Upload file
+        Upload
       </UButton>
     </div>
 
     <div class="overflow-y-auto">
+      <template v-if="collections">
+        <CollectionGrid class="relative z-40" :collections="collections" />
+      </template>
+      <template v-else>
+        <CollectionGridSkeleton />
+      </template>
+
       <template v-if="uploadedFiles">
         <FileGrid :files="throttledFiles" />
       </template>
@@ -30,6 +37,7 @@
 
 <script setup lang="ts">
 const { data: uploadedFiles, isPending } = useFilesQuery();
+const { data: collections } = useCollectionsQuery();
 const {
   openFileDialog,
   pendingFiles,
@@ -50,4 +58,8 @@ const files = computed(() => {
 });
 
 const throttledFiles = refThrottled(files, 1000);
+
+await until(logicAnd(collections, throttledFiles)).toBeTruthy({
+  timeout: 500,
+});
 </script>

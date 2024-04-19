@@ -1,37 +1,55 @@
 <template>
-  <div class="relative flex h-full flex-col-reverse overflow-y-auto px-3">
-    <div>
-      <MessageList v-if="conversation" :messages="conversation.messages" />
-      <div
-        v-else
-        class="absolute inset-x-0 top-10 flex items-center justify-center"
-      >
-        <Icon name="eos-icons:loading" class="text-primary h-10 w-10" />
+  <div class="flex h-full flex-col">
+    <div class="p-container flex items-center gap-6 border-b py-3">
+      <h1 class="truncate text-2xl font-semibold leading-7">
+        {{ conversation?.name }}
+      </h1>
+      <div class="ml-auto flex gap-4">
+        <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
+          <UButton
+            color="white"
+            square
+            size="xl"
+            icon="i-heroicons-ellipsis-vertical"
+          />
+        </UDropdown>
       </div>
-      <MessageList v-if="isPending" :messages="currentMessages" />
-      <div
-        class="sticky bottom-0 isolate -mx-3 flex flex-col items-center px-3 pb-6 pt-12"
-      >
+    </div>
+    <div class="relative flex h-full flex-col-reverse overflow-y-auto px-3">
+      <div>
+        <MessageList v-if="conversation" :messages="conversation.messages" />
         <div
-          class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-100 from-50% to-transparent"
-        ></div>
-        <div v-if="isDisabled" class="flex flex-col items-center gap-3">
-          <p class="text-sm text-gray-500">
-            This conversation is archived because all reference files have been
-            deleted.
-          </p>
-          <UButton size="lg" to="/files">Create New Conversation</UButton>
+          v-else
+          class="absolute inset-x-0 top-10 flex items-center justify-center"
+        >
+          <Icon name="eos-icons:loading" class="text-primary h-10 w-10" />
         </div>
-
-        <form @submit.prevent="handleSubmit" ref="form" class="w-full" v-else>
-          <MessageInput v-model="input" class="mx-auto w-full max-w-prose" />
-        </form>
+        <MessageList v-if="isPending" :messages="currentMessages" />
+        <div
+          class="sticky bottom-0 isolate -mx-3 flex flex-col items-center px-3 pb-6 pt-12"
+        >
+          <div
+            class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-100 from-50% to-transparent"
+          ></div>
+          <div v-if="isDisabled" class="flex flex-col items-center gap-3">
+            <p class="text-sm text-gray-500">
+              This conversation is archived because all reference files have
+              been deleted.
+            </p>
+            <UButton size="lg" to="/files">Create New Conversation</UButton>
+          </div>
+          <form @submit.prevent="handleSubmit" ref="form" class="w-full" v-else>
+            <MessageInput v-model="input" class="mx-auto w-full max-w-prose" />
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { DeleteConversationModal } from "#components";
+
 const { currentRoute } = useRouter();
 const conversationId = z.coerce.string().parse(currentRoute.value.params.id);
 
@@ -105,4 +123,25 @@ defineShortcuts({
     handler: handleSubmit,
   },
 });
+
+const modal = useModal();
+
+const items = computed(() => [
+  [
+    // {
+    //   label: "Rename",
+    //   icon: "i-heroicons-pencil",
+    //   onClick: () => {
+    //     RenameConversationModal.open({ conversationId });
+    //   },
+    // },
+    {
+      label: "Delete",
+      icon: "i-heroicons-trash",
+      click() {
+        modal.open(DeleteConversationModal, { conversationId });
+      },
+    },
+  ],
+]);
 </script>

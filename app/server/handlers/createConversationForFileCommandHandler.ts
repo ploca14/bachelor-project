@@ -3,15 +3,12 @@ import type { ConversationRepository } from "~/server/repositories/conversationR
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { SecurityService } from "~/server/services/securityService";
 
-const createConversationForFileCommandHandler = (
+export const createConversationForFileCommandHandler = (
   fileRepository: FileRepository,
   conversationRepository: ConversationRepository,
   securityService: SecurityService,
 ) => {
   const execute = async (fileId: string) => {
-    // TODO: Move to controller
-    await securityService.checkFileOwnership(fileId);
-
     const file = await fileRepository.getFileById(fileId);
 
     const user = await securityService.getUser();
