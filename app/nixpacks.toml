@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ['...', 'pnpm-8_x']
+
+[phases.install]
+cmds = ['pnpm i --shamefully-hoist']
+
+[phases.build]
+cmds = ['pnpm build']
+
+[start]
+cmd = 'node .output/server/index.mjs'
