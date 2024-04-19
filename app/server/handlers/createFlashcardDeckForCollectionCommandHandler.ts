@@ -5,13 +5,17 @@ import type { SecurityService } from "~/server/services/securityService";
 import type { FlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
 import type { EventBus } from "~/server/services/eventBus";
 
+export interface CreateFlashcardDeckForCollectionCommandHandler {
+  execute: (collectionId: string) => Promise<string>;
+}
+
 export const createFlashcardDeckForCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
   flashcardDeckRepository: FlashcardDeckRepository,
   securityService: SecurityService,
   flashcardGeneratorService: FlashcardGeneratorService,
   eventBus: EventBus,
-) => {
+): CreateFlashcardDeckForCollectionCommandHandler => {
   const execute = async (collectionId: string) => {
     const collection =
       await collectionRepository.getCollectionById(collectionId);

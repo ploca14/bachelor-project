@@ -2,10 +2,14 @@ import type { KyselyClient } from "~/server/lib/kysely/client";
 import type { SecurityService } from "~/server/services/securityService";
 import type { SampleTestListItemDTO } from "~/server/dto/sampleTestListItemDto";
 
+export interface SampleTestsQueryHandler {
+  execute: () => Promise<SampleTestListItemDTO[]>;
+}
+
 const sampleTestsQueryHandler = (
   kysely: KyselyClient,
   securityService: SecurityService,
-) => {
+): SampleTestsQueryHandler => {
   const execute = async () => {
     const user = await securityService.getUser();
 

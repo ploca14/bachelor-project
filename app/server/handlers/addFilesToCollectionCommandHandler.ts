@@ -1,8 +1,12 @@
 import { CollectionRepository } from "~/server/repositories/collectionRepository";
 
+export interface AddFilesToCollectionCommandHandler {
+  execute: (collectionId: string, fileIds: string[]) => Promise<string>;
+}
+
 export const addFilesToCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
-) => {
+): AddFilesToCollectionCommandHandler => {
   const execute = async (collectionId: string, fileIds: string[]) => {
     const collection =
       await collectionRepository.getCollectionById(collectionId);

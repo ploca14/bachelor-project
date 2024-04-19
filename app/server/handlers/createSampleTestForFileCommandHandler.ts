@@ -5,13 +5,17 @@ import type { SecurityService } from "~/server/services/securityService";
 import type { QuestionGeneratorService } from "~/server/services/questionGeneratorService";
 import type { EventBus } from "~/server/services/eventBus";
 
+export interface CreateSampleTestForFileCommandHandler {
+  execute: (fileId: string) => Promise<string>;
+}
+
 export const createSampleTestForFileCommandHandler = (
   fileRepository: FileRepository,
   sampleTestRepository: SampleTestRepository,
   securityService: SecurityService,
   questionGeneratorService: QuestionGeneratorService,
   eventBus: EventBus,
-) => {
+): CreateSampleTestForFileCommandHandler => {
   const execute = async (fileId: string) => {
     const file = await fileRepository.getFileById(fileId);
 

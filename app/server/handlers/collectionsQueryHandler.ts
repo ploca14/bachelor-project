@@ -2,10 +2,14 @@ import type { KyselyClient } from "~/server/lib/kysely/client";
 import type { SecurityService } from "~/server/services/securityService";
 import type { CollectionListItemDTO } from "~/server/dto/collectionListItemDto";
 
+export interface CollectionsQueryHandler {
+  execute: () => Promise<CollectionListItemDTO[]>;
+}
+
 const collectionsQueryHandler = (
   kysely: KyselyClient,
   securityService: SecurityService,
-) => {
+): CollectionsQueryHandler => {
   const execute = async () => {
     const user = await securityService.getUser();
 

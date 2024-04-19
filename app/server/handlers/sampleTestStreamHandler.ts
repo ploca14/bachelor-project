@@ -1,6 +1,19 @@
 import type { EventBus, Message } from "~/server/services/eventBus";
 
-const sampleTestStreamHandler = (eventBus: EventBus) => {
+export interface SampleTestStreamHandler {
+  execute: (
+    testId: string,
+    callbacks?: {
+      onProgress?: (event?: Message) => void;
+      onComplete?: () => void;
+      onError?: (event?: Message) => void;
+    },
+  ) => Promise<void>;
+}
+
+const sampleTestStreamHandler = (
+  eventBus: EventBus,
+): SampleTestStreamHandler => {
   const execute = async (
     testId: string,
     callbacks?: {

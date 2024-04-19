@@ -1,6 +1,19 @@
 import type { EventBus, Message } from "~/server/services/eventBus";
 
-export const flashcardDeckStreamHandler = (eventBus: EventBus) => {
+export interface FlashcardDeckStreamHandler {
+  execute: (
+    testId: string,
+    callbacks?: {
+      onProgress?: (event?: Message) => void;
+      onComplete?: () => void;
+      onError?: (event?: Message) => void;
+    },
+  ) => Promise<void>;
+}
+
+export const flashcardDeckStreamHandler = (
+  eventBus: EventBus,
+): FlashcardDeckStreamHandler => {
   const execute = async (
     testId: string,
     callbacks?: {

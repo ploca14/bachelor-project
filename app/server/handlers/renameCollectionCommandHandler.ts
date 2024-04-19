@@ -1,8 +1,12 @@
 import { CollectionRepository } from "~/server/repositories/collectionRepository";
 
+export interface RenameCollectionCommandHandler {
+  execute: (collectionId: string, name: string) => Promise<string>;
+}
+
 const renameCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
-) => {
+): RenameCollectionCommandHandler => {
   const execute = async (collectionId: string, name: string) => {
     const collection =
       await collectionRepository.getCollectionById(collectionId);

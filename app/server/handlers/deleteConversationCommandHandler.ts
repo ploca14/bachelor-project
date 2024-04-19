@@ -1,8 +1,12 @@
 import type { ConversationRepository } from "~/server/repositories/conversationRepository";
 
+export interface DeleteConversationCommandHandler {
+  execute: (deckId: string) => Promise<void>;
+}
+
 const deleteConversationCommandHandler = (
   conversationRepository: ConversationRepository,
-) => {
+): DeleteConversationCommandHandler => {
   const execute = async (deckId: string) => {
     await conversationRepository.remove(deckId);
   };

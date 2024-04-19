@@ -4,11 +4,15 @@ import type { CollectionRepository } from "~/server/repositories/collectionRepos
 import type { SecurityService } from "~/server/services/securityService";
 import { NoFilesError } from "~/types/errors";
 
+export interface CreateConversationForCollectionCommandHandler {
+  execute: (collectionId: string) => Promise<string>;
+}
+
 export const createConversationForCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
   conversationRepository: ConversationRepository,
   securityService: SecurityService,
-) => {
+): CreateConversationForCollectionCommandHandler => {
   const execute = async (collectionId: string) => {
     const collection =
       await collectionRepository.getCollectionById(collectionId);

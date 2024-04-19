@@ -1,10 +1,14 @@
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { ObjectRepository } from "~/server/repositories/objectRepository";
 
+export interface DeleteFileCommandHandler {
+  execute: (fileId: string) => Promise<void>;
+}
+
 export const deleteFileCommandHandler = (
   fileRepository: FileRepository,
   objectRepository: ObjectRepository,
-) => {
+): DeleteFileCommandHandler => {
   const execute = async (fileId: string) => {
     const file = await fileRepository.getFileById(fileId);
 

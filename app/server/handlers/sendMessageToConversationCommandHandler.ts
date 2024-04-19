@@ -1,10 +1,17 @@
 import type { ConversationRepository } from "~/server/repositories/conversationRepository";
 import type { AnswerGeneratorService } from "~/server/services/answerGeneratorService";
 
+export interface SendMessageToConversationCommandHandler {
+  execute: (
+    conversationId: string,
+    question: string,
+  ) => Promise<ReadableStream>;
+}
+
 export const sendMessageToConversationCommandHandler = (
   conversationRepository: ConversationRepository,
   answerGeneratorService: AnswerGeneratorService,
-) => {
+): SendMessageToConversationCommandHandler => {
   const execute = async (conversationId: string, question: string) => {
     const conversation =
       await conversationRepository.getConversationById(conversationId);

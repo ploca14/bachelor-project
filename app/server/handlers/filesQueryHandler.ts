@@ -2,10 +2,14 @@ import type { KyselyClient } from "~/server/lib/kysely/client";
 import type { SecurityService } from "~/server/services/securityService";
 import type { FileDTO } from "~/server/dto/fileDto";
 
+export interface FilesQueryHandler {
+  execute: () => Promise<FileDTO[]>;
+}
+
 const filesQueryHandler = (
   kysely: KyselyClient,
   securityService: SecurityService,
-) => {
+): FilesQueryHandler => {
   const execute = async () => {
     const user = await securityService.getUser();
 

@@ -3,11 +3,15 @@ import type { ConversationRepository } from "~/server/repositories/conversationR
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { SecurityService } from "~/server/services/securityService";
 
+export interface CreateConversationForFileCommandHandler {
+  execute: (fileId: string) => Promise<string>;
+}
+
 export const createConversationForFileCommandHandler = (
   fileRepository: FileRepository,
   conversationRepository: ConversationRepository,
   securityService: SecurityService,
-) => {
+): CreateConversationForFileCommandHandler => {
   const execute = async (fileId: string) => {
     const file = await fileRepository.getFileById(fileId);
 

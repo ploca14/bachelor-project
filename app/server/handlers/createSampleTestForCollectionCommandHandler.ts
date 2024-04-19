@@ -5,13 +5,17 @@ import type { SecurityService } from "~/server/services/securityService";
 import type { QuestionGeneratorService } from "~/server/services/questionGeneratorService";
 import type { EventBus } from "~/server/services/eventBus";
 
+export interface CreateSampleTestForCollectionCommandHandler {
+  execute: (collectionId: string) => Promise<string>;
+}
+
 export const createSampleTestForCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
   sampleTestRepository: SampleTestRepository,
   securityService: SecurityService,
   questionGeneratorService: QuestionGeneratorService,
   eventBus: EventBus,
-) => {
+): CreateSampleTestForCollectionCommandHandler => {
   const execute = async (collectionId: string) => {
     const collection =
       await collectionRepository.getCollectionById(collectionId);

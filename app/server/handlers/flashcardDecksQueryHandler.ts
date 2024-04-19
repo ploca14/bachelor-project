@@ -2,10 +2,14 @@ import type { KyselyClient } from "~/server/lib/kysely/client";
 import type { SecurityService } from "~/server/services/securityService";
 import type { FlashcardDeckListItemDTO } from "~/server/dto/flashcardDeckListItemDto";
 
+export interface FlashcardDecksQueryHandler {
+  execute: () => Promise<FlashcardDeckListItemDTO[]>;
+}
+
 const flashcardDecksQueryHandler = (
   kysely: KyselyClient,
   securityService: SecurityService,
-) => {
+): FlashcardDecksQueryHandler => {
   const execute = async () => {
     const user = await securityService.getUser();
 

@@ -2,10 +2,14 @@ import { Collection } from "~/server/domain/collection";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
 import type { SecurityService } from "~/server/services/securityService";
 
+export interface CreateCollectionCommandHandler {
+  execute: (name: string, fileIds: string[]) => Promise<string>;
+}
+
 export const createCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
   securityService: SecurityService,
-) => {
+): CreateCollectionCommandHandler => {
   const execute = async (name: string, fileIds: string[]) => {
     const user = await securityService.getUser();
 

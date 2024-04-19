@@ -2,10 +2,14 @@ import type { KyselyClient } from "~/server/lib/kysely/client";
 import type { SecurityService } from "~/server/services/securityService";
 import type { ConversationListItemDTO } from "~/server/dto/conversationListItemDto";
 
+export interface ConversationsQueryHandler {
+  execute: () => Promise<ConversationListItemDTO[]>;
+}
+
 const conversationsQueryHandler = (
   kysely: KyselyClient,
   securityService: SecurityService,
-) => {
+): ConversationsQueryHandler => {
   const execute = async () => {
     const user = await securityService.getUser();
 

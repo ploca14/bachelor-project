@@ -3,10 +3,14 @@ import type { KyselyClient } from "~/server/lib/kysely/client";
 import type { SecurityService } from "~/server/services/securityService";
 import type { ConversationDTO } from "~/server/dto/conversationDto";
 
+export interface ConversationQueryHandler {
+  execute: (conversationId: string) => Promise<ConversationDTO>;
+}
+
 const conversationQueryHandler = (
   securityService: SecurityService,
   kysely: KyselyClient,
-) => {
+): ConversationQueryHandler => {
   const execute = async (conversationId: string) => {
     const user = await securityService.getUser();
 

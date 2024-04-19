@@ -5,13 +5,17 @@ import type { SecurityService } from "~/server/services/securityService";
 import type { FlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
 import type { EventBus } from "~/server/services/eventBus";
 
+export interface CreateFlashcardDeckForFileCommandHandler {
+  execute: (fileId: string) => Promise<string>;
+}
+
 export const createFlashcardDeckForFileCommandHandler = (
   fileRepository: FileRepository,
   flashcardDeckRepository: FlashcardDeckRepository,
   securityService: SecurityService,
   flashcardGeneratorService: FlashcardGeneratorService,
   eventBus: EventBus,
-) => {
+): CreateFlashcardDeckForFileCommandHandler => {
   const execute = async (fileId: string) => {
     const file = await fileRepository.getFileById(fileId);
 

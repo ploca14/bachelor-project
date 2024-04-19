@@ -1,8 +1,12 @@
 import { CollectionRepository } from "~/server/repositories/collectionRepository";
 
+export interface RemoveFilesFromCollectionCommandHandler {
+  execute: (collectionId: string, fileIds: string[]) => Promise<string>;
+}
+
 export const removeFilesFromCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
-) => {
+): RemoveFilesFromCollectionCommandHandler => {
   const execute = async (collectionId: string, fileIds: string[]) => {
     const collection =
       await collectionRepository.getCollectionById(collectionId);

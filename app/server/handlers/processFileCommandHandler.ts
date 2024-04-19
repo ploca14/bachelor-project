@@ -4,12 +4,16 @@ import type { SecurityService } from "~/server/services/securityService";
 import type { ObjectRepository } from "~/server/repositories/objectRepository";
 import type { FileProcessorService } from "~/server/services/fileProcessorService";
 
+export interface ProcessFileCommandHandler {
+  execute: (name: string, originalName: string) => Promise<void>;
+}
+
 export const processFileCommandHandler = (
   fileRepository: FileRepository,
   objectRepository: ObjectRepository,
   securityService: SecurityService,
   fileProcessorService: FileProcessorService,
-) => {
+): ProcessFileCommandHandler => {
   const execute = async (name: string, originalName: string) => {
     const user = await securityService.getUser();
 
