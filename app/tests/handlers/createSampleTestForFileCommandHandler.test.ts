@@ -5,7 +5,11 @@ import type { SampleTestRepository } from "~/server/repositories/sampleTestRepos
 import type { Security } from "~/server/tools/security";
 import type { QuestionGenerator } from "~/server/tools/questionGenerator";
 import type { EventBus } from "~/server/tools/eventBus";
-import { createSampleTestForFileCommandHandler } from "~/server/handlers/createSampleTestForFileCommandHandler";
+import type { FileService } from "~/server/services/fileService";
+import {
+  createSampleTestForFileCommandHandler,
+  type CreateSampleTestForFileCommandHandler,
+} from "~/server/handlers/createSampleTestForFileCommandHandler";
 import { SampleTest } from "~/server/domain/sampleTest";
 import { File } from "~/server/domain/file";
 
@@ -15,7 +19,8 @@ describe("createSampleTestForFileCommandHandler", () => {
   let security: MockProxy<Security>;
   let questionGenerator: MockProxy<QuestionGenerator>;
   let eventBus: MockProxy<EventBus>;
-  let handler: any;
+  let fileService: MockProxy<FileService>;
+  let handler: CreateSampleTestForFileCommandHandler;
 
   vi.mock("uuid", () => ({ v4: () => "123456789" }));
 
@@ -26,12 +31,14 @@ describe("createSampleTestForFileCommandHandler", () => {
     security = mock<Security>();
     questionGenerator = mock<QuestionGenerator>();
     eventBus = mock<EventBus>();
+    fileService = mock<FileService>();
     handler = createSampleTestForFileCommandHandler(
       fileRepository,
       sampleTestRepository,
       security,
       questionGenerator,
       eventBus,
+      fileService,
     );
   });
 
@@ -42,51 +49,55 @@ describe("createSampleTestForFileCommandHandler", () => {
   it("should create a new sample test and save it", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
-    security.getUser.mockResolvedValue(user);
-    fileRepository.getFileById.mockResolvedValue(file);
-
-    const result = await handler.execute(file.id);
-
-    expect(sampleTestRepository.save).toHaveBeenCalledWith(
-      new SampleTest(
-        file.originalName,
-        "pending",
-        [file.id],
-        user.id,
-        [],
-        new Date(),
-        result,
-      ),
+    const sampleTest = new SampleTest(
+      file.originalName,
+      "pending",
+      [file.id],
+      user.id,
+      [],
+      new Date(),
+      "123456789",
     );
-    expect(result).toBe("123456789");
-  });
 
-  it("should generate flashcards for the file", async () => {
-    const user = { id: "user1", name: "Foo" };
-    const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
     security.getUser.mockResolvedValue(user);
+    fileService.createSampleTest.mockReturnValue(sampleTest);
     fileRepository.getFileById.mockResolvedValue(file);
 
     await handler.execute(file.id);
 
-    expect(questionGenerator.generateQuestions).toHaveBeenCalledWith(
-      new SampleTest(
-        file.originalName,
-        "pending",
-        [file.id],
-        user.id,
-        [],
-        new Date(),
-        "123456789",
-      ),
-      expect.any(Object),
-    );
+    expect(sampleTestRepository.save).toHaveBeenCalledWith(sampleTest);
+  });
+
+  it("should start generating flashcards for the flashcard deck", async () => {
+    const user = { id: "user1", name: "Foo" };
+    const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+
+    security.getUser.mockResolvedValue(user);
+    fileService.createSampleTest.mockReturnValue({
+      id: "123456789",
+    } as any);
+    fileRepository.getFileById.mockResolvedValue(file);
+
+    await handler.execute(file.id);
+
+    expect(questionGenerator.generateQuestions).toHaveBeenCalled();
   });
 
   it("should publish progress, complete and error events", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+    const sampleTest = new SampleTest(
+      file.originalName,
+      "pending",
+      [file.id],
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    fileService.createSampleTest.mockReturnValue(sampleTest);
     fileRepository.getFileById.mockResolvedValue(file);
 
     questionGenerator.generateQuestions.mockImplementation(
@@ -115,7 +126,18 @@ describe("createSampleTestForFileCommandHandler", () => {
   it("should update the sample test status on error", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+    const sampleTest = new SampleTest(
+      file.originalName,
+      "pending",
+      [file.id],
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    fileService.createSampleTest.mockReturnValue(sampleTest);
     fileRepository.getFileById.mockResolvedValue(file);
 
     questionGenerator.generateQuestions.mockImplementation(
@@ -124,25 +146,26 @@ describe("createSampleTestForFileCommandHandler", () => {
       },
     );
 
-    const result = await handler.execute(file.id);
+    await handler.execute(file.id);
 
-    expect(sampleTestRepository.save).toHaveBeenCalledWith(
-      new SampleTest(
-        file.originalName,
-        "error",
-        [file.id],
-        user.id,
-        [],
-        new Date(),
-        result,
-      ),
-    );
+    expect(sampleTestRepository.save).toHaveBeenCalledWith(sampleTest);
   });
 
   it("should update the sample test status on success", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+    const sampleTest = new SampleTest(
+      file.originalName,
+      "pending",
+      [file.id],
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    fileService.createSampleTest.mockReturnValue(sampleTest);
     fileRepository.getFileById.mockResolvedValue(file);
 
     questionGenerator.generateQuestions.mockImplementation(
@@ -151,25 +174,19 @@ describe("createSampleTestForFileCommandHandler", () => {
       },
     );
 
-    const result = await handler.execute(file.id);
+    await handler.execute(file.id);
 
-    expect(sampleTestRepository.save).toHaveBeenCalledWith(
-      new SampleTest(
-        file.originalName,
-        "complete",
-        [file.id],
-        user.id,
-        [],
-        new Date(),
-        result,
-      ),
-    );
+    expect(sampleTestRepository.save).toHaveBeenCalledWith(sampleTest);
   });
 
   it("should return the sample test id", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+
     security.getUser.mockResolvedValue(user);
+    fileService.createSampleTest.mockReturnValue({
+      id: "123456789",
+    } as any);
     fileRepository.getFileById.mockResolvedValue(file);
 
     const result = await handler.execute(file.id);

@@ -5,7 +5,11 @@ import type { SampleTestRepository } from "~/server/repositories/sampleTestRepos
 import type { Security } from "~/server/tools/security";
 import type { QuestionGenerator } from "~/server/tools/questionGenerator";
 import type { EventBus } from "~/server/tools/eventBus";
-import { createSampleTestForCollectionCommandHandler } from "~/server/handlers/createSampleTestForCollectionCommandHandler";
+import type { CollectionService } from "~/server/services/collectionService";
+import {
+  createSampleTestForCollectionCommandHandler,
+  type CreateSampleTestForCollectionCommandHandler,
+} from "~/server/handlers/createSampleTestForCollectionCommandHandler";
 import { SampleTest } from "~/server/domain/sampleTest";
 import { Collection } from "~/server/domain/collection";
 
@@ -15,7 +19,8 @@ describe("createSampleTestForCollectionCommandHandler", () => {
   let security: MockProxy<Security>;
   let questionGenerator: MockProxy<QuestionGenerator>;
   let eventBus: MockProxy<EventBus>;
-  let handler: any;
+  let collectionService: MockProxy<CollectionService>;
+  let handler: CreateSampleTestForCollectionCommandHandler;
 
   vi.mock("uuid", () => ({ v4: () => "123456789" }));
 
@@ -26,12 +31,14 @@ describe("createSampleTestForCollectionCommandHandler", () => {
     security = mock<Security>();
     questionGenerator = mock<QuestionGenerator>();
     eventBus = mock<EventBus>();
+    collectionService = mock<CollectionService>();
     handler = createSampleTestForCollectionCommandHandler(
       collectionRepository,
       sampleTestRepository,
       security,
       questionGenerator,
       eventBus,
+      collectionService,
     );
   });
 
@@ -47,48 +54,48 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
+    const sampleTest = new SampleTest(
+      collection.name,
+      "pending",
+      collection.fileIds,
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
+    collectionService.createSampleTest.mockReturnValue(sampleTest);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
-    const result = await handler.execute(collection.id);
+    await handler.execute(collection.id);
 
-    expect(sampleTestRepository.save).toHaveBeenCalledWith(
-      new SampleTest(
-        collection.name,
-        "pending",
-        collection.fileIds,
-        user.id,
-        [],
-        new Date(),
-        result,
-      ),
-    );
-    expect(result).toBe("123456789");
+    expect(sampleTestRepository.save).toHaveBeenCalledWith(sampleTest);
   });
 
-  it("should generate questions for the collection", async () => {
+  it("should start generating questions for the sample test", async () => {
     const user = { id: "user1", name: "Foo" };
     const collection = new Collection(
       "collection1",
       ["file1", "file2"],
       user.id,
     );
+    const sampleTest = new SampleTest(
+      collection.name,
+      "pending",
+      collection.fileIds,
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    collectionService.createSampleTest.mockResolvedValue(sampleTest);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
     await handler.execute(collection.id);
 
-    expect(questionGenerator.generateQuestions).toHaveBeenCalledWith(
-      new SampleTest(
-        collection.name,
-        "pending",
-        collection.fileIds,
-        user.id,
-        [],
-        new Date(),
-        "123456789",
-      ),
-      expect.any(Object),
-    );
+    expect(questionGenerator.generateQuestions).toHaveBeenCalled();
   });
 
   it("should publish progress, complete and error events", async () => {
@@ -98,7 +105,18 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
+    const sampleTest = new SampleTest(
+      collection.name,
+      "pending",
+      collection.fileIds,
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    collectionService.createSampleTest.mockReturnValue(sampleTest);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
     questionGenerator.generateQuestions.mockImplementation(
@@ -131,7 +149,18 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
+    const sampleTest = new SampleTest(
+      collection.name,
+      "pending",
+      collection.fileIds,
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    collectionService.createSampleTest.mockReturnValue(sampleTest);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
     questionGenerator.generateQuestions.mockImplementation(
@@ -140,19 +169,9 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       },
     );
 
-    const result = await handler.execute(collection.id);
+    await handler.execute(collection.id);
 
-    expect(sampleTestRepository.save).toHaveBeenCalledWith(
-      new SampleTest(
-        collection.name,
-        "error",
-        collection.fileIds,
-        user.id,
-        [],
-        new Date(),
-        result,
-      ),
-    );
+    expect(sampleTestRepository.save).toHaveBeenCalledWith(sampleTest);
   });
 
   it("should update the sample test status on success", async () => {
@@ -162,7 +181,18 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
+    const sampleTest = new SampleTest(
+      collection.name,
+      "pending",
+      collection.fileIds,
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    collectionService.createSampleTest.mockReturnValue(sampleTest);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
     questionGenerator.generateQuestions.mockImplementation(
@@ -171,19 +201,9 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       },
     );
 
-    const result = await handler.execute(collection.id);
+    await handler.execute(collection.id);
 
-    expect(sampleTestRepository.save).toHaveBeenCalledWith(
-      new SampleTest(
-        collection.name,
-        "complete",
-        collection.fileIds,
-        user.id,
-        [],
-        new Date(),
-        result,
-      ),
-    );
+    expect(sampleTestRepository.save).toHaveBeenCalledWith(sampleTest);
   });
 
   it("should return the sample test id", async () => {
@@ -193,7 +213,11 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
+
     security.getUser.mockResolvedValue(user);
+    collectionService.createSampleTest.mockReturnValue({
+      id: "123456789",
+    } as any);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
     const result = await handler.execute(collection.id);

@@ -1,9 +1,9 @@
-import { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { Security } from "~/server/tools/security";
 import type { FlashcardGenerator } from "~/server/tools/flashcardGenerator";
 import type { EventBus } from "~/server/tools/eventBus";
+import type { FileService } from "~/server/services/fileService";
 
 export interface CreateFlashcardDeckForFileCommandHandler {
   execute: (fileId: string) => Promise<string>;
@@ -15,17 +15,13 @@ export const createFlashcardDeckForFileCommandHandler = (
   security: Security,
   flashcardGenerator: FlashcardGenerator,
   eventBus: EventBus,
+  fileService: FileService,
 ): CreateFlashcardDeckForFileCommandHandler => {
   const execute = async (fileId: string) => {
     const file = await fileRepository.getFileById(fileId);
 
     const user = await security.getUser();
-    const flashcardDeck = new FlashcardDeck(
-      file.originalName,
-      "pending",
-      [fileId],
-      user.id,
-    );
+    const flashcardDeck = fileService.createFlashcardDeck(file, user.id);
 
     await flashcardDeckRepository.save(flashcardDeck);
 
@@ -63,6 +59,7 @@ import { useFileRepository } from "~/server/repositories/fileRepository";
 import { useSecurity } from "~/server/tools/security";
 import { useFlashcardGenerator } from "~/server/tools/flashcardGenerator";
 import { useEventBus } from "~/server/tools/eventBus";
+import { useFileService } from "~/server/services/fileService";
 
 export const useCreateFlashcardDeckForFileCommandHandler = () => {
   const fileRepository = useFileRepository();
@@ -70,6 +67,7 @@ export const useCreateFlashcardDeckForFileCommandHandler = () => {
   const security = useSecurity();
   const flashcardGenerator = useFlashcardGenerator();
   const eventBus = useEventBus();
+  const fileService = useFileService();
 
   return createFlashcardDeckForFileCommandHandler(
     fileRepository,
@@ -77,5 +75,6 @@ export const useCreateFlashcardDeckForFileCommandHandler = () => {
     security,
     flashcardGenerator,
     eventBus,
+    fileService,
   );
 };

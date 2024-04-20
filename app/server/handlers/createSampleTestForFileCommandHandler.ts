@@ -1,9 +1,9 @@
-import { SampleTest } from "~/server/domain/sampleTest";
 import type { SampleTestRepository } from "~/server/repositories/sampleTestRepository";
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { Security } from "~/server/tools/security";
 import type { QuestionGenerator } from "~/server/tools/questionGenerator";
 import type { EventBus } from "~/server/tools/eventBus";
+import type { FileService } from "~/server/services/fileService";
 
 export interface CreateSampleTestForFileCommandHandler {
   execute: (fileId: string) => Promise<string>;
@@ -15,17 +15,13 @@ export const createSampleTestForFileCommandHandler = (
   security: Security,
   questionGenerator: QuestionGenerator,
   eventBus: EventBus,
+  fileService: FileService,
 ): CreateSampleTestForFileCommandHandler => {
   const execute = async (fileId: string) => {
     const file = await fileRepository.getFileById(fileId);
 
     const user = await security.getUser();
-    const sampleTest = new SampleTest(
-      file.originalName,
-      "pending",
-      [fileId],
-      user.id,
-    );
+    const sampleTest = fileService.createSampleTest(file, user.id);
 
     await sampleTestRepository.save(sampleTest);
 
@@ -63,6 +59,7 @@ import { useFileRepository } from "~/server/repositories/fileRepository";
 import { useSecurity } from "~/server/tools/security";
 import { useQuestionGenerator } from "~/server/tools/questionGenerator";
 import { useEventBus } from "~/server/tools/eventBus";
+import { useFileService } from "~/server/services/fileService";
 
 export const useCreateSampleTestForFileCommandHandler = () => {
   const fileRepository = useFileRepository();
@@ -70,6 +67,7 @@ export const useCreateSampleTestForFileCommandHandler = () => {
   const security = useSecurity();
   const questionGenerator = useQuestionGenerator();
   const eventBus = useEventBus();
+  const fileService = useFileService();
 
   return createSampleTestForFileCommandHandler(
     fileRepository,
@@ -77,5 +75,6 @@ export const useCreateSampleTestForFileCommandHandler = () => {
     security,
     questionGenerator,
     eventBus,
+    fileService,
   );
 };

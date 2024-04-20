@@ -12,9 +12,7 @@ export const addFilesToCollectionCommandHandler = (
       await collectionRepository.getCollectionById(collectionId);
 
     for (const fileId of fileIds) {
-      if (!collection.fileIds.includes(fileId)) {
-        collection.addFile(fileId);
-      }
+      collection.addFile(fileId);
     }
 
     await collectionRepository.save(collection);

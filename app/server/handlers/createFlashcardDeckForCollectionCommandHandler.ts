@@ -1,9 +1,9 @@
-import { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
 import type { Security } from "~/server/tools/security";
 import type { FlashcardGenerator } from "~/server/tools/flashcardGenerator";
 import type { EventBus } from "~/server/tools/eventBus";
+import type { CollectionService } from "~/server/services/collectionService";
 
 export interface CreateFlashcardDeckForCollectionCommandHandler {
   execute: (collectionId: string) => Promise<string>;
@@ -15,16 +15,15 @@ export const createFlashcardDeckForCollectionCommandHandler = (
   security: Security,
   flashcardGenerator: FlashcardGenerator,
   eventBus: EventBus,
+  collectionService: CollectionService,
 ): CreateFlashcardDeckForCollectionCommandHandler => {
   const execute = async (collectionId: string) => {
     const collection =
       await collectionRepository.getCollectionById(collectionId);
 
     const user = await security.getUser();
-    const flashcardDeck = new FlashcardDeck(
-      collection.name,
-      "pending",
-      collection.fileIds,
+    const flashcardDeck = collectionService.createFlashcardDeck(
+      collection,
       user.id,
     );
 
@@ -64,6 +63,7 @@ import { useCollectionRepository } from "~/server/repositories/collectionReposit
 import { useSecurity } from "~/server/tools/security";
 import { useFlashcardGenerator } from "~/server/tools/flashcardGenerator";
 import { useEventBus } from "~/server/tools/eventBus";
+import { useCollectionService } from "~/server/services/collectionService";
 
 export const useCreateFlashcardDeckForCollectionCommandHandler = () => {
   const collectionRepository = useCollectionRepository();
@@ -71,6 +71,7 @@ export const useCreateFlashcardDeckForCollectionCommandHandler = () => {
   const security = useSecurity();
   const flashcardGenerator = useFlashcardGenerator();
   const eventBus = useEventBus();
+  const collectionService = useCollectionService();
 
   return createFlashcardDeckForCollectionCommandHandler(
     collectionRepository,
@@ -78,5 +79,6 @@ export const useCreateFlashcardDeckForCollectionCommandHandler = () => {
     security,
     flashcardGenerator,
     eventBus,
+    collectionService,
   );
 };

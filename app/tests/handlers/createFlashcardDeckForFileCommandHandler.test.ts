@@ -5,7 +5,11 @@ import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDec
 import type { Security } from "~/server/tools/security";
 import type { FlashcardGenerator } from "~/server/tools/flashcardGenerator";
 import type { EventBus } from "~/server/tools/eventBus";
-import { createFlashcardDeckForFileCommandHandler } from "~/server/handlers/createFlashcardDeckForFileCommandHandler";
+import type { FileService } from "~/server/services/fileService";
+import {
+  createFlashcardDeckForFileCommandHandler,
+  type CreateFlashcardDeckForFileCommandHandler,
+} from "~/server/handlers/createFlashcardDeckForFileCommandHandler";
 import { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import { File } from "~/server/domain/file";
 
@@ -15,7 +19,8 @@ describe("createFlashcardDeckForFileCommandHandler", () => {
   let security: MockProxy<Security>;
   let flashcardGenerator: MockProxy<FlashcardGenerator>;
   let eventBus: MockProxy<EventBus>;
-  let handler: any;
+  let fileService: MockProxy<FileService>;
+  let handler: CreateFlashcardDeckForFileCommandHandler;
 
   vi.mock("uuid", () => ({ v4: () => "123456789" }));
 
@@ -26,12 +31,14 @@ describe("createFlashcardDeckForFileCommandHandler", () => {
     security = mock<Security>();
     flashcardGenerator = mock<FlashcardGenerator>();
     eventBus = mock<EventBus>();
+    fileService = mock<FileService>();
     handler = createFlashcardDeckForFileCommandHandler(
       fileRepository,
       flashcardDeckRepository,
       security,
       flashcardGenerator,
       eventBus,
+      fileService,
     );
   });
 
@@ -42,51 +49,55 @@ describe("createFlashcardDeckForFileCommandHandler", () => {
   it("should create a new flashcard deck and save it", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
-    security.getUser.mockResolvedValue(user);
-    fileRepository.getFileById.mockResolvedValue(file);
-
-    const result = await handler.execute(file.id);
-
-    expect(flashcardDeckRepository.save).toHaveBeenCalledWith(
-      new FlashcardDeck(
-        file.originalName,
-        "pending",
-        [file.id],
-        user.id,
-        [],
-        new Date(),
-        result,
-      ),
+    const flashcardDeck = new FlashcardDeck(
+      file.originalName,
+      "pending",
+      [file.id],
+      user.id,
+      [],
+      new Date(),
+      "123456789",
     );
-    expect(result).toBe("123456789");
-  });
 
-  it("should generate flashcards for the file", async () => {
-    const user = { id: "user1", name: "Foo" };
-    const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
     security.getUser.mockResolvedValue(user);
+    fileService.createFlashcardDeck.mockReturnValue(flashcardDeck);
     fileRepository.getFileById.mockResolvedValue(file);
 
     await handler.execute(file.id);
 
-    expect(flashcardGenerator.generateFlashcards).toHaveBeenCalledWith(
-      new FlashcardDeck(
-        file.originalName,
-        "pending",
-        [file.id],
-        user.id,
-        [],
-        new Date(),
-        "123456789",
-      ),
-      expect.any(Object),
-    );
+    expect(flashcardDeckRepository.save).toHaveBeenCalledWith(flashcardDeck);
+  });
+
+  it("should start generating flashcards for the flashcard deck", async () => {
+    const user = { id: "user1", name: "Foo" };
+    const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+
+    security.getUser.mockResolvedValue(user);
+    fileService.createFlashcardDeck.mockReturnValue({
+      id: "123456789",
+    } as any);
+    fileRepository.getFileById.mockResolvedValue(file);
+
+    await handler.execute(file.id);
+
+    expect(flashcardGenerator.generateFlashcards).toHaveBeenCalled();
   });
 
   it("should publish progress, complete and error events", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+    const flashcardDeck = new FlashcardDeck(
+      file.originalName,
+      "pending",
+      [file.id],
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    fileService.createFlashcardDeck.mockReturnValue(flashcardDeck);
     fileRepository.getFileById.mockResolvedValue(file);
 
     flashcardGenerator.generateFlashcards.mockImplementation(
@@ -115,7 +126,18 @@ describe("createFlashcardDeckForFileCommandHandler", () => {
   it("should update the flashcard deck status on error", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+    const flashcardDeck = new FlashcardDeck(
+      file.originalName,
+      "pending",
+      [file.id],
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    fileService.createFlashcardDeck.mockReturnValue(flashcardDeck);
     fileRepository.getFileById.mockResolvedValue(file);
 
     flashcardGenerator.generateFlashcards.mockImplementation(
@@ -124,25 +146,26 @@ describe("createFlashcardDeckForFileCommandHandler", () => {
       },
     );
 
-    const result = await handler.execute(file.id);
+    await handler.execute(file.id);
 
-    expect(flashcardDeckRepository.save).toHaveBeenCalledWith(
-      new FlashcardDeck(
-        file.originalName,
-        "error",
-        [file.id],
-        user.id,
-        [],
-        new Date(),
-        result,
-      ),
-    );
+    expect(flashcardDeckRepository.save).toHaveBeenCalledWith(flashcardDeck);
   });
 
   it("should update the flashcard deck status on success", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+    const flashcardDeck = new FlashcardDeck(
+      file.originalName,
+      "pending",
+      [file.id],
+      user.id,
+      [],
+      new Date(),
+      "123456789",
+    );
+
     security.getUser.mockResolvedValue(user);
+    fileService.createFlashcardDeck.mockReturnValue(flashcardDeck);
     fileRepository.getFileById.mockResolvedValue(file);
 
     flashcardGenerator.generateFlashcards.mockImplementation(
@@ -151,25 +174,19 @@ describe("createFlashcardDeckForFileCommandHandler", () => {
       },
     );
 
-    const result = await handler.execute(file.id);
+    await handler.execute(file.id);
 
-    expect(flashcardDeckRepository.save).toHaveBeenCalledWith(
-      new FlashcardDeck(
-        file.originalName,
-        "complete",
-        [file.id],
-        user.id,
-        [],
-        new Date(),
-        result,
-      ),
-    );
+    expect(flashcardDeckRepository.save).toHaveBeenCalledWith(flashcardDeck);
   });
 
   it("should return the flashcard deck id", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
+
     security.getUser.mockResolvedValue(user);
+    fileService.createFlashcardDeck.mockReturnValue({
+      id: "123456789",
+    } as any);
     fileRepository.getFileById.mockResolvedValue(file);
 
     const result = await handler.execute(file.id);

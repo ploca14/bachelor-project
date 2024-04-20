@@ -83,7 +83,7 @@ export const langchainFlashcardGenerator = (
   };
 };
 
-import { useVectorStore } from "~/server/s/vectorStore";
+import { useVectorStore } from "~/server/tools/vectorStore";
 import { useGenerateFlashcardsChain } from "~/server/lib/langchain/generateFlashcardsChain";
 
 export const useFlashcardGenerator = () => {
