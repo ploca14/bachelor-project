@@ -1,19 +1,19 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 import { useSampleTestStreamHandler } from "~/server/handlers/sampleTestStreamHandler";
 
 export default defineEventHandler(async (event) => {
   try {
     const eventStream = createEventStream(event);
-    const securityService = useSecurityService();
+    const security = useSecurity();
 
     const { id } = await useValidatedParams(event, {
       id: z.coerce.string(),
     });
 
-    await securityService.checkSampleTestOwnership(id);
+    await security.checkSampleTestOwnership(id);
 
     const { execute } = useSampleTestStreamHandler();
 

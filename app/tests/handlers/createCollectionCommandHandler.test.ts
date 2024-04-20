@@ -1,13 +1,13 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mock, type MockProxy } from "vitest-mock-extended";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import { createCollectionCommandHandler } from "~/server/handlers/createCollectionCommandHandler";
 import { Collection } from "~/server/domain/collection";
 
 describe("createCollectionCommandHandler", () => {
   let collectionRepository: MockProxy<CollectionRepository>;
-  let securityService: MockProxy<SecurityService>;
+  let security: MockProxy<Security>;
   let handler: any;
 
   vi.mock("uuid", () => ({ v4: () => "123456789" }));
@@ -15,11 +15,8 @@ describe("createCollectionCommandHandler", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     collectionRepository = mock<CollectionRepository>();
-    securityService = mock<SecurityService>();
-    handler = createCollectionCommandHandler(
-      collectionRepository,
-      securityService,
-    );
+    security = mock<Security>();
+    handler = createCollectionCommandHandler(collectionRepository, security);
   });
 
   afterEach(() => {
@@ -28,7 +25,7 @@ describe("createCollectionCommandHandler", () => {
 
   it("should create a new collection and save it", async () => {
     const user = { id: "user1", name: "Foo" };
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
 
     const result = await handler.execute("collection1", ["file1", "file2"]);
 
@@ -45,7 +42,7 @@ describe("createCollectionCommandHandler", () => {
 
   it("should return the collection id", async () => {
     const user = { id: "user1", name: "Foo" };
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
 
     const result = await handler.execute("collection1", ["file1", "file2"]);
 

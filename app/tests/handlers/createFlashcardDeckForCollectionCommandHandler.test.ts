@@ -2,9 +2,9 @@ import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mock, type MockProxy } from "vitest-mock-extended";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
 import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
-import type { SecurityService } from "~/server/services/securityService";
-import type { FlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
-import type { EventBus } from "~/server/services/eventBus";
+import type { Security } from "~/server/tools/security";
+import type { FlashcardGenerator } from "~/server/tools/flashcardGenerator";
+import type { EventBus } from "~/server/tools/eventBus";
 import { createFlashcardDeckForCollectionCommandHandler } from "~/server/handlers/createFlashcardDeckForCollectionCommandHandler";
 import { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import { Collection } from "~/server/domain/collection";
@@ -12,8 +12,8 @@ import { Collection } from "~/server/domain/collection";
 describe("createFlashcardDeckForCollectionCommandHandler", () => {
   let collectionRepository: MockProxy<CollectionRepository>;
   let flashcardDeckRepository: MockProxy<FlashcardDeckRepository>;
-  let securityService: MockProxy<SecurityService>;
-  let flashcardGeneratorService: MockProxy<FlashcardGeneratorService>;
+  let security: MockProxy<Security>;
+  let flashcardGenerator: MockProxy<FlashcardGenerator>;
   let eventBus: MockProxy<EventBus>;
   let handler: any;
 
@@ -23,14 +23,14 @@ describe("createFlashcardDeckForCollectionCommandHandler", () => {
     vi.useFakeTimers();
     collectionRepository = mock<CollectionRepository>();
     flashcardDeckRepository = mock<FlashcardDeckRepository>();
-    securityService = mock<SecurityService>();
-    flashcardGeneratorService = mock<FlashcardGeneratorService>();
+    security = mock<Security>();
+    flashcardGenerator = mock<FlashcardGenerator>();
     eventBus = mock<EventBus>();
     handler = createFlashcardDeckForCollectionCommandHandler(
       collectionRepository,
       flashcardDeckRepository,
-      securityService,
-      flashcardGeneratorService,
+      security,
+      flashcardGenerator,
       eventBus,
     );
   });
@@ -41,7 +41,7 @@ describe("createFlashcardDeckForCollectionCommandHandler", () => {
 
   it("should create a new flashcard deck and save it", async () => {
     const user = { id: "user1", name: "Foo" };
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     const collection = new Collection(
       "collection1",
       ["file1", "file2"],
@@ -72,12 +72,12 @@ describe("createFlashcardDeckForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
     await handler.execute(collection.id);
 
-    expect(flashcardGeneratorService.generateFlashcards).toHaveBeenCalledWith(
+    expect(flashcardGenerator.generateFlashcards).toHaveBeenCalledWith(
       new FlashcardDeck(
         collection.name,
         "pending",
@@ -98,10 +98,10 @@ describe("createFlashcardDeckForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
-    flashcardGeneratorService.generateFlashcards.mockImplementation(
+    flashcardGenerator.generateFlashcards.mockImplementation(
       async (deck, callbacks) => {
         callbacks.onProgress([]);
         callbacks.onSuccess([]);
@@ -131,10 +131,10 @@ describe("createFlashcardDeckForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
-    flashcardGeneratorService.generateFlashcards.mockImplementation(
+    flashcardGenerator.generateFlashcards.mockImplementation(
       async (deck, callbacks) => {
         callbacks.onError(new Error("Test error"));
       },
@@ -162,10 +162,10 @@ describe("createFlashcardDeckForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
-    flashcardGeneratorService.generateFlashcards.mockImplementation(
+    flashcardGenerator.generateFlashcards.mockImplementation(
       async (deck, callbacks) => {
         callbacks.onSuccess([]);
       },
@@ -193,7 +193,7 @@ describe("createFlashcardDeckForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
     const result = await handler.execute(collection.id);

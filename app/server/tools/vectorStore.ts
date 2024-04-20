@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 
-export interface VectorStoreService {
+export interface VectorStore {
   getDocuments: (fileIds: string[]) => Promise<
     {
       pageContent: string;
@@ -9,9 +9,7 @@ export interface VectorStoreService {
   >;
 }
 
-const supabaseVectorStoreService = (
-  supabaseClient: SupabaseClient,
-): VectorStoreService => {
+const supabaseVectorStore = (supabaseClient: SupabaseClient): VectorStore => {
   const getDocuments = async (fileIds: string[]) => {
     const { data, error } = await supabaseClient
       .from("documents")
@@ -28,10 +26,10 @@ const supabaseVectorStoreService = (
   return { getDocuments };
 };
 
-import { useSupabaseServiceClient } from "~/server/lib/supabase/client";
+import { useSupabaseClient } from "~/server/lib/supabase/client";
 
-export const useVectorStoreService = () => {
-  const supabaseClient = useSupabaseServiceClient();
+export const useVectorStore = () => {
+  const supabaseClient = useSupabaseClient();
 
-  return supabaseVectorStoreService(supabaseClient);
+  return supabaseVectorStore(supabaseClient);
 };

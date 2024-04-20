@@ -1,6 +1,6 @@
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 import type { KyselyClient } from "~/server/lib/kysely/client";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { CollectionDTO } from "~/server/dto/collectionDto";
 
 export interface CollectionQueryHandler {
@@ -8,11 +8,11 @@ export interface CollectionQueryHandler {
 }
 
 const collectionQueryHandler = (
-  securityService: SecurityService,
+  security: Security,
   kysely: KyselyClient,
 ): CollectionQueryHandler => {
   const execute = async (collectionId: string) => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const data: CollectionDTO = await kysely
       .selectFrom("collections as c")
@@ -38,11 +38,11 @@ const collectionQueryHandler = (
 };
 
 import { useKyselyClient } from "~/server/lib/kysely/client";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useCollectionQueryHandler = () => {
-  const securityService = useSecurityService();
+  const security = useSecurity();
   const kyselyClient = useKyselyClient();
 
-  return collectionQueryHandler(securityService, kyselyClient);
+  return collectionQueryHandler(security, kyselyClient);
 };

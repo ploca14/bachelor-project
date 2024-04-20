@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mock, type MockProxy } from "vitest-mock-extended";
-import type { EventBus } from "~/server/services/eventBus";
+import type { EventBus } from "~/server/tools/eventBus";
 import { flashcardDeckStreamHandler } from "~/server/handlers/flashcardDeckStreamHandler";
 
 describe("flashcardDeckStreamHandler", () => {

@@ -1,6 +1,6 @@
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 import type { KyselyClient } from "~/server/lib/kysely/client";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { FlashcardDeckDTO } from "~/server/dto/flashcardDeckDto";
 
 export interface FlashcardDeckQueryHandler {
@@ -8,11 +8,11 @@ export interface FlashcardDeckQueryHandler {
 }
 
 const flashcardDeckQueryHandler = (
-  securityService: SecurityService,
+  security: Security,
   kysely: KyselyClient,
 ): FlashcardDeckQueryHandler => {
   const execute = async (testId: string) => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const data: FlashcardDeckDTO = await kysely
       .selectFrom("flashcard_decks as fd")
@@ -38,11 +38,11 @@ const flashcardDeckQueryHandler = (
 };
 
 import { useKyselyClient } from "~/server/lib/kysely/client";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useFlashcardDeckQueryHandler = () => {
-  const securityService = useSecurityService();
+  const security = useSecurity();
   const kyselyClient = useKyselyClient();
 
-  return flashcardDeckQueryHandler(securityService, kyselyClient);
+  return flashcardDeckQueryHandler(security, kyselyClient);
 };

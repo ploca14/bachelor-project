@@ -1,9 +1,9 @@
 import { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
-import type { SecurityService } from "~/server/services/securityService";
-import type { FlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
-import type { EventBus } from "~/server/services/eventBus";
+import type { Security } from "~/server/tools/security";
+import type { FlashcardGenerator } from "~/server/tools/flashcardGenerator";
+import type { EventBus } from "~/server/tools/eventBus";
 
 export interface CreateFlashcardDeckForCollectionCommandHandler {
   execute: (collectionId: string) => Promise<string>;
@@ -12,15 +12,15 @@ export interface CreateFlashcardDeckForCollectionCommandHandler {
 export const createFlashcardDeckForCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
   flashcardDeckRepository: FlashcardDeckRepository,
-  securityService: SecurityService,
-  flashcardGeneratorService: FlashcardGeneratorService,
+  security: Security,
+  flashcardGenerator: FlashcardGenerator,
   eventBus: EventBus,
 ): CreateFlashcardDeckForCollectionCommandHandler => {
   const execute = async (collectionId: string) => {
     const collection =
       await collectionRepository.getCollectionById(collectionId);
 
-    const user = await securityService.getUser();
+    const user = await security.getUser();
     const flashcardDeck = new FlashcardDeck(
       collection.name,
       "pending",
@@ -30,7 +30,7 @@ export const createFlashcardDeckForCollectionCommandHandler = (
 
     await flashcardDeckRepository.save(flashcardDeck);
 
-    flashcardGeneratorService.generateFlashcards(flashcardDeck, {
+    flashcardGenerator.generateFlashcards(flashcardDeck, {
       async onProgress(progress) {
         await eventBus.publish(
           `flashcardDeck:${flashcardDeck.id}:progress`,
@@ -61,22 +61,22 @@ export const createFlashcardDeckForCollectionCommandHandler = (
 
 import { useFlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import { useCollectionRepository } from "~/server/repositories/collectionRepository";
-import { useSecurityService } from "~/server/services/securityService";
-import { useFlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
-import { useEventBus } from "~/server/services/eventBus";
+import { useSecurity } from "~/server/tools/security";
+import { useFlashcardGenerator } from "~/server/tools/flashcardGenerator";
+import { useEventBus } from "~/server/tools/eventBus";
 
 export const useCreateFlashcardDeckForCollectionCommandHandler = () => {
   const collectionRepository = useCollectionRepository();
   const flashcardDeckRepository = useFlashcardDeckRepository();
-  const securityService = useSecurityService();
-  const flashcardGeneratorService = useFlashcardGeneratorService();
+  const security = useSecurity();
+  const flashcardGenerator = useFlashcardGenerator();
   const eventBus = useEventBus();
 
   return createFlashcardDeckForCollectionCommandHandler(
     collectionRepository,
     flashcardDeckRepository,
-    securityService,
-    flashcardGeneratorService,
+    security,
+    flashcardGenerator,
     eventBus,
   );
 };

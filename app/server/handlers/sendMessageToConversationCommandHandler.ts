@@ -1,5 +1,5 @@
 import type { ConversationRepository } from "~/server/repositories/conversationRepository";
-import type { AnswerGeneratorService } from "~/server/services/answerGeneratorService";
+import type { AnswerGenerator } from "~/server/tools/answerGenerator";
 
 export interface SendMessageToConversationCommandHandler {
   execute: (
@@ -10,7 +10,7 @@ export interface SendMessageToConversationCommandHandler {
 
 export const sendMessageToConversationCommandHandler = (
   conversationRepository: ConversationRepository,
-  answerGeneratorService: AnswerGeneratorService,
+  answerGenerator: AnswerGenerator,
 ): SendMessageToConversationCommandHandler => {
   const execute = async (conversationId: string, question: string) => {
     const conversation =
@@ -20,7 +20,7 @@ export const sendMessageToConversationCommandHandler = (
 
     const stream = new ReadableStream({
       start(controller) {
-        answerGeneratorService.generateAnswer(conversation, {
+        answerGenerator.generateAnswer(conversation, {
           async onProgress(chunk) {
             controller.enqueue(chunk);
           },
@@ -43,14 +43,14 @@ export const sendMessageToConversationCommandHandler = (
 };
 
 import { useConversationRepository } from "~/server/repositories/conversationRepository";
-import { useAnswerGeneratorService } from "~/server/services/answerGeneratorService";
+import { useAnswerGenerator } from "~/server/tools/answerGenerator";
 
 export const useSendMessageToConversationCommandHandler = () => {
   const conversationRepository = useConversationRepository();
-  const answerGeneratorService = useAnswerGeneratorService();
+  const answerGenerator = useAnswerGenerator();
 
   return sendMessageToConversationCommandHandler(
     conversationRepository,
-    answerGeneratorService,
+    answerGenerator,
   );
 };

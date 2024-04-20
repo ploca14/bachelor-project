@@ -7,16 +7,16 @@ interface Callbacks {
   onError: (error: Error) => Promise<void>;
 }
 
-export interface AnswerGeneratorService {
+export interface AnswerGenerator {
   generateAnswer(
     conversation: Conversation,
     callbacks: Callbacks,
   ): Promise<void>;
 }
 
-export const langchainAnswerGeneratorService = (
+export const langchainAnswerGenerator = (
   conversationalRetrievalChain: ConversationalRetrievalChain,
-): AnswerGeneratorService => {
+): AnswerGenerator => {
   const generateAnswer = async (
     conversation: Conversation,
     callbacks: Callbacks,
@@ -45,8 +45,8 @@ export const langchainAnswerGeneratorService = (
 
 import { useConversationalRetrievalChain } from "~/server/lib/langchain/conversationalRetrievalChain";
 
-export const useAnswerGeneratorService = () => {
+export const useAnswerGenerator = () => {
   const conversationalRetrievalChain = useConversationalRetrievalChain();
 
-  return langchainAnswerGeneratorService(conversationalRetrievalChain);
+  return langchainAnswerGenerator(conversationalRetrievalChain);
 };

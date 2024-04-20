@@ -1,5 +1,5 @@
 import type { FlashcardDeck } from "~/server/domain/flashcardDeck";
-import type { VectorStoreService } from "~/server/services/vectorStoreService";
+import type { VectorStore } from "~/server/tools/vectorStore";
 import type { GenerateFlashcardsChain } from "~/server/lib/langchain/generateFlashcardsChain";
 import { parsePartialJsonMarkdown } from "~/server/utils/parseJsonMarkdown";
 
@@ -15,17 +15,17 @@ interface Callbacks {
   onError: (error: Error) => Promise<void>;
 }
 
-export interface FlashcardGeneratorService {
+export interface FlashcardGenerator {
   generateFlashcards(
     flashcardDeck: FlashcardDeck,
     callbacks: Callbacks,
   ): Promise<void>;
 }
 
-export const langchainFlashcardGeneratorService = (
-  vectorStore: VectorStoreService,
+export const langchainFlashcardGenerator = (
+  vectorStore: VectorStore,
   generateFlashcardsChain: GenerateFlashcardsChain,
-): FlashcardGeneratorService => {
+): FlashcardGenerator => {
   const flashcardSchema = z.object({
     front: z.string(),
     back: z.string(),
@@ -83,15 +83,12 @@ export const langchainFlashcardGeneratorService = (
   };
 };
 
-import { useVectorStoreService } from "~/server/services/vectorStoreService";
+import { useVectorStore } from "~/server/s/vectorStore";
 import { useGenerateFlashcardsChain } from "~/server/lib/langchain/generateFlashcardsChain";
 
-export const useFlashcardGeneratorService = () => {
-  const vectorStoreService = useVectorStoreService();
+export const useFlashcardGenerator = () => {
+  const vectorStore = useVectorStore();
   const generateFlashcardsChain = useGenerateFlashcardsChain();
 
-  return langchainFlashcardGeneratorService(
-    vectorStoreService,
-    generateFlashcardsChain,
-  );
+  return langchainFlashcardGenerator(vectorStore, generateFlashcardsChain);
 };

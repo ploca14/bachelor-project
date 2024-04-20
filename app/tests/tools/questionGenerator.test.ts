@@ -1,10 +1,10 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mock, type MockProxy } from "vitest-mock-extended";
 import {
-  langchainQuestionGeneratorService,
-  type QuestionGeneratorService,
-} from "~/server/services/questionGeneratorService";
-import type { VectorStoreService } from "~/server/services/vectorStoreService";
+  langchainQuestionGenerator,
+  type QuestionGenerator,
+} from "~/server/tools/questionGenerator";
+import type { VectorStore } from "~/server/tools/vectorStore";
 import {
   simpleGenerateQuestionsChain,
   type GenerateQuestionsChain,
@@ -20,9 +20,9 @@ import {
 
 const fakeResponses = [`What is the capital of France?`];
 
-describe("questionGeneratorService", () => {
-  let service: QuestionGeneratorService;
-  let vectorStoreMock: MockProxy<VectorStoreService>;
+describe("questionGenerator", () => {
+  let service: QuestionGenerator;
+  let vectorStoreMock: MockProxy<VectorStore>;
   let generateQuestionsChain: GenerateQuestionsChain;
   let documentBatcher: DocumentBatcher;
   let llm: BaseLanguageModel;
@@ -48,7 +48,7 @@ describe("questionGeneratorService", () => {
 
     generateQuestionsChain = simpleGenerateQuestionsChain(llm, documentBatcher);
 
-    vectorStoreMock = mock<VectorStoreService>();
+    vectorStoreMock = mock<VectorStore>();
     docs = [
       { pageContent: "Paris is the capital of France", metadata: {} },
       { pageContent: "Leonardo da Vinci painted the Mona Lisa", metadata: {} },
@@ -57,7 +57,7 @@ describe("questionGeneratorService", () => {
 
     vectorStoreMock.getDocuments.mockResolvedValue(docs);
 
-    service = langchainQuestionGeneratorService(
+    service = langchainQuestionGenerator(
       vectorStoreMock,
       generateQuestionsChain,
     );
@@ -248,7 +248,7 @@ describe("questionGeneratorService", () => {
 
   //   generateQuestionsChain = simpleGenerateQuestionsChain(llm, documentBatcher);
 
-  //   service = langchainQuestionGeneratorService(
+  //   service = langchainQuestionGenerator(
   //     vectorStoreMock,
   //     generateQuestionsChain,
   //   );

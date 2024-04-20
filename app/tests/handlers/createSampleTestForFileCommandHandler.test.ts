@@ -2,9 +2,9 @@ import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mock, type MockProxy } from "vitest-mock-extended";
 import type { FileRepository } from "~/server/repositories/fileRepository";
 import type { SampleTestRepository } from "~/server/repositories/sampleTestRepository";
-import type { SecurityService } from "~/server/services/securityService";
-import type { QuestionGeneratorService } from "~/server/services/questionGeneratorService";
-import type { EventBus } from "~/server/services/eventBus";
+import type { Security } from "~/server/tools/security";
+import type { QuestionGenerator } from "~/server/tools/questionGenerator";
+import type { EventBus } from "~/server/tools/eventBus";
 import { createSampleTestForFileCommandHandler } from "~/server/handlers/createSampleTestForFileCommandHandler";
 import { SampleTest } from "~/server/domain/sampleTest";
 import { File } from "~/server/domain/file";
@@ -12,8 +12,8 @@ import { File } from "~/server/domain/file";
 describe("createSampleTestForFileCommandHandler", () => {
   let fileRepository: MockProxy<FileRepository>;
   let sampleTestRepository: MockProxy<SampleTestRepository>;
-  let securityService: MockProxy<SecurityService>;
-  let questionGeneratorService: MockProxy<QuestionGeneratorService>;
+  let security: MockProxy<Security>;
+  let questionGenerator: MockProxy<QuestionGenerator>;
   let eventBus: MockProxy<EventBus>;
   let handler: any;
 
@@ -23,14 +23,14 @@ describe("createSampleTestForFileCommandHandler", () => {
     vi.useFakeTimers();
     fileRepository = mock<FileRepository>();
     sampleTestRepository = mock<SampleTestRepository>();
-    securityService = mock<SecurityService>();
-    questionGeneratorService = mock<QuestionGeneratorService>();
+    security = mock<Security>();
+    questionGenerator = mock<QuestionGenerator>();
     eventBus = mock<EventBus>();
     handler = createSampleTestForFileCommandHandler(
       fileRepository,
       sampleTestRepository,
-      securityService,
-      questionGeneratorService,
+      security,
+      questionGenerator,
       eventBus,
     );
   });
@@ -42,7 +42,7 @@ describe("createSampleTestForFileCommandHandler", () => {
   it("should create a new sample test and save it", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     fileRepository.getFileById.mockResolvedValue(file);
 
     const result = await handler.execute(file.id);
@@ -64,12 +64,12 @@ describe("createSampleTestForFileCommandHandler", () => {
   it("should generate flashcards for the file", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     fileRepository.getFileById.mockResolvedValue(file);
 
     await handler.execute(file.id);
 
-    expect(questionGeneratorService.generateQuestions).toHaveBeenCalledWith(
+    expect(questionGenerator.generateQuestions).toHaveBeenCalledWith(
       new SampleTest(
         file.originalName,
         "pending",
@@ -86,10 +86,10 @@ describe("createSampleTestForFileCommandHandler", () => {
   it("should publish progress, complete and error events", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     fileRepository.getFileById.mockResolvedValue(file);
 
-    questionGeneratorService.generateQuestions.mockImplementation(
+    questionGenerator.generateQuestions.mockImplementation(
       async (deck, callbacks) => {
         callbacks.onProgress([]);
         callbacks.onSuccess([]);
@@ -115,10 +115,10 @@ describe("createSampleTestForFileCommandHandler", () => {
   it("should update the sample test status on error", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     fileRepository.getFileById.mockResolvedValue(file);
 
-    questionGeneratorService.generateQuestions.mockImplementation(
+    questionGenerator.generateQuestions.mockImplementation(
       async (deck, callbacks) => {
         callbacks.onError(new Error("Test error"));
       },
@@ -142,10 +142,10 @@ describe("createSampleTestForFileCommandHandler", () => {
   it("should update the sample test status on success", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     fileRepository.getFileById.mockResolvedValue(file);
 
-    questionGeneratorService.generateQuestions.mockImplementation(
+    questionGenerator.generateQuestions.mockImplementation(
       async (deck, callbacks) => {
         callbacks.onSuccess([]);
       },
@@ -169,7 +169,7 @@ describe("createSampleTestForFileCommandHandler", () => {
   it("should return the sample test id", async () => {
     const user = { id: "user1", name: "Foo" };
     const file = new File("file1", "File1.txt", "user1", new Date(), "file1");
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     fileRepository.getFileById.mockResolvedValue(file);
 
     const result = await handler.execute(file.id);

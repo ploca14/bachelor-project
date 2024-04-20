@@ -3,15 +3,15 @@ import type { LoaderFactory } from "~/server/lib/langchain/loaderFactory";
 import type { TextSplitter } from "langchain/text_splitter";
 import type { VectorStore } from "@langchain/core/vectorstores";
 
-export interface FileProcessorService {
+export interface FileProcessor {
   processFile: (file: File, blob: Blob) => Promise<void | string[]>;
 }
 
-export const langchainFileProcessorService = (
+export const langchainFileProcessor = (
   loaderFactory: LoaderFactory,
   splitter: TextSplitter,
   store: VectorStore,
-): FileProcessorService => {
+): FileProcessor => {
   const processFile = async (file: File, blob: Blob) => {
     const loader = loaderFactory.createForBlob(blob);
 
@@ -42,10 +42,10 @@ import { useTextSplitter } from "~/server/lib/langchain/textSplitter";
 import { useVectorStore } from "~/server/lib/langchain/vectorStore";
 import { useLoaderFactory } from "~/server/lib/langchain/loaderFactory";
 
-export const useFileProcessorService = () => {
+export const useFileProcessor = () => {
   const loaderFactory = useLoaderFactory();
   const splitter = useTextSplitter();
   const store = useVectorStore();
 
-  return langchainFileProcessorService(loaderFactory, splitter, store);
+  return langchainFileProcessor(loaderFactory, splitter, store);
 };

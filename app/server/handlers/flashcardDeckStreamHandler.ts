@@ -1,4 +1,4 @@
-import type { EventBus, Message } from "~/server/services/eventBus";
+import type { EventBus, Message } from "~/server/tools/eventBus";
 
 export interface FlashcardDeckStreamHandler {
   execute: (
@@ -43,7 +43,7 @@ export const flashcardDeckStreamHandler = (
   return { execute };
 };
 
-import { useEventBus } from "~/server/services/eventBus";
+import { useEventBus } from "~/server/tools/eventBus";
 
 export const useFlashcardDeckStreamHandler = () => {
   const eventBus = useEventBus();

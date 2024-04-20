@@ -1,10 +1,10 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mock, type MockProxy } from "vitest-mock-extended";
 import {
-  langchainFlashcardGeneratorService,
-  type FlashcardGeneratorService,
-} from "~/server/services/flashcardGeneratorService";
-import type { VectorStoreService } from "~/server/services/vectorStoreService";
+  langchainFlashcardGenerator,
+  type FlashcardGenerator,
+} from "~/server/tools/flashcardGenerator";
+import type { VectorStore } from "~/server/tools/vectorStore";
 import {
   simpleGenerateFlashcardsChain,
   type GenerateFlashcardsChain,
@@ -36,9 +36,9 @@ const fakeResponses = [
   \`\`\``,
 ];
 
-describe("flashcardGeneratorService", () => {
-  let service: FlashcardGeneratorService;
-  let vectorStoreMock: MockProxy<VectorStoreService>;
+describe("flashcardGenerator", () => {
+  let service: FlashcardGenerator;
+  let vectorStoreMock: MockProxy<VectorStore>;
   let generateFlashcardsChain: GenerateFlashcardsChain;
   let documentBatcher: DocumentBatcher;
   let llm: BaseLanguageModel;
@@ -58,7 +58,7 @@ describe("flashcardGeneratorService", () => {
     });
     documentBatcher = singleDocumentBatcher();
 
-    vectorStoreMock = mock<VectorStoreService>();
+    vectorStoreMock = mock<VectorStore>();
     docs = [
       { pageContent: "Paris is the capital of France", metadata: {} },
       { pageContent: "Leonardo da Vinci painted the Mona Lisa", metadata: {} },
@@ -71,7 +71,7 @@ describe("flashcardGeneratorService", () => {
       documentBatcher,
     );
 
-    service = langchainFlashcardGeneratorService(
+    service = langchainFlashcardGenerator(
       vectorStoreMock,
       generateFlashcardsChain,
     );
@@ -265,7 +265,7 @@ describe("flashcardGeneratorService", () => {
       documentBatcher,
     );
 
-    service = langchainFlashcardGeneratorService(
+    service = langchainFlashcardGenerator(
       vectorStoreMock,
       generateFlashcardsChain,
     );

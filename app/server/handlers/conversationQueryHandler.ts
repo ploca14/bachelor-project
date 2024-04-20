@@ -1,6 +1,6 @@
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 import type { KyselyClient } from "~/server/lib/kysely/client";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { ConversationDTO } from "~/server/dto/conversationDto";
 
 export interface ConversationQueryHandler {
@@ -8,11 +8,11 @@ export interface ConversationQueryHandler {
 }
 
 const conversationQueryHandler = (
-  securityService: SecurityService,
+  security: Security,
   kysely: KyselyClient,
 ): ConversationQueryHandler => {
   const execute = async (conversationId: string) => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const data: ConversationDTO = await kysely
       .selectFrom("conversations as c")
@@ -45,11 +45,11 @@ const conversationQueryHandler = (
 };
 
 import { useKyselyClient } from "~/server/lib/kysely/client";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useConversationQueryHandler = () => {
-  const securityService = useSecurityService();
+  const security = useSecurity();
   const kyselyClient = useKyselyClient();
 
-  return conversationQueryHandler(securityService, kyselyClient);
+  return conversationQueryHandler(security, kyselyClient);
 };

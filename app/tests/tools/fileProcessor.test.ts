@@ -1,9 +1,9 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mockDeep, type DeepMockProxy } from "vitest-mock-extended";
 import {
-  langchainFileProcessorService,
-  type FileProcessorService,
-} from "~/server/services/fileProcessorService";
+  langchainFileProcessor,
+  type FileProcessor,
+} from "~/server/tools/fileProcessor";
 import { type LoaderFactory } from "~/server/lib/langchain/loaderFactory";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { TextLoader } from "langchain/document_loaders/fs/text";
@@ -11,11 +11,11 @@ import type { TextSplitter } from "langchain/text_splitter";
 import type { VectorStore } from "@langchain/core/vectorstores";
 import type { File } from "~/server/domain/file";
 
-describe("langchainFileProcessorService", () => {
+describe("langchainFileProcessor", () => {
   let loaderFactory: DeepMockProxy<LoaderFactory>;
   let splitter: TextSplitter;
   let store: DeepMockProxy<VectorStore>;
-  let service: FileProcessorService;
+  let service: FileProcessor;
 
   beforeEach(() => {
     loaderFactory = mockDeep<LoaderFactory>();
@@ -25,7 +25,7 @@ describe("langchainFileProcessorService", () => {
     splitter = new RecursiveCharacterTextSplitter();
     store = mockDeep<VectorStore>();
 
-    service = langchainFileProcessorService(loaderFactory, splitter, store);
+    service = langchainFileProcessor(loaderFactory, splitter, store);
   });
 
   afterEach(() => {

@@ -4,21 +4,20 @@ import {
   supabaseObjectRepository,
   type ObjectRepository,
 } from "~/server/repositories/objectRepository";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { NotFoundError } from "~/types/errors";
-import { StorageError } from "@supabase/storage-js";
 
 describe("supabaseObjectRepository", () => {
-  let securityService: DeepMockProxy<SecurityService>;
+  let security: DeepMockProxy<Security>;
   let supabase: DeepMockProxy<SupabaseClient>;
   let repository: ObjectRepository;
 
   beforeEach(() => {
-    securityService = mockDeep<SecurityService>();
+    security = mockDeep<Security>();
     supabase = mockDeep<SupabaseClient>();
 
-    repository = supabaseObjectRepository(securityService, supabase);
+    repository = supabaseObjectRepository(security, supabase);
   });
 
   it("getObjectByName should download object from user's folder", async () => {
@@ -26,7 +25,7 @@ describe("supabaseObjectRepository", () => {
     const name = "test-file";
     const objectName = `${user.id}/${name}`;
 
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     const storageFileApi =
       mockDeep<ReturnType<SupabaseClient["storage"]["from"]>>();
     storageFileApi.download.mockResolvedValue({ data: {} } as any);
@@ -42,7 +41,7 @@ describe("supabaseObjectRepository", () => {
     const user = { id: "user1", name: "Foo" };
     const name = "test-file";
 
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     const storageFileApi =
       mockDeep<ReturnType<SupabaseClient["storage"]["from"]>>();
     storageFileApi.download.mockResolvedValue({ error: {} } as any);
@@ -58,7 +57,7 @@ describe("supabaseObjectRepository", () => {
     const name = "test-file";
     const data = new Blob();
 
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     const storageFileApi =
       mockDeep<ReturnType<SupabaseClient["storage"]["from"]>>();
     storageFileApi.download.mockResolvedValue({ data } as any);
@@ -74,7 +73,7 @@ describe("supabaseObjectRepository", () => {
     const name = "test-file";
     const objectName = `${user.id}/${name}`;
 
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     const storageFileApi =
       mockDeep<ReturnType<SupabaseClient["storage"]["from"]>>();
     storageFileApi.remove.mockResolvedValue({} as any);
@@ -90,7 +89,7 @@ describe("supabaseObjectRepository", () => {
     const user = { id: "user1", name: "Foo" };
     const name = "test-file";
 
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     const storageFileApi =
       mockDeep<ReturnType<SupabaseClient["storage"]["from"]>>();
     storageFileApi.remove.mockResolvedValue({ error: {} } as any);

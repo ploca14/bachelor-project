@@ -1,9 +1,9 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mockDeep, type DeepMockProxy } from "vitest-mock-extended";
 import {
-  langchainAnswerGeneratorService,
-  type AnswerGeneratorService,
-} from "~/server/services/answerGeneratorService";
+  langchainAnswerGenerator,
+  type AnswerGenerator,
+} from "~/server/tools/answerGenerator";
 import {
   FakeListChatModel,
   FakeLLM,
@@ -34,8 +34,8 @@ import type { Document } from "@langchain/core/documents";
 
 const fakeResponses = ["capital of France", "France"];
 
-describe("answerGeneratorService", () => {
-  let service: AnswerGeneratorService;
+describe("answerGenerator", () => {
+  let service: AnswerGenerator;
   let llm: BaseLanguageModel;
   let embeddings: FakeEmbeddings;
   let vectorStore: MemoryVectorStore;
@@ -91,7 +91,7 @@ describe("answerGeneratorService", () => {
       generateAnswerChain,
     );
 
-    service = langchainAnswerGeneratorService(conversationalRetrievalChain);
+    service = langchainAnswerGenerator(conversationalRetrievalChain);
   });
 
   afterEach(() => {
@@ -295,7 +295,7 @@ describe("answerGeneratorService", () => {
       generateAnswerChain,
     );
 
-    service = langchainAnswerGeneratorService(conversationalRetrievalChain);
+    service = langchainAnswerGenerator(conversationalRetrievalChain);
 
     await service.generateAnswer(conversation, callbacks);
 

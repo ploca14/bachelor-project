@@ -1,6 +1,6 @@
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 import type { KyselyClient } from "~/server/lib/kysely/client";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { SampleTestDTO } from "~/server/dto/sampleTestDto";
 
 export interface SampleTestQueryHandler {
@@ -8,11 +8,11 @@ export interface SampleTestQueryHandler {
 }
 
 const sampleTestQueryHandler = (
-  securityService: SecurityService,
+  security: Security,
   kysely: KyselyClient,
 ): SampleTestQueryHandler => {
   const execute = async (testId: string) => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const data: SampleTestDTO = await kysely
       .selectFrom("sample_tests as st")
@@ -38,11 +38,11 @@ const sampleTestQueryHandler = (
 };
 
 import { useKyselyClient } from "~/server/lib/kysely/client";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useSampleTestQueryHandler = () => {
-  const securityService = useSecurityService();
+  const security = useSecurity();
   const kyselyClient = useKyselyClient();
 
-  return sampleTestQueryHandler(securityService, kyselyClient);
+  return sampleTestQueryHandler(security, kyselyClient);
 };

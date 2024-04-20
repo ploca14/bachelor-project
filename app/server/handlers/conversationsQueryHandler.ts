@@ -1,5 +1,5 @@
 import type { KyselyClient } from "~/server/lib/kysely/client";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { ConversationListItemDTO } from "~/server/dto/conversationListItemDto";
 
 export interface ConversationsQueryHandler {
@@ -8,10 +8,10 @@ export interface ConversationsQueryHandler {
 
 const conversationsQueryHandler = (
   kysely: KyselyClient,
-  securityService: SecurityService,
+  security: Security,
 ): ConversationsQueryHandler => {
   const execute = async () => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const data: ConversationListItemDTO[] = await kysely
       .selectFrom("conversations as c")
@@ -46,11 +46,11 @@ const conversationsQueryHandler = (
 };
 
 import { useKyselyClient } from "~/server/lib/kysely/client";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useConversationsQueryHandler = () => {
   const kysely = useKyselyClient();
-  const securityService = useSecurityService();
+  const security = useSecurity();
 
-  return conversationsQueryHandler(kysely, securityService);
+  return conversationsQueryHandler(kysely, security);
 };

@@ -1,9 +1,9 @@
 import { SampleTest } from "~/server/domain/sampleTest";
 import type { SampleTestRepository } from "~/server/repositories/sampleTestRepository";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
-import type { SecurityService } from "~/server/services/securityService";
-import type { QuestionGeneratorService } from "~/server/services/questionGeneratorService";
-import type { EventBus } from "~/server/services/eventBus";
+import type { Security } from "~/server/tools/security";
+import type { QuestionGenerator } from "~/server/tools/questionGenerator";
+import type { EventBus } from "~/server/tools/eventBus";
 
 export interface CreateSampleTestForCollectionCommandHandler {
   execute: (collectionId: string) => Promise<string>;
@@ -12,15 +12,15 @@ export interface CreateSampleTestForCollectionCommandHandler {
 export const createSampleTestForCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
   sampleTestRepository: SampleTestRepository,
-  securityService: SecurityService,
-  questionGeneratorService: QuestionGeneratorService,
+  security: Security,
+  questionGenerator: QuestionGenerator,
   eventBus: EventBus,
 ): CreateSampleTestForCollectionCommandHandler => {
   const execute = async (collectionId: string) => {
     const collection =
       await collectionRepository.getCollectionById(collectionId);
 
-    const user = await securityService.getUser();
+    const user = await security.getUser();
     const sampleTest = new SampleTest(
       collection.name,
       "pending",
@@ -30,7 +30,7 @@ export const createSampleTestForCollectionCommandHandler = (
 
     await sampleTestRepository.save(sampleTest);
 
-    questionGeneratorService.generateQuestions(sampleTest, {
+    questionGenerator.generateQuestions(sampleTest, {
       async onProgress(progress) {
         await eventBus.publish(
           `sampleTest:${sampleTest.id}:progress`,
@@ -61,22 +61,22 @@ export const createSampleTestForCollectionCommandHandler = (
 
 import { useSampleTestRepository } from "~/server/repositories/sampleTestRepository";
 import { useCollectionRepository } from "~/server/repositories/collectionRepository";
-import { useSecurityService } from "~/server/services/securityService";
-import { useQuestionGeneratorService } from "~/server/services/questionGeneratorService";
-import { useEventBus } from "~/server/services/eventBus";
+import { useSecurity } from "~/server/tools/security";
+import { useQuestionGenerator } from "~/server/tools/questionGenerator";
+import { useEventBus } from "~/server/tools/eventBus";
 
 export const useCreateSampleTestForCollectionCommandHandler = () => {
   const collectionRepository = useCollectionRepository();
   const sampleTestRepository = useSampleTestRepository();
-  const securityService = useSecurityService();
-  const questionGeneratorService = useQuestionGeneratorService();
+  const security = useSecurity();
+  const questionGenerator = useQuestionGenerator();
   const eventBus = useEventBus();
 
   return createSampleTestForCollectionCommandHandler(
     collectionRepository,
     sampleTestRepository,
-    securityService,
-    questionGeneratorService,
+    security,
+    questionGenerator,
     eventBus,
   );
 };

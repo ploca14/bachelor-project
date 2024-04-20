@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, vi, type Mock } from "vitest";
 import { EventEmitter } from "events";
-import { eventEmitterEventBus } from "~/server/services/eventBus";
+import { eventEmitterEventBus } from "~/server/tools/eventBus";
 
 describe("eventEmitterEventBus", () => {
   let eventEmitter: EventEmitter;

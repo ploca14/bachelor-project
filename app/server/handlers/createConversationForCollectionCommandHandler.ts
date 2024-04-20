@@ -1,7 +1,7 @@
 import { Conversation } from "~/server/domain/conversation";
 import type { ConversationRepository } from "~/server/repositories/conversationRepository";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import { NoFilesError } from "~/types/errors";
 
 export interface CreateConversationForCollectionCommandHandler {
@@ -11,7 +11,7 @@ export interface CreateConversationForCollectionCommandHandler {
 export const createConversationForCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
   conversationRepository: ConversationRepository,
-  securityService: SecurityService,
+  security: Security,
 ): CreateConversationForCollectionCommandHandler => {
   const execute = async (collectionId: string) => {
     const collection =
@@ -23,7 +23,7 @@ export const createConversationForCollectionCommandHandler = (
       );
     }
 
-    const user = await securityService.getUser();
+    const user = await security.getUser();
     const conversation = new Conversation(
       collection.name,
       collection.fileIds,
@@ -40,16 +40,16 @@ export const createConversationForCollectionCommandHandler = (
 
 import { useConversationRepository } from "~/server/repositories/conversationRepository";
 import { useCollectionRepository } from "~/server/repositories/collectionRepository";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useCreateConversationForCollectionCommandHandler = () => {
   const collectionRepository = useCollectionRepository();
   const conversationRepository = useConversationRepository();
-  const securityService = useSecurityService();
+  const security = useSecurity();
 
   return createConversationForCollectionCommandHandler(
     collectionRepository,
     conversationRepository,
-    securityService,
+    security,
   );
 };

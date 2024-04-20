@@ -1,5 +1,5 @@
 import type { KyselyClient } from "~/server/lib/kysely/client";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { FlashcardDeckListItemDTO } from "~/server/dto/flashcardDeckListItemDto";
 
 export interface FlashcardDecksQueryHandler {
@@ -8,10 +8,10 @@ export interface FlashcardDecksQueryHandler {
 
 const flashcardDecksQueryHandler = (
   kysely: KyselyClient,
-  securityService: SecurityService,
+  security: Security,
 ): FlashcardDecksQueryHandler => {
   const execute = async () => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const data: FlashcardDeckListItemDTO[] = await kysely
       .selectFrom("flashcard_decks as fd")
@@ -27,11 +27,11 @@ const flashcardDecksQueryHandler = (
 };
 
 import { useKyselyClient } from "~/server/lib/kysely/client";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useFlashcardDecksQueryHandler = () => {
   const kysely = useKyselyClient();
-  const securityService = useSecurityService();
+  const security = useSecurity();
 
-  return flashcardDecksQueryHandler(kysely, securityService);
+  return flashcardDecksQueryHandler(kysely, security);
 };

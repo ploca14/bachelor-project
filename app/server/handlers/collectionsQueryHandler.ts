@@ -1,5 +1,5 @@
 import type { KyselyClient } from "~/server/lib/kysely/client";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { CollectionListItemDTO } from "~/server/dto/collectionListItemDto";
 
 export interface CollectionsQueryHandler {
@@ -8,10 +8,10 @@ export interface CollectionsQueryHandler {
 
 const collectionsQueryHandler = (
   kysely: KyselyClient,
-  securityService: SecurityService,
+  security: Security,
 ): CollectionsQueryHandler => {
   const execute = async () => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const data: CollectionListItemDTO[] = await kysely
       .selectFrom("collections as c")
@@ -32,11 +32,11 @@ const collectionsQueryHandler = (
 };
 
 import { useKyselyClient } from "~/server/lib/kysely/client";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useCollectionsQueryHandler = () => {
   const kysely = useKyselyClient();
-  const securityService = useSecurityService();
+  const security = useSecurity();
 
-  return collectionsQueryHandler(kysely, securityService);
+  return collectionsQueryHandler(kysely, security);
 };

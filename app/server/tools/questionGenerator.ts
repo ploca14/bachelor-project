@@ -1,5 +1,5 @@
 import type { SampleTest } from "~/server/domain/sampleTest";
-import type { VectorStoreService } from "~/server/services/vectorStoreService";
+import type { VectorStore } from "~/server/tools/vectorStore";
 import type { GenerateQuestionsChain } from "~/server/lib/langchain/generateQuestionsChain";
 import { parsePartialJsonMarkdown } from "~/server/utils/parseJsonMarkdown";
 import { z } from "zod";
@@ -12,17 +12,17 @@ interface Callbacks {
   onError: (error: Error) => Promise<void>;
 }
 
-export interface QuestionGeneratorService {
+export interface QuestionGenerator {
   generateQuestions(
     sampleTest: SampleTest,
     callbacks: Callbacks,
   ): Promise<void>;
 }
 
-export const langchainQuestionGeneratorService = (
-  vectorStore: VectorStoreService,
+export const langchainQuestionGenerator = (
+  vectorStore: VectorStore,
   generateQuestionsChain: GenerateQuestionsChain,
-): QuestionGeneratorService => {
+): QuestionGenerator => {
   const questionSchema = z.object({
     content: z.string(),
   });
@@ -71,15 +71,12 @@ export const langchainQuestionGeneratorService = (
   };
 };
 
-import { useVectorStoreService } from "~/server/services/vectorStoreService";
+import { useVectorStore } from "~/server/tools/vectorStore";
 import { useGenerateQuestionsChain } from "~/server/lib/langchain/generateQuestionsChain";
 
-export const useQuestionGeneratorService = () => {
-  const vectorStoreService = useVectorStoreService();
+export const useQuestionGenerator = () => {
+  const vectorStore = useVectorStore();
   const generateQuestionsChain = useGenerateQuestionsChain();
 
-  return langchainQuestionGeneratorService(
-    vectorStoreService,
-    generateQuestionsChain,
-  );
+  return langchainQuestionGenerator(vectorStore, generateQuestionsChain);
 };

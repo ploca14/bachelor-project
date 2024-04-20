@@ -1,22 +1,22 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mock, type MockProxy } from "vitest-mock-extended";
 import type { ConversationRepository } from "~/server/repositories/conversationRepository";
-import type { AnswerGeneratorService } from "~/server/services/answerGeneratorService";
+import type { AnswerGenerator } from "~/server/tools/answerGenerator";
 import { sendMessageToConversationCommandHandler } from "~/server/handlers/sendMessageToConversationCommandHandler";
 import { Conversation } from "~/server/domain/conversation";
 
 describe("sendMessageToConversationCommandHandler", () => {
   let conversationRepository: MockProxy<ConversationRepository>;
-  let answerGeneratorService: MockProxy<AnswerGeneratorService>;
+  let answerGenerator: MockProxy<AnswerGenerator>;
   let handler: ReturnType<typeof sendMessageToConversationCommandHandler>;
 
   beforeEach(() => {
     vi.useFakeTimers();
     conversationRepository = mock<ConversationRepository>();
-    answerGeneratorService = mock<AnswerGeneratorService>();
+    answerGenerator = mock<AnswerGenerator>();
     handler = sendMessageToConversationCommandHandler(
       conversationRepository,
-      answerGeneratorService,
+      answerGenerator,
     );
   });
 
@@ -52,11 +52,9 @@ describe("sendMessageToConversationCommandHandler", () => {
     );
     const spy = vi.spyOn(conversation, "addAiMessage");
     conversationRepository.getConversationById.mockResolvedValue(conversation);
-    answerGeneratorService.generateAnswer.mockImplementation(
-      async (_, callbacks) => {
-        callbacks.onSuccess("Hello, human");
-      },
-    );
+    answerGenerator.generateAnswer.mockImplementation(async (_, callbacks) => {
+      callbacks.onSuccess("Hello, human");
+    });
 
     await handler.execute("conversation1", "Hello");
 
@@ -73,11 +71,9 @@ describe("sendMessageToConversationCommandHandler", () => {
       "123456789",
     );
     conversationRepository.getConversationById.mockResolvedValue(conversation);
-    answerGeneratorService.generateAnswer.mockImplementation(
-      async (_, callbacks) => {
-        callbacks.onSuccess("Hello, human");
-      },
-    );
+    answerGenerator.generateAnswer.mockImplementation(async (_, callbacks) => {
+      callbacks.onSuccess("Hello, human");
+    });
 
     await handler.execute("conversation1", "Hello");
 
@@ -94,14 +90,12 @@ describe("sendMessageToConversationCommandHandler", () => {
       "123456789",
     );
     conversationRepository.getConversationById.mockResolvedValue(conversation);
-    answerGeneratorService.generateAnswer.mockImplementation(
-      async (_, callbacks) => {
-        callbacks.onProgress("Hello");
-        callbacks.onProgress(", ");
-        callbacks.onProgress("human");
-        callbacks.onSuccess("Hello, human");
-      },
-    );
+    answerGenerator.generateAnswer.mockImplementation(async (_, callbacks) => {
+      callbacks.onProgress("Hello");
+      callbacks.onProgress(", ");
+      callbacks.onProgress("human");
+      callbacks.onSuccess("Hello, human");
+    });
 
     const stream = await handler.execute("conversation1", "Hello");
 

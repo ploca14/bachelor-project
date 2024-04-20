@@ -1,16 +1,16 @@
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 import { UnauthorizedError } from "~/types/errors";
 
 export default defineEventHandler(async (event) => {
   if (event.path.startsWith("/api")) {
     try {
-      const securityService = useSecurityService();
+      const security = useSecurity();
 
-      // const user = await securityService.getUser();
+      const user = await security.getUser();
 
-      // if (!user) {
-      //   throw new UnauthorizedError("Unauthorized");
-      // }
+      if (!user) {
+        throw new UnauthorizedError("Unauthorized");
+      }
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         throw createError({

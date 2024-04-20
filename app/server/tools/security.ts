@@ -17,7 +17,7 @@ export interface Session {
   access_token: string;
 }
 
-export interface SecurityService {
+export interface Security {
   getUser: () => Promise<User>;
   getSession: () => Promise<Session>;
   checkFileOwnership(id: string): Promise<void>;
@@ -27,14 +27,14 @@ export interface SecurityService {
   checkCollectionOwnership: (id: string) => Promise<void>;
 }
 
-const supabaseSecurityService = (
+const supabaseSecurity = (
   conversationRepository: ConversationRepository,
   fileRepository: FileRepository,
   flashcardDeckRepository: FlashcardDeckRepository,
   sampleTestRepository: SampleTestRepository,
   collectionRepository: CollectionRepository,
   supabase: SupabaseClient,
-): SecurityService => {
+): Security => {
   const getSession = async () => {
     const { data, error } = await supabase.auth.getSession();
 
@@ -139,7 +139,7 @@ import { useSampleTestRepository } from "~/server/repositories/sampleTestReposit
 import { useCollectionRepository } from "~/server/repositories/collectionRepository";
 import { useSupabaseClient } from "~/server/lib/supabase/client";
 
-export const useSecurityService = () => {
+export const useSecurity = () => {
   const conversationRepository = useConversationRepository();
   const fileRepository = useFileRepository();
   const flashcardDeckRepository = useFlashcardDeckRepository();
@@ -147,7 +147,7 @@ export const useSecurityService = () => {
   const collectionRepository = useCollectionRepository();
   const supabase = useSupabaseClient();
 
-  return supabaseSecurityService(
+  return supabaseSecurity(
     conversationRepository,
     fileRepository,
     flashcardDeckRepository,

@@ -1,6 +1,6 @@
 import { Collection } from "~/server/domain/collection";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 
 export interface CreateCollectionCommandHandler {
   execute: (name: string, fileIds: string[]) => Promise<string>;
@@ -8,10 +8,10 @@ export interface CreateCollectionCommandHandler {
 
 export const createCollectionCommandHandler = (
   collectionRepository: CollectionRepository,
-  securityService: SecurityService,
+  security: Security,
 ): CreateCollectionCommandHandler => {
   const execute = async (name: string, fileIds: string[]) => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const collection = new Collection(name, fileIds, user.id);
 
@@ -24,11 +24,11 @@ export const createCollectionCommandHandler = (
 };
 
 import { useCollectionRepository } from "~/server/repositories/collectionRepository";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useCreateCollectionCommandHandler = () => {
   const collectionRepository = useCollectionRepository();
-  const securityService = useSecurityService();
+  const security = useSecurity();
 
-  return createCollectionCommandHandler(collectionRepository, securityService);
+  return createCollectionCommandHandler(collectionRepository, security);
 };

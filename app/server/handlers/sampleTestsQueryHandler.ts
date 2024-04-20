@@ -1,5 +1,5 @@
 import type { KyselyClient } from "~/server/lib/kysely/client";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { SampleTestListItemDTO } from "~/server/dto/sampleTestListItemDto";
 
 export interface SampleTestsQueryHandler {
@@ -8,10 +8,10 @@ export interface SampleTestsQueryHandler {
 
 const sampleTestsQueryHandler = (
   kysely: KyselyClient,
-  securityService: SecurityService,
+  security: Security,
 ): SampleTestsQueryHandler => {
   const execute = async () => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const data: SampleTestListItemDTO[] = await kysely
       .selectFrom("sample_tests as st")
@@ -27,11 +27,11 @@ const sampleTestsQueryHandler = (
 };
 
 import { useKyselyClient } from "~/server/lib/kysely/client";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useSampleTestsQueryHandler = () => {
   const kysely = useKyselyClient();
-  const securityService = useSecurityService();
+  const security = useSecurity();
 
-  return sampleTestsQueryHandler(kysely, securityService);
+  return sampleTestsQueryHandler(kysely, security);
 };

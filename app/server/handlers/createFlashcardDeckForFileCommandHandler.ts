@@ -1,9 +1,9 @@
 import { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { FlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import type { FileRepository } from "~/server/repositories/fileRepository";
-import type { SecurityService } from "~/server/services/securityService";
-import type { FlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
-import type { EventBus } from "~/server/services/eventBus";
+import type { Security } from "~/server/tools/security";
+import type { FlashcardGenerator } from "~/server/tools/flashcardGenerator";
+import type { EventBus } from "~/server/tools/eventBus";
 
 export interface CreateFlashcardDeckForFileCommandHandler {
   execute: (fileId: string) => Promise<string>;
@@ -12,14 +12,14 @@ export interface CreateFlashcardDeckForFileCommandHandler {
 export const createFlashcardDeckForFileCommandHandler = (
   fileRepository: FileRepository,
   flashcardDeckRepository: FlashcardDeckRepository,
-  securityService: SecurityService,
-  flashcardGeneratorService: FlashcardGeneratorService,
+  security: Security,
+  flashcardGenerator: FlashcardGenerator,
   eventBus: EventBus,
 ): CreateFlashcardDeckForFileCommandHandler => {
   const execute = async (fileId: string) => {
     const file = await fileRepository.getFileById(fileId);
 
-    const user = await securityService.getUser();
+    const user = await security.getUser();
     const flashcardDeck = new FlashcardDeck(
       file.originalName,
       "pending",
@@ -29,7 +29,7 @@ export const createFlashcardDeckForFileCommandHandler = (
 
     await flashcardDeckRepository.save(flashcardDeck);
 
-    flashcardGeneratorService.generateFlashcards(flashcardDeck, {
+    flashcardGenerator.generateFlashcards(flashcardDeck, {
       async onProgress(progress) {
         await eventBus.publish(
           `flashcardDeck:${flashcardDeck.id}:progress`,
@@ -60,22 +60,22 @@ export const createFlashcardDeckForFileCommandHandler = (
 
 import { useFlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";
 import { useFileRepository } from "~/server/repositories/fileRepository";
-import { useSecurityService } from "~/server/services/securityService";
-import { useFlashcardGeneratorService } from "~/server/services/flashcardGeneratorService";
-import { useEventBus } from "~/server/services/eventBus";
+import { useSecurity } from "~/server/tools/security";
+import { useFlashcardGenerator } from "~/server/tools/flashcardGenerator";
+import { useEventBus } from "~/server/tools/eventBus";
 
 export const useCreateFlashcardDeckForFileCommandHandler = () => {
   const fileRepository = useFileRepository();
   const flashcardDeckRepository = useFlashcardDeckRepository();
-  const securityService = useSecurityService();
-  const flashcardGeneratorService = useFlashcardGeneratorService();
+  const security = useSecurity();
+  const flashcardGenerator = useFlashcardGenerator();
   const eventBus = useEventBus();
 
   return createFlashcardDeckForFileCommandHandler(
     fileRepository,
     flashcardDeckRepository,
-    securityService,
-    flashcardGeneratorService,
+    security,
+    flashcardGenerator,
     eventBus,
   );
 };

@@ -1,5 +1,5 @@
 import type { KyselyClient } from "~/server/lib/kysely/client";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { FileDTO } from "~/server/dto/fileDto";
 
 export interface FilesQueryHandler {
@@ -8,10 +8,10 @@ export interface FilesQueryHandler {
 
 const filesQueryHandler = (
   kysely: KyselyClient,
-  securityService: SecurityService,
+  security: Security,
 ): FilesQueryHandler => {
   const execute = async () => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const data: FileDTO[] = await kysely
       .selectFrom("files")
@@ -33,10 +33,10 @@ const filesQueryHandler = (
 };
 
 import { useKyselyClient } from "~/server/lib/kysely/client";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export const useFilesQueryHandler = () => {
-  const securityService = useSecurityService();
+  const security = useSecurity();
   const kysely = useKyselyClient();
-  return filesQueryHandler(kysely, securityService);
+  return filesQueryHandler(kysely, security);
 };

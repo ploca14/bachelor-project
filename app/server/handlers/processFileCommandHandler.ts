@@ -1,8 +1,8 @@
 import { File } from "~/server/domain/file";
 import type { FileRepository } from "~/server/repositories/fileRepository";
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { ObjectRepository } from "~/server/repositories/objectRepository";
-import type { FileProcessorService } from "~/server/services/fileProcessorService";
+import type { FileProcessor } from "~/server/tools/fileProcessor";
 
 export interface ProcessFileCommandHandler {
   execute: (name: string, originalName: string) => Promise<void>;
@@ -11,16 +11,16 @@ export interface ProcessFileCommandHandler {
 export const processFileCommandHandler = (
   fileRepository: FileRepository,
   objectRepository: ObjectRepository,
-  securityService: SecurityService,
-  fileProcessorService: FileProcessorService,
+  security: Security,
+  fileProcessor: FileProcessor,
 ): ProcessFileCommandHandler => {
   const execute = async (name: string, originalName: string) => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     const file = new File(name, originalName, user.id);
     const blob = await objectRepository.getObjectByName(file.name);
 
-    await fileProcessorService.processFile(file, blob);
+    await fileProcessor.processFile(file, blob);
 
     await fileRepository.save(file);
   };
@@ -29,20 +29,20 @@ export const processFileCommandHandler = (
 };
 
 import { useFileRepository } from "~/server/repositories/fileRepository";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 import { useObjectRepository } from "~/server/repositories/objectRepository";
-import { useFileProcessorService } from "~/server/services/fileProcessorService";
+import { useFileProcessor } from "~/server/tools/fileProcessor";
 
 export const useProcessFileCommandHandler = () => {
   const fileRepository = useFileRepository();
   const objectRepository = useObjectRepository();
-  const securityService = useSecurityService();
-  const fileProcessorService = useFileProcessorService();
+  const security = useSecurity();
+  const fileProcessor = useFileProcessor();
 
   return processFileCommandHandler(
     fileRepository,
     objectRepository,
-    securityService,
-    fileProcessorService,
+    security,
+    fileProcessor,
   );
 };

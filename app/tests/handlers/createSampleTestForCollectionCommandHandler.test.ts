@@ -2,9 +2,9 @@ import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mock, type MockProxy } from "vitest-mock-extended";
 import type { CollectionRepository } from "~/server/repositories/collectionRepository";
 import type { SampleTestRepository } from "~/server/repositories/sampleTestRepository";
-import type { SecurityService } from "~/server/services/securityService";
-import type { QuestionGeneratorService } from "~/server/services/questionGeneratorService";
-import type { EventBus } from "~/server/services/eventBus";
+import type { Security } from "~/server/tools/security";
+import type { QuestionGenerator } from "~/server/tools/questionGenerator";
+import type { EventBus } from "~/server/tools/eventBus";
 import { createSampleTestForCollectionCommandHandler } from "~/server/handlers/createSampleTestForCollectionCommandHandler";
 import { SampleTest } from "~/server/domain/sampleTest";
 import { Collection } from "~/server/domain/collection";
@@ -12,8 +12,8 @@ import { Collection } from "~/server/domain/collection";
 describe("createSampleTestForCollectionCommandHandler", () => {
   let collectionRepository: MockProxy<CollectionRepository>;
   let sampleTestRepository: MockProxy<SampleTestRepository>;
-  let securityService: MockProxy<SecurityService>;
-  let questionGeneratorService: MockProxy<QuestionGeneratorService>;
+  let security: MockProxy<Security>;
+  let questionGenerator: MockProxy<QuestionGenerator>;
   let eventBus: MockProxy<EventBus>;
   let handler: any;
 
@@ -23,14 +23,14 @@ describe("createSampleTestForCollectionCommandHandler", () => {
     vi.useFakeTimers();
     collectionRepository = mock<CollectionRepository>();
     sampleTestRepository = mock<SampleTestRepository>();
-    securityService = mock<SecurityService>();
-    questionGeneratorService = mock<QuestionGeneratorService>();
+    security = mock<Security>();
+    questionGenerator = mock<QuestionGenerator>();
     eventBus = mock<EventBus>();
     handler = createSampleTestForCollectionCommandHandler(
       collectionRepository,
       sampleTestRepository,
-      securityService,
-      questionGeneratorService,
+      security,
+      questionGenerator,
       eventBus,
     );
   });
@@ -41,7 +41,7 @@ describe("createSampleTestForCollectionCommandHandler", () => {
 
   it("should create a new sample test and save it", async () => {
     const user = { id: "user1", name: "Foo" };
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     const collection = new Collection(
       "collection1",
       ["file1", "file2"],
@@ -72,12 +72,12 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
     await handler.execute(collection.id);
 
-    expect(questionGeneratorService.generateQuestions).toHaveBeenCalledWith(
+    expect(questionGenerator.generateQuestions).toHaveBeenCalledWith(
       new SampleTest(
         collection.name,
         "pending",
@@ -98,10 +98,10 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
-    questionGeneratorService.generateQuestions.mockImplementation(
+    questionGenerator.generateQuestions.mockImplementation(
       async (deck, callbacks) => {
         callbacks.onProgress([]);
         callbacks.onSuccess([]);
@@ -131,10 +131,10 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
-    questionGeneratorService.generateQuestions.mockImplementation(
+    questionGenerator.generateQuestions.mockImplementation(
       async (deck, callbacks) => {
         callbacks.onError(new Error("Test error"));
       },
@@ -162,10 +162,10 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
-    questionGeneratorService.generateQuestions.mockImplementation(
+    questionGenerator.generateQuestions.mockImplementation(
       async (deck, callbacks) => {
         callbacks.onSuccess([]);
       },
@@ -193,7 +193,7 @@ describe("createSampleTestForCollectionCommandHandler", () => {
       ["file1", "file2"],
       user.id,
     );
-    securityService.getUser.mockResolvedValue(user);
+    security.getUser.mockResolvedValue(user);
     collectionRepository.getCollectionById.mockResolvedValue(collection);
 
     const result = await handler.execute(collection.id);
