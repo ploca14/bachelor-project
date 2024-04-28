@@ -1,5 +1,4 @@
-import { jsonArrayFrom } from "kysely/helpers/postgres";
-import type { KyselyClient } from "~/server/lib/kysely/client";
+import { SampleTestQuery } from "~/server/queries/sampleTestQuery";
 import type { Security } from "~/server/tools/security";
 import type { SampleTestDTO } from "~/server/dto/sampleTestDto";
 
@@ -9,40 +8,23 @@ export interface SampleTestQueryHandler {
 
 const sampleTestQueryHandler = (
   security: Security,
-  kysely: KyselyClient,
+  sampleTestQuery: SampleTestQuery,
 ): SampleTestQueryHandler => {
   const execute = async (testId: string) => {
     const user = await security.getUser();
 
-    const data: SampleTestDTO = await kysely
-      .selectFrom("sample_tests as st")
-      .select((eb) => [
-        "id",
-        "name",
-        "status",
-        jsonArrayFrom(
-          eb
-            .selectFrom("questions as q")
-            .select(["q.id", "q.content"])
-            .whereRef("q.testId", "=", "st.id"),
-        ).as("questions"),
-      ])
-      .where("id", "=", testId)
-      .where("userId", "=", user.id)
-      .executeTakeFirstOrThrow();
-
-    return data;
+    return sampleTestQuery.execute(testId, user.id);
   };
 
   return { execute };
 };
 
-import { useKyselyClient } from "~/server/lib/kysely/client";
 import { useSecurity } from "~/server/tools/security";
+import { useSampleTestQuery } from "~/server/queries/sampleTestQuery";
 
 export const useSampleTestQueryHandler = () => {
   const security = useSecurity();
-  const kyselyClient = useKyselyClient();
+  const sampleTestQuery = useSampleTestQuery();
 
-  return sampleTestQueryHandler(security, kyselyClient);
+  return sampleTestQueryHandler(security, sampleTestQuery);
 };

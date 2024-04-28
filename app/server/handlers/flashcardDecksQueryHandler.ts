@@ -1,5 +1,5 @@
-import type { KyselyClient } from "~/server/lib/kysely/client";
 import type { Security } from "~/server/tools/security";
+import { FlashcardDecksQuery } from "~/server/queries/flashcardDecksQuery";
 import type { FlashcardDeckListItemDTO } from "~/server/dto/flashcardDeckListItemDto";
 
 export interface FlashcardDecksQueryHandler {
@@ -7,31 +7,24 @@ export interface FlashcardDecksQueryHandler {
 }
 
 const flashcardDecksQueryHandler = (
-  kysely: KyselyClient,
   security: Security,
+  flashcardDecksQuery: FlashcardDecksQuery,
 ): FlashcardDecksQueryHandler => {
   const execute = async () => {
     const user = await security.getUser();
 
-    const data: FlashcardDeckListItemDTO[] = await kysely
-      .selectFrom("flashcard_decks as fd")
-      .select(["fd.id", "fd.name", "fd.createdAt"])
-      .where("fd.userId", "=", user.id)
-      .orderBy("fd.createdAt", "desc")
-      .execute();
-
-    return data;
+    return flashcardDecksQuery.execute(user.id);
   };
 
   return { execute };
 };
 
-import { useKyselyClient } from "~/server/lib/kysely/client";
 import { useSecurity } from "~/server/tools/security";
+import { useFlashcardDecksQuery } from "~/server/queries/flashcardDecksQuery";
 
 export const useFlashcardDecksQueryHandler = () => {
-  const kysely = useKyselyClient();
   const security = useSecurity();
+  const flashcardDecksQuery = useFlashcardDecksQuery();
 
-  return flashcardDecksQueryHandler(kysely, security);
+  return flashcardDecksQueryHandler(security, flashcardDecksQuery);
 };

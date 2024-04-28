@@ -1,4 +1,4 @@
-import type { KyselyClient } from "~/server/lib/kysely/client";
+import type { ConversationsQuery } from "~/server/queries/conversationsQuery";
 import type { Security } from "~/server/tools/security";
 import type { ConversationListItemDTO } from "~/server/dto/conversationListItemDto";
 
@@ -7,50 +7,24 @@ export interface ConversationsQueryHandler {
 }
 
 const conversationsQueryHandler = (
-  kysely: KyselyClient,
   security: Security,
+  conversationsQuery: ConversationsQuery,
 ): ConversationsQueryHandler => {
   const execute = async () => {
     const user = await security.getUser();
 
-    const data: ConversationListItemDTO[] = await kysely
-      .selectFrom("conversations as c")
-      .leftJoinLateral(
-        (eb) =>
-          eb
-            .selectFrom("messages as m")
-            .select(["m.createdAt", "m.content"])
-            .whereRef("m.conversationId", "=", "c.id")
-            .orderBy("m.createdAt", "desc")
-            .limit(1)
-            .as("lastMessage"),
-        (join) => join.onTrue(),
-      )
-      .select(({ fn }) => [
-        "c.id",
-        "c.name",
-        "lastMessage.createdAt as lastMessageSentAt",
-        "lastMessage.content as lastMessage",
-        fn("coalesce", ["lastMessage.createdAt", "c.createdAt"]).as(
-          "orderDate",
-        ),
-      ])
-      .where("c.userId", "=", user.id)
-      .orderBy("orderDate", "desc")
-      .execute();
-
-    return data;
+    return conversationsQuery.execute(user.id);
   };
 
   return { execute };
 };
 
-import { useKyselyClient } from "~/server/lib/kysely/client";
 import { useSecurity } from "~/server/tools/security";
+import { useConversationsQuery } from "~/server/queries/conversationsQuery";
 
 export const useConversationsQueryHandler = () => {
-  const kysely = useKyselyClient();
   const security = useSecurity();
+  const conversationsQuery = useConversationsQuery();
 
-  return conversationsQueryHandler(kysely, security);
+  return conversationsQueryHandler(security, conversationsQuery);
 };

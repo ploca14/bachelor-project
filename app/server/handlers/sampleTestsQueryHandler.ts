@@ -1,5 +1,5 @@
-import type { KyselyClient } from "~/server/lib/kysely/client";
 import type { Security } from "~/server/tools/security";
+import type { SampleTestsQuery } from "~/server/queries/sampleTestsQuery";
 import type { SampleTestListItemDTO } from "~/server/dto/sampleTestListItemDto";
 
 export interface SampleTestsQueryHandler {
@@ -7,31 +7,24 @@ export interface SampleTestsQueryHandler {
 }
 
 const sampleTestsQueryHandler = (
-  kysely: KyselyClient,
   security: Security,
+  sampleTestsQuery: SampleTestsQuery,
 ): SampleTestsQueryHandler => {
   const execute = async () => {
     const user = await security.getUser();
 
-    const data: SampleTestListItemDTO[] = await kysely
-      .selectFrom("sample_tests as st")
-      .select(["st.id", "st.name", "st.createdAt"])
-      .where("st.userId", "=", user.id)
-      .orderBy("st.createdAt", "desc")
-      .execute();
-
-    return data;
+    return sampleTestsQuery.execute(user.id);
   };
 
   return { execute };
 };
 
-import { useKyselyClient } from "~/server/lib/kysely/client";
 import { useSecurity } from "~/server/tools/security";
+import { useSampleTestsQuery } from "~/server/queries/sampleTestsQuery";
 
 export const useSampleTestsQueryHandler = () => {
-  const kysely = useKyselyClient();
   const security = useSecurity();
+  const sampleTestsQuery = useSampleTestsQuery();
 
-  return sampleTestsQueryHandler(kysely, security);
+  return sampleTestsQueryHandler(security, sampleTestsQuery);
 };

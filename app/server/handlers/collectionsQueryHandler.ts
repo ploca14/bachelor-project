@@ -1,5 +1,5 @@
-import type { KyselyClient } from "~/server/lib/kysely/client";
 import type { Security } from "~/server/tools/security";
+import type { CollectionsQuery } from "~/server/queries/collectionsQuery";
 import type { CollectionListItemDTO } from "~/server/dto/collectionListItemDto";
 
 export interface CollectionsQueryHandler {
@@ -7,36 +7,24 @@ export interface CollectionsQueryHandler {
 }
 
 const collectionsQueryHandler = (
-  kysely: KyselyClient,
   security: Security,
+  collectionsQuery: CollectionsQuery,
 ): CollectionsQueryHandler => {
   const execute = async () => {
     const user = await security.getUser();
 
-    const data: CollectionListItemDTO[] = await kysely
-      .selectFrom("collections as c")
-      .leftJoin("collections_files as cf", "cf.collectionId", "c.id")
-      .select(({ fn }) => [
-        "c.id",
-        "c.name",
-        fn.count<number>("cf.fileId").as("fileCount"),
-      ])
-      .groupBy("c.id")
-      .where("c.userId", "=", user.id)
-      .execute();
-
-    return data;
+    return collectionsQuery.execute(user.id);
   };
 
   return { execute };
 };
 
-import { useKyselyClient } from "~/server/lib/kysely/client";
 import { useSecurity } from "~/server/tools/security";
+import { useCollectionsQuery } from "~/server/queries/collectionsQuery";
 
 export const useCollectionsQueryHandler = () => {
-  const kysely = useKyselyClient();
   const security = useSecurity();
+  const collectionsQuery = useCollectionsQuery();
 
-  return collectionsQueryHandler(kysely, security);
+  return collectionsQueryHandler(security, collectionsQuery);
 };

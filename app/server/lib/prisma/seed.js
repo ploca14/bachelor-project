@@ -48,8 +48,8 @@ async function main() {
 
   // Create a bucket for files
   await prisma.$executeRaw`
-    insert into storage.buckets (id, name, public, avif_autodetection, allowed_mime_types)
-    values('files', 'files', FALSE, FALSE, ARRAY ['application/pdf']);
+    insert into storage.buckets (id, name, public, avif_autodetection, allowed_mime_types, file_size_limit)
+    values('files', 'files', FALSE, FALSE, ARRAY ['application/pdf'], 20971520);
   `;
 
   // Create a policy that allows authenticated users to upload files to their own folder in the storage bucket.

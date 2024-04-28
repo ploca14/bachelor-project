@@ -9,9 +9,9 @@ export interface VectorStore {
   >;
 }
 
-const supabaseVectorStore = (supabaseClient: SupabaseClient): VectorStore => {
+const supabaseVectorStore = (supabase: SupabaseClient): VectorStore => {
   const getDocuments = async (fileIds: string[]) => {
-    const { data, error } = await supabaseClient
+    const { data, error } = await supabase
       .from("documents")
       .select("pageContent:content, metadata")
       .in("metadata->>file_id", fileIds);
