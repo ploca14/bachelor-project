@@ -1,5 +1,4 @@
 import { Runnable } from "@langchain/core/runnables";
-import type { Document } from "@langchain/core/documents";
 import type { RetrieverFactory } from "~/server/lib/langchain/retrieverFactory";
 import type { CondenseHistoryChain } from "~/server/lib/langchain/condenseHistoryChain";
 import type { TransformQueryChain } from "~/server/lib/langchain/transformQueryChain";

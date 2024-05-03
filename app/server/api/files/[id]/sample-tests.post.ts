@@ -18,6 +18,8 @@ export default defineEventHandler(async (event) => {
 
     const testId = await execute(id);
 
+    setResponseStatus(event, 202);
+
     return testId;
   } catch (error) {
     if (error instanceof UnauthorizedError || error instanceof NotFoundError) {

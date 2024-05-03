@@ -18,6 +18,8 @@ export default defineEventHandler(async (event) => {
 
     const flashcardDeckId = await execute(id);
 
+    setResponseStatus(event, 202);
+
     return flashcardDeckId;
   } catch (error) {
     if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
