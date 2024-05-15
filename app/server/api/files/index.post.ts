@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedBody } from "h3-zod";
-import { useProcessFileCommandHandler } from "~/server/handlers/processFileCommandHandler";
+import { useProcessFileCommandHandler } from "~/server/handlers/command/processFileCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 
 export default defineEventHandler(async (event) => {

@@ -5,7 +5,8 @@ export const textSplitter = (): TextSplitter => {
   const config = useRuntimeConfig();
 
   const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: config.chunkSize,
+    chunkSize: Number(config.chunkSize),
+    chunkOverlap: Number(config.chunkOverlap),
   });
 
   return splitter;

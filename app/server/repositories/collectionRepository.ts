@@ -1,7 +1,4 @@
-import {
-  usePrismaClient,
-  type ExtendedPrismaClient,
-} from "~/server/lib/prisma/client";
+import type { ExtendedPrismaClient } from "~/server/lib/prisma/client";
 import { Collection } from "~/server/domain/collection";
 import { collectionMapper } from "~/server/mappers/collectionMapper";
 import { transactional } from "~/server/utils/transactional";
@@ -94,6 +91,9 @@ export const prismaCollectionRepository = (
     remove,
   };
 };
+
+/* v8 ignore start */
+import { usePrismaClient } from "~/server/lib/prisma/client";
 
 export const useCollectionRepository = () => {
   const prisma = usePrismaClient();

@@ -1,18 +1,18 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useSampleTestQueryHandler } from "~/server/handlers/sampleTestQueryHandler";
+import { useSampleTestQueryHandler } from "~/server/handlers/query/sampleTestQueryHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export default defineEventHandler(async (event) => {
   try {
-    const securityService = useSecurityService();
+    const security = useSecurity();
 
     const { id } = await useValidatedParams(event, {
       id: z.coerce.string(),
     });
 
-    await securityService.checkSampleTestOwnership(id);
+    await security.checkSampleTestOwnership(id);
 
     const { execute } = useSampleTestQueryHandler();
 

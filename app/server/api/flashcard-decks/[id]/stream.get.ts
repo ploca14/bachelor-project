@@ -1,19 +1,19 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useFlashcardDeckStreamHandler } from "~/server/handlers/flashcardDeckStreamHandler";
+import { useFlashcardDeckStreamHandler } from "~/server/handlers/query/flashcardDeckStreamHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export default defineEventHandler(async (event) => {
   try {
     const eventStream = createEventStream(event);
-    const securityService = useSecurityService();
+    const security = useSecurity();
 
     const { id } = await useValidatedParams(event, {
       id: z.coerce.string(),
     });
 
-    await securityService.checkFlashcardDeckOwnership(id);
+    await security.checkFlashcardDeckOwnership(id);
 
     const { execute } = useFlashcardDeckStreamHandler();
 

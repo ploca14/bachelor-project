@@ -1,4 +1,4 @@
-import type { SecurityService } from "~/server/services/securityService";
+import type { Security } from "~/server/tools/security";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { NotFoundError } from "~/types/errors";
 
@@ -10,7 +10,7 @@ export interface ObjectRepository {
 const STORAGE_BUCKET = "files";
 
 export const supabaseObjectRepository = (
-  securityService: SecurityService,
+  security: Security,
   supabase: SupabaseClient,
 ): ObjectRepository => {
   const getObjectByName = async (name: string) => {
@@ -40,7 +40,7 @@ export const supabaseObjectRepository = (
   };
 
   const getObjectName = async (name: string) => {
-    const user = await securityService.getUser();
+    const user = await security.getUser();
 
     return `${user.id}/${name}`;
   };
@@ -50,12 +50,12 @@ export const supabaseObjectRepository = (
     remove,
   };
 };
-
-import { useSecurityService } from "~/server/services/securityService";
+/* v8 ignore start */
+import { useSecurity } from "~/server/tools/security";
 import { useSupabaseClient } from "~/server/lib/supabase/client";
 
 export const useObjectRepository = () => {
-  const securityService = useSecurityService();
+  const security = useSecurity();
   const supabase = useSupabaseClient();
-  return supabaseObjectRepository(securityService, supabase);
+  return supabaseObjectRepository(security, supabase);
 };

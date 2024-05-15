@@ -1,13 +1,11 @@
-import {
-  usePrismaClient,
-  type ExtendedPrismaClient,
-} from "~/server/lib/prisma/client";
+import type { ExtendedPrismaClient } from "~/server/lib/prisma/client";
 import { File } from "~/server/domain/file";
 import { fileMapper } from "~/server/mappers/fileMapper";
 import { NotFoundError } from "~/types/errors";
 
 export interface FileRepository {
   getFileById: (id: string) => Promise<File>;
+  exists: (id: string) => Promise<boolean>;
   save: (file: File) => Promise<File>;
   remove: (id: string) => Promise<void>;
 }
@@ -25,6 +23,12 @@ export const prismaFileRepository = (
     }
 
     return fileMapper.toDomain(result);
+  };
+
+  const exists = async (id: string) => {
+    const result = await prisma.file.findUnique({ where: { id } });
+
+    return result !== null;
   };
 
   const save = async (file: File) => {
@@ -49,10 +53,14 @@ export const prismaFileRepository = (
 
   return {
     getFileById,
+    exists,
     save,
     remove,
   };
 };
+
+/* v8 ignore start */
+import { usePrismaClient } from "~/server/lib/prisma/client";
 
 export const useFileRepository = () => {
   const prisma = usePrismaClient();

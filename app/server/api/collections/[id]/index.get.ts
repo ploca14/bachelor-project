@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useCollectionQueryHandler } from "~/server/handlers/collectionQueryHandler";
+import { useCollectionQueryHandler } from "~/server/handlers/query/collectionQueryHandler";
 import { UnauthorizedError, NotFoundError } from "@/types/errors";
 
 export default defineEventHandler(async (event) => {

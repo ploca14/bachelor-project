@@ -1,18 +1,18 @@
 import { z } from "zod";
-import { useValidatedBody, useValidatedParams } from "h3-zod";
-import { useDeleteSampleTestCommandHandler } from "~/server/handlers/deleteSampleTestCommandHandler";
+import { useValidatedParams } from "h3-zod";
+import { useDeleteSampleTestCommandHandler } from "~/server/handlers/command/deleteSampleTestCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export default defineEventHandler(async (event) => {
   try {
-    const securityService = useSecurityService();
+    const security = useSecurity();
 
     const { id } = await useValidatedParams(event, {
       id: z.string(),
     });
 
-    await securityService.checkSampleTestOwnership(id);
+    await security.checkSampleTestOwnership(id);
 
     const { execute } = useDeleteSampleTestCommandHandler();
 

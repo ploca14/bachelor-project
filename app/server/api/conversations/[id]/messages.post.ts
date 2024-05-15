@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedBody, useValidatedParams } from "h3-zod";
-import { useSendMessageToConversationCommandHandler } from "~/server/handlers/sendMessageToConversationCommandHandler";
+import { useSendMessageToConversationCommandHandler } from "~/server/handlers/command/sendMessageToConversationCommandHandler";
 import {
   UnauthorizedError,
   NotFoundError,

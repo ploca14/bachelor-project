@@ -18,7 +18,9 @@ export class Collection {
   }
 
   addFile(fileId: string) {
-    this._fileIds.push(fileId);
+    if (!this._fileIds.includes(fileId)) {
+      this._fileIds.push(fileId);
+    }
   }
 
   removeFile(fileId: string) {

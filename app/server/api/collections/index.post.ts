@@ -1,19 +1,19 @@
 import { z } from "zod";
 import { useValidatedBody } from "h3-zod";
-import { useCreateCollectionCommandHandler } from "~/server/handlers/createCollectionCommandHandler";
+import { useCreateCollectionCommandHandler } from "~/server/handlers/command/createCollectionCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
-import { useSecurityService } from "~/server/services/securityService";
+import { useSecurity } from "~/server/tools/security";
 
 export default defineEventHandler(async (event) => {
   try {
-    const securityService = useSecurityService();
+    const security = useSecurity();
 
     const { name, fileIds } = await useValidatedBody(event, {
       name: z.string(),
       fileIds: z.array(z.string()),
     });
 
-    await Promise.all(fileIds.map(securityService.checkFileOwnership));
+    await Promise.all(fileIds.map(security.checkFileOwnership));
 
     const { execute } = useCreateCollectionCommandHandler();
 

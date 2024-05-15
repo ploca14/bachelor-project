@@ -40,6 +40,7 @@ export const useQuestionStreamSubscription = (testId: string) => {
       await queryClient.invalidateQueries({
         queryKey: ["sample-tests", testId],
       });
+      isStreaming.value = false;
     }
   });
 

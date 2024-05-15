@@ -117,6 +117,7 @@ export const prismaSampleTestRepository = (
   };
 };
 
+/* v8 ignore start */
 import { usePrismaClient } from "~/server/lib/prisma/client";
 
 export const useSampleTestRepository = () => {

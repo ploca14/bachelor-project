@@ -112,13 +112,26 @@ const handleKeyEvent = (event: unknown, id: number, newId: number) => {
 
   // If the user is holding the shift key.
   if (event.shiftKey) {
-    // Select all files between the last selected file and the current file.
-    // const lastSelectedId = selectedIds.value[selectedIds.value.length - 1];
+    if (props.selectionMode === "single") return;
+
+    // Selects all files between the last selected file and the current file.
     const [start, end] = [id, newId].sort((a, b) => a - b);
     const newSelection = Array.from(
       { length: end - start + 1 },
       (_, i) => start + i,
     );
+
+    if (
+      selectedIds.value.length >= newSelection.length &&
+      newSelection.every((id) => selectedIds.value.includes(id))
+    ) {
+      return (selectedIds.value = [
+        ...selectedIds.value.filter(
+          (selectedId) => !newSelection.includes(selectedId),
+        ),
+        newId,
+      ]);
+    }
 
     return (selectedIds.value = [
       ...selectedIds.value,
@@ -128,12 +141,8 @@ const handleKeyEvent = (event: unknown, id: number, newId: number) => {
 };
 
 const handleCtrlA = () => {
-  // If all files are already selected, deselect all files.
-  if (selectedIds.value.length === props.items.length) {
-    return (selectedIds.value = []);
-  }
+  if (props.selectionMode === "single") return;
 
-  // Otherwise, select all files.
   selectedIds.value = Array.from({ length: props.items.length }, (_, i) => i);
 };
 
