@@ -6,6 +6,7 @@ import { useSecurity } from "~/server/tools/security";
 
 export default defineEventHandler(async (event) => {
   try {
+    setResponseStatus(event, 202);
     const security = useSecurity();
 
     const { id } = await useValidatedParams(event, {
@@ -17,10 +18,6 @@ export default defineEventHandler(async (event) => {
     const { execute } = useCreateFlashcardDeckForFileCommandHandler();
 
     const flashcardDeckId = await execute(id);
-
-    console.log(`Flashcard deck created for file:`, flashcardDeckId);
-
-    // setResponseStatus(event, 202);
 
     return flashcardDeckId;
   } catch (error) {

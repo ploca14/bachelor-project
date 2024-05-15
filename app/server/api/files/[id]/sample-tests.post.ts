@@ -6,6 +6,7 @@ import { useSecurity } from "~/server/tools/security";
 
 export default defineEventHandler(async (event) => {
   try {
+    setResponseStatus(event, 202);
     const security = useSecurity();
 
     const { id } = await useValidatedParams(event, {
@@ -17,8 +18,6 @@ export default defineEventHandler(async (event) => {
     const { execute } = useCreateSampleTestForFileCommandHandler();
 
     const testId = await execute(id);
-
-    setResponseStatus(event, 202);
 
     return testId;
   } catch (error) {
