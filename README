@@ -1,6 +1,6 @@
 # GPT-3 Powered Learning Tool
 
-This repository contains the source code for the implementation of the GPT-3 Powered Learning Tool, my bachelor thesis project. The project aims to create a learning support tool that uses the GPT-3 model to provide explanatory texts, practice test questions, or flashcards based on the context provided by the user's study materials.
+This repository contains the source code for the implementation of my bachelor thesis project, the GPT-3 Powered Learning Tool. The project aims to create a learning support tool that uses the GPT-3 model to provide explanatory texts, practice test questions, or flashcards based on the context provided by the user's study materials.
 
 # Installation
 
