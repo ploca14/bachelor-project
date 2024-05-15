@@ -1,4 +1,4 @@
-import { SampleTestQuery } from "~/server/queries/sampleTestQuery";
+import type { SampleTestQuery } from "~/server/queries/sampleTestQuery";
 import type { Security } from "~/server/tools/security";
 import type { SampleTestDTO } from "~/server/dto/sampleTestDto";
 
@@ -18,6 +18,7 @@ const sampleTestQueryHandler = (
 
   return { execute };
 };
+
 /* v8 ignore start */
 import { useSecurity } from "~/server/tools/security";
 import { useSampleTestQuery } from "~/server/queries/sampleTestQuery";

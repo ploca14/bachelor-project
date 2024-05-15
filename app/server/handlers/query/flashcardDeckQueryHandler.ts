@@ -1,4 +1,4 @@
-import { FlashcardDeckQuery } from "~/server/queries/flashcardDeckQuery";
+import type { FlashcardDeckQuery } from "~/server/queries/flashcardDeckQuery";
 import type { Security } from "~/server/tools/security";
 import type { FlashcardDeckDTO } from "~/server/dto/flashcardDeckDto";
 

@@ -1,4 +1,4 @@
-import { FlashcardDTO } from "./flashcardDto";
+import type { FlashcardDTO } from "./flashcardDto";
 
 export interface FlashcardDeckDTO {
   id: string;

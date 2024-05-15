@@ -1,5 +1,5 @@
 import type { Security } from "~/server/tools/security";
-import { FlashcardDecksQuery } from "~/server/queries/flashcardDecksQuery";
+import type { FlashcardDecksQuery } from "~/server/queries/flashcardDecksQuery";
 import type { FlashcardDeckListItemDTO } from "~/server/dto/flashcardDeckListItemDto";
 
 export interface FlashcardDecksQueryHandler {

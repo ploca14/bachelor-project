@@ -50,13 +50,15 @@
 </template>
 
 <script setup lang="ts">
+import type { DropdownItem } from "#ui/types";
+
 const props = defineProps<{
   id: string;
   originalName: string;
   createdAt: string;
   selected: boolean;
   active: boolean;
-  menu?: Array<object>;
+  menu?: Array<DropdownItem[]>;
 }>();
 
 const formatDate = (date: string) => {

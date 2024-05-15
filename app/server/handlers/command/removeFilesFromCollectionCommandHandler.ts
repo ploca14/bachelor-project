@@ -1,4 +1,4 @@
-import { CollectionRepository } from "~/server/repositories/collectionRepository";
+import type { CollectionRepository } from "~/server/repositories/collectionRepository";
 
 export interface RemoveFilesFromCollectionCommandHandler {
   execute: (collectionId: string, fileIds: string[]) => Promise<string>;

@@ -1,8 +1,7 @@
-import { SupabaseFilterRPCCall } from "@langchain/community/vectorstores/supabase";
 import { Conversation } from "~/server/domain/conversation";
 import { VectorStoreRetriever } from "@langchain/core/vectorstores";
+import type { SupabaseFilterRPCCall } from "@langchain/community/vectorstores/supabase";
 import type { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
-import type { MemoryVectorStore } from "langchain/vectorstores/memory";
 
 export interface RetrieverFactory {
   createForConversation: (

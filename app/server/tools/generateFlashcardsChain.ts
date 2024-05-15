@@ -3,8 +3,8 @@ import { Runnable, RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import type { BaseLanguageModel } from "@langchain/core/language_models/base";
 import type { Document } from "@langchain/core/documents";
+import type { DocumentBatcher } from "~/server/tools/documentBatcher";
 import { formatDocumentsAsString } from "langchain/util/document";
-import { DocumentBatcher } from "~/server/tools/documentBatcher";
 
 export type GenerateFlashcardsChain = Runnable<Document[], string[]>;
 

@@ -8,7 +8,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import type { BaseLanguageModel } from "@langchain/core/language_models/base";
 import { Document } from "@langchain/core/documents";
 import { formatDocumentsAsString } from "langchain/util/document";
-import { DocumentBatcher } from "~/server/tools/documentBatcher";
+import type { DocumentBatcher } from "~/server/tools/documentBatcher";
 import { collapseDocs } from "langchain/chains/combine_documents/reduce";
 
 export type GenerateQuestionsChain = Runnable<Document[], string>;

@@ -46,7 +46,7 @@ const menu = [
       label: "Generate flashcards",
       icon: "i-heroicons-rectangle-stack",
       click() {
-        createFlashcardDeck([props.id], {
+        createFlashcardDeck(props.id, {
           onSuccess(flashcardDeckId) {
             navigateTo(`/flashcards/${flashcardDeckId}`);
           },

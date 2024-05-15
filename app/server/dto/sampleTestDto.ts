@@ -1,4 +1,4 @@
-import { QuestionDTO } from "./questionDto";
+import type { QuestionDTO } from "./questionDto";
 
 export interface SampleTestDTO {
   id: string;
