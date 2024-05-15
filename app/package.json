@@ -51,6 +51,7 @@
     "@tanstack/vue-query": "^5.24.1",
     "@transactional/core": "^1.2.0",
     "@transactional/prisma": "^1.1.0",
+    "@vueuse/core": "^10.9.0",
     "@vueuse/nuxt": "^10.8.0",
     "ai": "2.2.35",
     "h3-zod": "^0.5.3",
