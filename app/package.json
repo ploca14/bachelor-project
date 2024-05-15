@@ -7,7 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "postinstall": "nuxt prepare && prisma generate",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
@@ -42,8 +42,8 @@
     "@formkit/auto-animate": "^0.8.1",
     "@headlessui/vue": "^1.7.19",
     "@heroicons/vue": "^2.1.1",
-    "@langchain/community": "^0.0.34",
-    "@langchain/openai": "^0.0.15",
+    "@langchain/community": "0.0.57",
+    "@langchain/openai": "0.0.30",
     "@nuxt/ui": "^2.14.2",
     "@prisma/client": "5.10.2",
     "@supabase/ssr": "^0.1.0",
@@ -55,8 +55,8 @@
     "ai": "2.2.35",
     "h3-zod": "^0.5.3",
     "kysely": "^0.27.2",
-    "langchain": "^0.1.25",
-    "langsmith": "^0.1.13",
+    "langchain": "0.1.25",
+    "langsmith": "0.1.25",
     "partial-json": "^0.1.6",
     "pdf-parse": "^1.1.1",
     "pg": "^8.11.3",
@@ -64,10 +64,5 @@
     "slugify": "^1.6.6",
     "tus-js-client": "^3.1.3",
     "zod": "^3.22.4"
-  },
-  "pnpm": {
-    "overrides": {
-      "@langchain/core": "0.1.40"
-    }
   }
 }

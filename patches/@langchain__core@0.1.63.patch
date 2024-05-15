@@ -1,0 +1,35 @@
+diff --git a/dist/utils/testing/index.js b/dist/utils/testing/index.js
+index 5a2ddfcc3606b7f038e005d1c6563c303452f5db..0ca3228dd9a0cfe2ff6422ad680a05f3d4895f3a 100644
+--- a/dist/utils/testing/index.js
++++ b/dist/utils/testing/index.js
+@@ -289,8 +289,8 @@ export class FakeListChatModel extends BaseChatModel {
+     static lc_name() {
+         return "FakeListChatModel";
+     }
+-    constructor({ responses, sleep }) {
+-        super({});
++    constructor({ responses, sleep, callbacks }) {
++        super({ callbacks });
+         Object.defineProperty(this, "responses", {
+             enumerable: true,
+             configurable: true,
+@@ -318,7 +318,7 @@ export class FakeListChatModel extends BaseChatModel {
+     _llmType() {
+         return "fake-list";
+     }
+-    async _generate(_messages, options) {
++    async _generate(_messages, options, runManager) {
+         await this._sleepIfRequested();
+         if (options?.stop?.length) {
+             return {
+@@ -328,6 +328,10 @@ export class FakeListChatModel extends BaseChatModel {
+         else {
+             const response = this._currentResponse();
+             this._incrementResponse();
++            for await (const text of response) {
++                await this._sleepIfRequested();
++                void runManager?.handleLLMNewToken(text);
++              }
+             return {
+                 generations: [this._formatGeneration(response)],
+                 llmOutput: {},
