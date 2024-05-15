@@ -18,7 +18,9 @@ export default defineEventHandler(async (event) => {
 
     const flashcardDeckId = await execute(id);
 
-    setResponseStatus(event, 202);
+    console.log(`Flashcard deck created for file:`, flashcardDeckId);
+
+    // setResponseStatus(event, 202);
 
     return flashcardDeckId;
   } catch (error) {
