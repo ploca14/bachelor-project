@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useFlashcardDeckQueryHandler } from "~/server/handlers/flashcardDeckQueryHandler";
+import { useFlashcardDeckQueryHandler } from "~/server/handlers/query/flashcardDeckQueryHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 

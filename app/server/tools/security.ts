@@ -131,7 +131,7 @@ const supabaseSecurity = (
     checkCollectionOwnership,
   };
 };
-
+/* v8 ignore start */
 import { useConversationRepository } from "~/server/repositories/conversationRepository";
 import { useFileRepository } from "~/server/repositories/fileRepository";
 import { useFlashcardDeckRepository } from "~/server/repositories/flashcardDeckRepository";

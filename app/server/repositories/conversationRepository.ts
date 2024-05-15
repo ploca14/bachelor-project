@@ -1,7 +1,4 @@
-import {
-  usePrismaClient,
-  type ExtendedPrismaClient,
-} from "~/server/lib/prisma/client";
+import type { ExtendedPrismaClient } from "~/server/lib/prisma/client";
 import { Conversation } from "~/server/domain/conversation";
 import { conversationMapper } from "~/server/mappers/conversationMapper";
 import { Message } from "~/server/domain/message";
@@ -122,6 +119,9 @@ export const prismaConversationRepository = (
     remove,
   };
 };
+
+/* v8 ignore start */
+import { usePrismaClient } from "~/server/lib/prisma/client";
 
 export const useConversationRepository = () => {
   const prisma = usePrismaClient();

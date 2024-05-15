@@ -29,6 +29,7 @@ const fileService = (): FileService => {
   };
 };
 
+/* v8 ignore start */
 export const useFileService = () => {
   return fileService();
 };

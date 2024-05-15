@@ -2,7 +2,7 @@ import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
-import { useSampleTestStreamHandler } from "~/server/handlers/sampleTestStreamHandler";
+import { useSampleTestStreamHandler } from "~/server/handlers/query/sampleTestStreamHandler";
 
 export default defineEventHandler(async (event) => {
   try {

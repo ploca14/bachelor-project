@@ -33,6 +33,7 @@ export const collectionQuery = (kysely: KyselyClient): CollectionQuery => {
   };
 };
 
+/* v8 ignore start */
 import { useKyselyClient } from "~/server/lib/kysely/client";
 
 export const useCollectionQuery = () => {

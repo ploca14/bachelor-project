@@ -1,5 +1,5 @@
 import type { Conversation } from "~/server/domain/conversation";
-import type { ConversationalRetrievalChain } from "~/server/lib/langchain/conversationalRetrievalChain";
+import type { ConversationalRetrievalChain } from "~/server/tools/conversationalRetrievalChain";
 
 interface Callbacks {
   onProgress: (chunk: string) => Promise<void>;
@@ -43,7 +43,8 @@ export const langchainAnswerGenerator = (
   };
 };
 
-import { useConversationalRetrievalChain } from "~/server/lib/langchain/conversationalRetrievalChain";
+/* v8 ignore start */
+import { useConversationalRetrievalChain } from "~/server/tools/conversationalRetrievalChain";
 
 export const useAnswerGenerator = () => {
   const conversationalRetrievalChain = useConversationalRetrievalChain();

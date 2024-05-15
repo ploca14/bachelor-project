@@ -26,6 +26,7 @@ const filesQuery = (kysely: KyselyClient): FilesQuery => {
   return { execute };
 };
 
+/* v8 ignore start */
 import { useKyselyClient } from "~/server/lib/kysely/client";
 
 export const useFilesQuery = () => {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedBody, useValidatedParams } from "h3-zod";
-import { useRemoveFilesFromCollectionCommandHandler } from "~/server/handlers/removeFilesFromCollectionCommandHandler";
+import { useRemoveFilesFromCollectionCommandHandler } from "~/server/handlers/command/removeFilesFromCollectionCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 

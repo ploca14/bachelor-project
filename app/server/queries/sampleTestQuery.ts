@@ -31,6 +31,7 @@ const sampleTestQuery = (kysely: KyselyClient): SampleTestQuery => {
   return { execute };
 };
 
+/* v8 ignore start */
 import { useKyselyClient } from "~/server/lib/kysely/client";
 
 export const useSampleTestQuery = () => {

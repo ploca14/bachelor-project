@@ -25,7 +25,7 @@ const supabaseVectorStore = (supabase: SupabaseClient): VectorStore => {
 
   return { getDocuments };
 };
-
+/* v8 ignore start */
 import { useSupabaseClient } from "~/server/lib/supabase/client";
 
 export const useVectorStore = () => {

@@ -1,6 +1,6 @@
 import type { FlashcardDeck } from "~/server/domain/flashcardDeck";
 import type { VectorStore } from "~/server/tools/vectorStore";
-import type { GenerateFlashcardsChain } from "~/server/lib/langchain/generateFlashcardsChain";
+import type { GenerateFlashcardsChain } from "~/server/tools/generateFlashcardsChain";
 import { parsePartialJsonMarkdown } from "~/server/utils/parseJsonMarkdown";
 
 import { z } from "zod";
@@ -82,9 +82,9 @@ export const langchainFlashcardGenerator = (
     generateFlashcards,
   };
 };
-
+/* v8 ignore start */
 import { useVectorStore } from "~/server/tools/vectorStore";
-import { useGenerateFlashcardsChain } from "~/server/lib/langchain/generateFlashcardsChain";
+import { useGenerateFlashcardsChain } from "~/server/tools/generateFlashcardsChain";
 
 export const useFlashcardGenerator = () => {
   const vectorStore = useVectorStore();

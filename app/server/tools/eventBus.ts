@@ -86,6 +86,7 @@ export const eventEmitterEventBus = (eventEmitter: EventEmitter): EventBus => {
 //   return { publish, subscribe };
 // };
 
+/* v8 ignore start */
 export const useEventBus = singletonScope(() => {
   const eventEmitter = new EventEmitter();
   return eventEmitterEventBus(eventEmitter);

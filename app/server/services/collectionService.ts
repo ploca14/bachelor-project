@@ -49,6 +49,7 @@ const collectionService = (): CollectionService => {
   };
 };
 
+/* v8 ignore start */
 export const useCollectionService = () => {
   return collectionService();
 };

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useCreateSampleTestForCollectionCommandHandler } from "~/server/handlers/createSampleTestForCollectionCommandHandler";
+import { useCreateSampleTestForCollectionCommandHandler } from "~/server/handlers/command/createSampleTestForCollectionCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 

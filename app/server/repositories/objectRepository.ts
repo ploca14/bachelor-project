@@ -50,7 +50,7 @@ export const supabaseObjectRepository = (
     remove,
   };
 };
-
+/* v8 ignore start */
 import { useSecurity } from "~/server/tools/security";
 import { useSupabaseClient } from "~/server/lib/supabase/client";
 

@@ -31,6 +31,7 @@ const flashcardDeckQuery = (kysely: KyselyClient): FlashcardDeckQuery => {
   return { execute };
 };
 
+/* v8 ignore start */
 import { useKyselyClient } from "~/server/lib/kysely/client";
 
 export const useFlashcardDeckQuery = () => {

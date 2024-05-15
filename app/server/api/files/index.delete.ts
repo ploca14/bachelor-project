@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedBody } from "h3-zod";
-import { useDeleteFileCommandHandler } from "~/server/handlers/deleteFileCommandHandler";
+import { useDeleteFileCommandHandler } from "~/server/handlers/command/deleteFileCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams, useValidatedBody } from "h3-zod";
-import { useRenameCollectionCommandHandler } from "~/server/handlers/renameCollectionCommandHandler";
+import { useRenameCollectionCommandHandler } from "~/server/handlers/command/renameCollectionCommandHandler";
 import { UnauthorizedError, NotFoundError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 

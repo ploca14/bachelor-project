@@ -1,7 +1,4 @@
-import {
-  usePrismaClient,
-  type ExtendedPrismaClient,
-} from "~/server/lib/prisma/client";
+import type { ExtendedPrismaClient } from "~/server/lib/prisma/client";
 import { File } from "~/server/domain/file";
 import { fileMapper } from "~/server/mappers/fileMapper";
 import { NotFoundError } from "~/types/errors";
@@ -61,6 +58,9 @@ export const prismaFileRepository = (
     remove,
   };
 };
+
+/* v8 ignore start */
+import { usePrismaClient } from "~/server/lib/prisma/client";
 
 export const useFileRepository = () => {
   const prisma = usePrismaClient();

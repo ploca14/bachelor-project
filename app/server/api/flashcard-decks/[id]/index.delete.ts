@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useDeleteFlashcardDeckCommandHandler } from "~/server/handlers/deleteFlashcardDeckCommandHandler";
+import { useDeleteFlashcardDeckCommandHandler } from "~/server/handlers/command/deleteFlashcardDeckCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 

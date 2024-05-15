@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useSampleTestQueryHandler } from "~/server/handlers/sampleTestQueryHandler";
+import { useSampleTestQueryHandler } from "~/server/handlers/query/sampleTestQueryHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 

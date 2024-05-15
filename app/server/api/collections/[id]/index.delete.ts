@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useDeleteCollectionCommandHandler } from "~/server/handlers/deleteCollectionCommandHandler";
+import { useDeleteCollectionCommandHandler } from "~/server/handlers/command/deleteCollectionCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 

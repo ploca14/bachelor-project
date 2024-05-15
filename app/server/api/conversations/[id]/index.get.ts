@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useConversationQueryHandler } from "~/server/handlers/conversationQueryHandler";
+import { useConversationQueryHandler } from "~/server/handlers/query/conversationQueryHandler";
 import { UnauthorizedError, NotFoundError } from "@/types/errors";
 
 export default defineEventHandler(async (event) => {

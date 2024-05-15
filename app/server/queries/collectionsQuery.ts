@@ -27,6 +27,7 @@ export const collectionsQuery = (kysely: KyselyClient): CollectionsQuery => {
   };
 };
 
+/* v8 ignore start */
 import { useKyselyClient } from "~/server/lib/kysely/client";
 
 export const useCollectionsQuery = () => {

@@ -1,6 +1,6 @@
 import type { SampleTest } from "~/server/domain/sampleTest";
 import type { VectorStore } from "~/server/tools/vectorStore";
-import type { GenerateQuestionsChain } from "~/server/lib/langchain/generateQuestionsChain";
+import type { GenerateQuestionsChain } from "~/server/tools/generateQuestionsChain";
 import { parsePartialJsonMarkdown } from "~/server/utils/parseJsonMarkdown";
 import { z } from "zod";
 
@@ -70,9 +70,9 @@ export const langchainQuestionGenerator = (
     generateQuestions,
   };
 };
-
+/* v8 ignore start */
 import { useVectorStore } from "~/server/tools/vectorStore";
-import { useGenerateQuestionsChain } from "~/server/lib/langchain/generateQuestionsChain";
+import { useGenerateQuestionsChain } from "~/server/tools/generateQuestionsChain";
 
 export const useQuestionGenerator = () => {
   const vectorStore = useVectorStore();

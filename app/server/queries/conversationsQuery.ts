@@ -39,6 +39,7 @@ const conversationsQuery = (kysely: KyselyClient): ConversationsQuery => {
   return { execute };
 };
 
+/* v8 ignore start */
 import { useKyselyClient } from "~/server/lib/kysely/client";
 
 export const useConversationsQuery = () => {

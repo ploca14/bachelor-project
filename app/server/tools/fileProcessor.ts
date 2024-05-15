@@ -37,9 +37,9 @@ export const langchainFileProcessor = (
 
   return { processFile };
 };
-
+/* v8 ignore start */
 import { useTextSplitter } from "~/server/lib/langchain/textSplitter";
-import { useVectorStore } from "~/server/lib/langchain/vectorStore";
+import { useVectorStore } from "~/server/tools/vectorStore";
 import { useLoaderFactory } from "~/server/lib/langchain/loaderFactory";
 
 export const useFileProcessor = () => {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedBody } from "h3-zod";
-import { useCreateCollectionCommandHandler } from "~/server/handlers/createCollectionCommandHandler";
+import { useCreateCollectionCommandHandler } from "~/server/handlers/command/createCollectionCommandHandler";
 import { NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useValidatedParams } from "h3-zod";
-import { useCreateConversationForCollectionCommandHandler } from "~/server/handlers/createConversationForCollectionCommandHandler";
+import { useCreateConversationForCollectionCommandHandler } from "~/server/handlers/command/createConversationForCollectionCommandHandler";
 import { NoFilesError, NotFoundError, UnauthorizedError } from "~/types/errors";
 import { useSecurity } from "~/server/tools/security";
 
